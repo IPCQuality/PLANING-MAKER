@@ -11,9 +11,15 @@
 
   <header class="top-nav">
     <div class="brand">
-      <h2>🏭 CQI PLANNER (BASED ON LINE BLOCK)</h2>
-      <span class="badge">V3.5</span>
+      <h2>🏭 CQI PLANNER (LINE-BASED)</h2>
+      <span class="badge">V4.0</span>
     </div>
+    
+    <div class="import-section" style="display: flex; gap: 0.5rem; align-items: center;">
+      <input type="file" id="input-excel" accept=".xlsx, .xls, .csv" style="display: none;">
+      <button id="btn-import-excel" class="btn btn-secondary">📂 Import Excel Layout</button>
+    </div>
+
     <div class="wizard-steps">
       <div id="step-1" class="step active">1. Mapping & Status Mesin</div>
       <div id="step-2" class="step">2. Edit Planning per Line</div>
@@ -35,7 +41,7 @@
     </div>
 
     <div class="stats-row">
-      <div class="stat-item">Total Mesin: <strong id="stat-m-total">101</strong></div>
+      <div class="stat-item">Total Mesin: <strong id="stat-m-total">0</strong></div>
       <div class="stat-item running">Running: <strong id="stat-m-run">0</strong></div>
       <div class="stat-item stop">Stop: <strong id="stat-m-stop">0</strong></div>
       <div class="stat-item cqi">CQI Aktif: <strong id="stat-cqi-active">0</strong></div>
@@ -50,7 +56,7 @@
     <div class="page-header">
       <div>
         <h3>Fine-Tuning Hasil Pembagian Kerja per Line</h3>
-        <p>Sistem membagi mesin secara merata ke CQI terdekat di jalurnya. Anda bisa memindahkan antar-CQI bila diperlukan.</p>
+        <p>Sistem membagi mesin ke CQI terdekat di blok jalurnya. Anda bisa memindahkan antar-CQI bila diperlukan.</p>
       </div>
       <div class="header-actions">
         <button id="btn-back-to-mapping" class="btn btn-secondary">⬅️ Kembali ke Mapping</button>
