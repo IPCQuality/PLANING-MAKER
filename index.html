@@ -1,54 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CQI Smart Auto-Planning System</title>
+  <title>CQI Smart Planner - 3-Step Wizard</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>CQI PLANNER DASHBOARD</h1>
-    <div class="actions">
-      <button id="btn-auto-plan" class="btn btn-primary">⚡ AUTO PLANNING</button>
-      <button id="btn-export" class="btn btn-success">📊 Export Excel</button>
-      <span id="sync-status" class="status-cloud">☁️ Connected</span>
+
+  <header class="top-nav">
+    <div class="brand">
+      <h2>🏭 CQI SMART PLANNER</h2>
+      <span class="badge">PROD V3.0</span>
     </div>
+    <div class="wizard-steps">
+      <div id="step-1" class="step active">1. Mapping & Status</div>
+      <div id="step-2" class="step">2. Edit Planning</div>
+      <div id="step-3" class="step">3. Share & Export</div>
+    </div>
+    <div class="cloud-status" id="cloud-status">☁️ GitHub Synced</div>
   </header>
 
-  <section class="stats-container">
-    <div class="stat-card"><h5>Total Mesin</h5><p id="stat-total-m">0</p></div>
-    <div class="stat-card running"><h5>Mesin Running</h5><p id="stat-run-m">0</p></div>
-    <div class="stat-card stop"><h5>Mesin Stop</h5><p id="stat-stop-m">0</p></div>
-    <div class="stat-card item-idle"><h5>Belum Dipilih</h5><p id="stat-idle-m">0</p></div>
-    <div class="stat-card"><h5>Total CQI</h5><p id="stat-total-cqi">0</p></div>
-    <div class="stat-card active-cqi"><h5>CQI Aktif</h5><p id="stat-active-cqi">0</p></div>
-    <div class="stat-card allocated"><h5>Allocated</h5><p id="stat-alloc-m">0</p></div>
-    <div class="stat-card unallocated"><h5>Unallocated</h5><p id="stat-unalloc-m">0</p></div>
-  </section>
-
-  <section class="filter-bar">
-    <input type="text" id="search-machine" placeholder="🔍 Cari Mesin...">
-    <select id="filter-area">
-      <option value="">Semua Area</option>
-      <option value="AST">Area AST</option>
-      <option value="ARPM">Area ARPM</option>
-    </select>
-  </section>
-
-  <main class="workspace">
-    <div class="grid-wrapper">
-      <div id="factory-floor" class="factory-grid"></div>
+  <section id="page-mapping" class="page-view active">
+    <div class="page-header">
+      <div>
+        <h3>Peta Full Mapping Mesin & CQI</h3>
+        <p>Klik Mesin untuk mengubah status (Hijau: Running, Merah: Stop). Klik CQI untuk Aktif/Nonaktif.</p>
+      </div>
+      <div class="header-actions">
+        <button id="btn-run-all" class="btn btn-secondary">🟢 Semua Running</button>
+        <button id="btn-active-all" class="btn btn-secondary">👤 Semua CQI Aktif</button>
+        <button id="btn-next-to-edit" class="btn btn-primary">⚡ JALANKAN AUTO PLANNING ➔</button>
+      </div>
     </div>
 
-    <aside id="detail-panel" class="detail-panel hidden">
-      <h3>Detail Target</h3>
-      <div id="detail-content"></div>
-      <button id="btn-close-panel" class="btn btn-secondary">Tutup</button>
-    </aside>
-  </main>
+    <div class="stats-row">
+      <div class="stat-item">Total Mesin: <strong id="stat-m-total">101</strong></div>
+      <div class="stat-item running">Running: <strong id="stat-m-run">0</strong></div>
+      <div class="stat-item stop">Stop: <strong id="stat-m-stop">0</strong></div>
+      <div class="stat-item cqi">CQI Aktif: <strong id="stat-cqi-active">0</strong> / 24</div>
+    </div>
 
-  <script type="module" src="src/app.js"></script>
+    <div class="grid-container">
+      <div id="factory-floor" class="factory-grid"></div>
+    </div>
+  </section>
+
+  <section id="page-editor" class="page-view">
+    <div class="page-header">
+      <div>
+        <h3>Edit & Sesuaikan Hasil Planning</h3>
+        <p>Periksa pembagian mesin setiap CQI. Anda dapat memindahkan mesin secara manual jika diperlukan.</p>
+      </div>
+      <div class="header-actions">
+        <button id="btn-back-to-mapping" class="btn btn-secondary">⬅️ Kembali ke Mapping</button>
+        <button id="btn-next-to-share" class="btn btn-success">✅ SELESAI & BAGIKAN HASIL ➔</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">Mesin Dialokasikan: <strong id="stat-allocated">0</strong></div>
+      <div class="stat-item warn">Mesin Belum Dialokasikan: <strong id="stat-unallocated">0</strong></div>
+    </div>
+
+    <div id="cqi-editor-grid" class="cqi-cards-container"></div>
+  </section>
+
+  <section id="page-share" class="page-view">
+    <div class="page-header">
+      <div>
+        <h3>Bagikan Laporan ke Grup WhatsApp</h3>
+        <p>Planning harian siap dikirim ke grup WhatsApp atau diekspor ke format Excel.</p>
+      </div>
+      <div class="header-actions">
+        <button id="btn-back-to-editor" class="btn btn-secondary">⬅️ Kembali Edit</button>
+        <button id="btn-export-excel" class="btn btn-success">📊 Export Excel (.xlsx)</button>
+      </div>
+    </div>
+
+    <div class="share-container">
+      <div class="share-actions">
+        <button id="btn-share-wa" class="btn btn-wa">💬 SHARE LANGSUNG KE WHATSAPP</button>
+        <button id="btn-copy-wa" class="btn btn-primary">📋 SALIN TEKS (COPY CLIPBOARD)</button>
+      </div>
+      <div class="text-preview-box">
+        <label>Preview Laporan Teks WhatsApp:</label>
+        <textarea id="wa-text-preview" readonly rows="22"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
