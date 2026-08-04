@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CQI Smart Planner - 3-Step Wizard</title>
+  <title>CQI Smart Planner - Line-Based System</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -11,26 +11,25 @@
 
   <header class="top-nav">
     <div class="brand">
-      <h2>🏭 CQI SMART PLANNER</h2>
-      <span class="badge">PROD V3.0</span>
+      <h2>🏭 CQI PLANNER (BASED ON LINE BLOCK)</h2>
+      <span class="badge">V3.5</span>
     </div>
     <div class="wizard-steps">
-      <div id="step-1" class="step active">1. Mapping & Status</div>
-      <div id="step-2" class="step">2. Edit Planning</div>
-      <div id="step-3" class="step">3. Share & Export</div>
+      <div id="step-1" class="step active">1. Mapping & Status Mesin</div>
+      <div id="step-2" class="step">2. Edit Planning per Line</div>
+      <div id="step-3" class="step">3. Share WhatsApp & Copy</div>
     </div>
-    <div class="cloud-status" id="cloud-status">☁️ GitHub Synced</div>
+    <div class="cloud-status" id="cloud-status">☁️ Standalone Client</div>
   </header>
 
   <section id="page-mapping" class="page-view active">
     <div class="page-header">
       <div>
-        <h3>Peta Full Mapping Mesin & CQI</h3>
-        <p>Klik Mesin untuk mengubah status (Hijau: Running, Merah: Stop). Klik CQI untuk Aktif/Nonaktif.</p>
+        <h3>Tentukan Status Operasional Mesin & CQI</h3>
+        <p>Klik Mesin: Abu (Belum dipilih) ➔ Hijau (Running) ➔ Merah (Stop). Klik CQI untuk mengaktifkan/nonaktifkan.</p>
       </div>
       <div class="header-actions">
-        <button id="btn-run-all" class="btn btn-secondary">🟢 Semua Running</button>
-        <button id="btn-active-all" class="btn btn-secondary">👤 Semua CQI Aktif</button>
+        <button id="btn-run-all" class="btn btn-secondary">🟢 Set Semua Running</button>
         <button id="btn-next-to-edit" class="btn btn-primary">⚡ JALANKAN AUTO PLANNING ➔</button>
       </div>
     </div>
@@ -39,7 +38,7 @@
       <div class="stat-item">Total Mesin: <strong id="stat-m-total">101</strong></div>
       <div class="stat-item running">Running: <strong id="stat-m-run">0</strong></div>
       <div class="stat-item stop">Stop: <strong id="stat-m-stop">0</strong></div>
-      <div class="stat-item cqi">CQI Aktif: <strong id="stat-cqi-active">0</strong> / 24</div>
+      <div class="stat-item cqi">CQI Aktif: <strong id="stat-cqi-active">0</strong></div>
     </div>
 
     <div class="grid-container">
@@ -50,18 +49,18 @@
   <section id="page-editor" class="page-view">
     <div class="page-header">
       <div>
-        <h3>Edit & Sesuaikan Hasil Planning</h3>
-        <p>Periksa pembagian mesin setiap CQI. Anda dapat memindahkan mesin secara manual jika diperlukan.</p>
+        <h3>Fine-Tuning Hasil Pembagian Kerja per Line</h3>
+        <p>Sistem membagi mesin secara merata ke CQI terdekat di jalurnya. Anda bisa memindahkan antar-CQI bila diperlukan.</p>
       </div>
       <div class="header-actions">
         <button id="btn-back-to-mapping" class="btn btn-secondary">⬅️ Kembali ke Mapping</button>
-        <button id="btn-next-to-share" class="btn btn-success">✅ SELESAI & BAGIKAN HASIL ➔</button>
+        <button id="btn-next-to-share" class="btn btn-success">✅ SELESAI & LANJUT ➔</button>
       </div>
     </div>
 
     <div class="stats-row">
-      <div class="stat-item">Mesin Dialokasikan: <strong id="stat-allocated">0</strong></div>
-      <div class="stat-item warn">Mesin Belum Dialokasikan: <strong id="stat-unallocated">0</strong></div>
+      <div class="stat-item">Total Alokasi: <strong id="stat-allocated">0</strong> Mesin</div>
+      <div class="stat-item warn">Sisa Belum Terbagi: <strong id="stat-unallocated">0</strong></div>
     </div>
 
     <div id="cqi-editor-grid" class="cqi-cards-container"></div>
@@ -70,23 +69,23 @@
   <section id="page-share" class="page-view">
     <div class="page-header">
       <div>
-        <h3>Bagikan Laporan ke Grup WhatsApp</h3>
-        <p>Planning harian siap dikirim ke grup WhatsApp atau diekspor ke format Excel.</p>
+        <h3>Kirim Laporan Planning ke Grup WhatsApp</h3>
+        <p>Format pesan teks otomatis telah disesuaikan agar rapi saat dibaca di HP/WhatsApp.</p>
       </div>
       <div class="header-actions">
         <button id="btn-back-to-editor" class="btn btn-secondary">⬅️ Kembali Edit</button>
-        <button id="btn-export-excel" class="btn btn-success">📊 Export Excel (.xlsx)</button>
+        <button id="btn-export-excel" class="btn btn-success">📊 Download Excel (.xlsx)</button>
       </div>
     </div>
 
     <div class="share-container">
       <div class="share-actions">
-        <button id="btn-share-wa" class="btn btn-wa">💬 SHARE LANGSUNG KE WHATSAPP</button>
-        <button id="btn-copy-wa" class="btn btn-primary">📋 SALIN TEKS (COPY CLIPBOARD)</button>
+        <button id="btn-share-wa" class="btn btn-wa">💬 KIRIM LANGSUNG KE WHATSAPP GROUP</button>
+        <button id="btn-copy-wa" class="btn btn-primary">📋 SALIN FORMAT TEKS (COPY)</button>
       </div>
       <div class="text-preview-box">
-        <label>Preview Laporan Teks WhatsApp:</label>
-        <textarea id="wa-text-preview" readonly rows="22"></textarea>
+        <label>Preview Format Pesan:</label>
+        <textarea id="wa-text-preview" readonly></textarea>
       </div>
     </div>
   </section>
