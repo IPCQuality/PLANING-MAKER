@@ -1,69 +1,102 @@
 // ==========================================================================
-// DATA KOORDINAT DAN PENGELOMPOKAN BERDASARKAN LINE MERAH PADA EXCEL
+// 1. DATA DEFAULT AWAL (Akan tertimpa otomatis saat Anda Import Excel)
 // ==========================================================================
-const FACTORY_DATA = {
-  // Koordinat CQI
+let FACTORY_DATA = {
   cqis: [
     { id: "CQI 1", x: 8, y: 5, lineBlock: "LINE-ATAS" },
     { id: "CQI 2", x: 10, y: 5, lineBlock: "LINE-ATAS" },
     { id: "CQI 3", x: 12, y: 5, lineBlock: "LINE-ATAS" },
     { id: "CQI 4", x: 14, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 5", x: 16, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 6", x: 18, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 7", x: 20, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 8", x: 22, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 9", x: 24, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 10", x: 26, y: 5, lineBlock: "LINE-ATAS" },
-    { id: "CQI 19", x: 42, y: 8, lineBlock: "LINE-ATAS" },
-    
-    // Pembatas Jalur Merah Excel berada di sekitar baris y:24-26
     { id: "CQI 11", x: 8, y: 30, lineBlock: "LINE-BAWAH" },
     { id: "CQI 21", x: 10, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 14", x: 20, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 15", x: 24, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 16", x: 28, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 17", x: 32, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 13", x: 10, y: 34, lineBlock: "LINE-BAWAH" },
-    { id: "CQI 23", x: 20, y: 42, lineBlock: "LINE-BAWAH" }
+    { id: "CQI 14", x: 20, y: 30, lineBlock: "LINE-BAWAH" }
   ],
-
-  // Koordinat Mesin terpetakan berdasarkan letak blok garis jalur merah
   machines: [
-    // Blok Jalur Atas
     { id: "61-16L", x: 8, y: 8, lineBlock: "LINE-ATAS" },
     { id: "68-16L", x: 10, y: 8, lineBlock: "LINE-ATAS" },
     { id: "60-16L", x: 12, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "65-16L", x: 14, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "12-16L", x: 16, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "11-16L", x: 18, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "4-16L", x: 20, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "2-16L", x: 22, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "17-16L", x: 24, y: 8, lineBlock: "LINE-ATAS" },
-    { id: "14-12L", x: 4, y: 12, lineBlock: "LINE-ATAS" },
-    { id: "44-16L", x: 9, y: 12, lineBlock: "LINE-ATAS" },
-    { id: "67-16L", x: 11, y: 12, lineBlock: "LINE-ATAS" },
-    { id: "21-16L", x: 13, y: 12, lineBlock: "LINE-ATAS" },
-    { id: "28-16L", x: 15, y: 12, lineBlock: "LINE-ATAS" },
-    { id: "10-16L", x: 17, y: 12, lineBlock: "LINE-ATAS" },
-
-    // Blok Jalur Bawah
     { id: "41-16L", x: 7, y: 31, lineBlock: "LINE-BAWAH" },
     { id: "46-16L", x: 9, y: 31, lineBlock: "LINE-BAWAH" },
-    { id: "53-16L", x: 11, y: 31, lineBlock: "LINE-BAWAH" },
-    { id: "47-16L", x: 7, y: 35, lineBlock: "LINE-BAWAH" },
-    { id: "45-16L", x: 9, y: 35, lineBlock: "LINE-BAWAH" },
-    { id: "52-16L", x: 11, y: 35, lineBlock: "LINE-BAWAH" },
-    { id: "ARPM 45", x: 14, y: 30, lineBlock: "LINE-BAWAH" },
-    { id: "ARPM 46", x: 14, y: 34, lineBlock: "LINE-BAWAH" },
-    { id: "ARPM 12", x: 24, y: 34, lineBlock: "LINE-BAWAH" },
-    { id: "ARPM 40", x: 39, y: 39, lineBlock: "LINE-BAWAH" },
-    { id: "ARPM 19", x: 41, y: 39, lineBlock: "LINE-BAWAH" }
+    { id: "ARPM 45", x: 14, y: 30, lineBlock: "LINE-BAWAH" }
   ],
-
-  // Penanda letak garis pemisah (merah) secara visual di baris grid ke-24
   dividerRow: 24
 };
 
+// ==========================================================================
+// 2. PARSER EXCEL OTOMATIS (Mendeteksi Mesin, CQI, dan Batas LINE)
+// ==========================================================================
+class ExcelParser {
+  static async parseFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          const newLayout = {
+            cqis: [],
+            machines: [],
+            dividerRow: 24 // Nilai default pembatas line
+          };
+
+          // Step A: Deteksi perkiraan baris tengah (Divider Row) sebagai batas Line Atas vs Line Bawah
+          let maxRow = rows.length;
+          newLayout.dividerRow = Math.floor(maxRow / 2);
+
+          // Step B: Scanning seluruh sel Excel
+          rows.forEach((row, rowIndex) => {
+            if (!row) return;
+
+            row.forEach((cellValue, colIndex) => {
+              if (!cellValue) return;
+              const text = String(cellValue).trim();
+
+              // Tentukan blok area berdasarkan posisi baris relatif terhadap dividerRow
+              const currentBlock = (rowIndex + 1 < newLayout.dividerRow) ? "LINE-ATAS" : "LINE-BAWAH";
+
+              // 1. Deteksi CQI (Contoh: "CQI 1", "CQI 24", dll.)
+              if (/^CQI\s*\d+/i.test(text)) {
+                newLayout.cqis.push({
+                  id: text.toUpperCase().replace(/\s+/g, " "),
+                  x: colIndex + 1,
+                  y: rowIndex + 1,
+                  lineBlock: currentBlock
+                });
+                return;
+              }
+
+              // 2. Deteksi Mesin (Format: XX-XXL, ARPM XX, K1, M2, X3, dll.)
+              if (/^\d+-\d+L$/i.test(text) || /^ARPM\s*\d+/i.test(text) || /^[KMX]\d+$/i.test(text)) {
+                newLayout.machines.push({
+                  id: text.toUpperCase(),
+                  x: colIndex + 1,
+                  y: rowIndex + 1,
+                  lineBlock: currentBlock
+                });
+              }
+            });
+          });
+
+          resolve(newLayout);
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      reader.onerror = (err) => reject(err);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+}
+
+// ==========================================================================
+// 3. CORE SYSTEM: LINE-BASED PLANNER & WIZARD
+// ==========================================================================
 class LineBasedPlanner {
   constructor() {
     this.machineStates = {};
@@ -73,28 +106,34 @@ class LineBasedPlanner {
   }
 
   start() {
-    // Set awal
+    this.initializeState();
+    this.renderFloorGrid();
+    this.setupListeners();
+  }
+
+  initializeState() {
+    this.machineStates = {};
+    this.cqiStates = {};
+    this.cqiColors = {};
+
     FACTORY_DATA.machines.forEach(m => this.machineStates[m.id] = 'idle');
     FACTORY_DATA.cqis.forEach((c, i) => {
       this.cqiStates[c.id] = 'active';
       this.cqiColors[c.id] = `hsl(${(i * 360) / FACTORY_DATA.cqis.length}, 70%, 50%)`;
     });
-
-    this.renderFloorGrid();
-    this.setupListeners();
   }
 
   renderFloorGrid() {
     const floor = document.getElementById('factory-floor');
     floor.innerHTML = '';
 
-    // Gambar Garis Jalur Merah Pembatas Terlebih Dahulu
+    // Gambar Garis Merah Pembatas Jalur Kerja
     const dividerEl = document.createElement('div');
     dividerEl.className = 'grid-node line-red-divider';
     dividerEl.style.gridRowStart = FACTORY_DATA.dividerRow;
     floor.appendChild(dividerEl);
 
-    // Tampilkan CQI
+    // Render CQI
     FACTORY_DATA.cqis.forEach(cqi => {
       const el = document.createElement('div');
       const inactive = this.cqiStates[cqi.id] === 'inactive';
@@ -102,6 +141,7 @@ class LineBasedPlanner {
       el.style.gridColumnStart = cqi.x;
       el.style.gridRowStart = cqi.y;
       el.innerText = cqi.id;
+      el.title = `${cqi.id} (${cqi.lineBlock})`;
 
       el.onclick = () => {
         this.cqiStates[cqi.id] = inactive ? 'active' : 'inactive';
@@ -110,14 +150,15 @@ class LineBasedPlanner {
       floor.appendChild(el);
     });
 
-    // Tampilkan Mesin
+    // Render Mesin
     FACTORY_DATA.machines.forEach(m => {
       const el = document.createElement('div');
-      const status = this.machineStates[m.id];
+      const status = this.machineStates[m.id] || 'idle';
       el.className = `grid-node machine ${status}`;
       el.style.gridColumnStart = m.x;
       el.style.gridRowStart = m.y;
       el.innerText = m.id;
+      el.title = `Mesin: ${m.id} (${m.lineBlock})`;
 
       el.onclick = () => {
         if (status === 'idle') this.machineStates[m.id] = 'running';
@@ -132,16 +173,18 @@ class LineBasedPlanner {
   }
 
   updatePage1Counts() {
+    const totalCount = FACTORY_DATA.machines.length;
     const runCount = Object.values(this.machineStates).filter(s => s === 'running').length;
     const stopCount = Object.values(this.machineStates).filter(s => s === 'stop').length;
     const activeCQI = Object.values(this.cqiStates).filter(s => s === 'active').length;
 
+    document.getElementById('stat-m-total').innerText = totalCount;
     document.getElementById('stat-m-run').innerText = runCount;
     document.getElementById('stat-m-stop').innerText = stopCount;
-    document.getElementById('stat-cqi-active').innerText = activeCQI;
+    document.getElementById('stat-cqi-active').innerText = `${activeCQI} / ${FACTORY_DATA.cqis.length}`;
   }
 
-  // CORE LOGIC: Auto Planning Dikunci Berdasarkan Line Kerja Masing-Masing
+  // ALGORITMA PLANNING TERKUNCI BERDASARKAN LINE
   executeLineAutoPlanning() {
     this.assignments = {};
     FACTORY_DATA.cqis.forEach(c => { if(this.cqiStates[c.id] === 'active') this.assignments[c.id] = []; });
@@ -153,7 +196,6 @@ class LineBasedPlanner {
       const lineCQIs = FACTORY_DATA.cqis.filter(c => c.lineBlock === currentBlock && this.cqiStates[c.id] === 'active');
       const lineMachines = FACTORY_DATA.machines.filter(m => m.lineBlock === currentBlock && this.machineStates[m.id] === 'running');
 
-      // Distribusi Berimbang Multi-Round Maksimal 8 Mesin Per Line
       for (let round = 0; round < 8; round++) {
         let roundAlloc = 0;
         for (const cqi of lineCQIs) {
@@ -162,7 +204,7 @@ class LineBasedPlanner {
           let available = lineMachines.filter(m => !allocatedSet.has(m.id));
           if (available.length === 0) break;
 
-          // Cari jarak terdekat di dalam jalur line yang sama
+          // Manhattan Distance (Jarak Grid terdekat di Line yang sama)
           available = available.map(m => ({
             machine: m,
             dist: Math.abs(cqi.x - m.x) + Math.abs(cqi.y - m.y)
@@ -189,7 +231,7 @@ class LineBasedPlanner {
       card.className = 'cqi-card';
       const mList = this.assignments[cqi.id] || [];
 
-      // Opsi pemindahan dibatasi hanya ke CQI yang berada di LINE JALUR YANG SAMA
+      // Opsi transfer/pindahkan mesin hanya antar-CQI di Line Blok yang sama
       const peerCQIs = activeCQIs.filter(c => c.lineBlock === cqi.lineBlock);
       const optionsHTML = peerCQIs.map(p => 
         `<option value="${p.id}" ${p.id === cqi.id ? 'selected' : ''}>${p.id}</option>`
@@ -245,7 +287,6 @@ class LineBasedPlanner {
     txt += `*🚦 Status Shift:* Produksi Harian\n`;
     txt += `==================================\n\n`;
 
-    // Kelompokkan per blok jalur untuk output laporan
     const blocks = ["LINE-ATAS", "LINE-BAWAH"];
     blocks.forEach(bl => {
       txt += `*🏢 BLOK AREA: ${bl.replace("-", " ")}*\n`;
@@ -263,7 +304,7 @@ class LineBasedPlanner {
     });
 
     txt += `==================================\n`;
-    txt += `📢 _Laporan terbuat otomatis berdasarkan kedekatan Line Blok Kerja_`;
+    txt += `📢 _Laporan otomatis berbasis Line Block_`;
     
     document.getElementById('wa-text-preview').value = txt;
   }
@@ -286,35 +327,36 @@ class LineBasedPlanner {
   }
 
   setupListeners() {
+    // Tombol Cepat Mapping
     document.getElementById('btn-run-all').onclick = () => {
       FACTORY_DATA.machines.forEach(m => this.machineStates[m.id] = 'running');
       this.renderFloorGrid();
     };
 
+    // Navigasi
     document.getElementById('btn-next-to-edit').onclick = () => {
       this.executeLineAutoPlanning();
       this.changePage(2);
     };
-
     document.getElementById('btn-back-to-mapping').onclick = () => this.changePage(1);
     document.getElementById('btn-next-to-share').onclick = () => this.changePage(3);
     document.getElementById('btn-back-to-editor').onclick = () => this.changePage(2);
 
-    // Fitur Salin Teks ke Clipboard Handphone/PC
+    // Salin Teks WhatsApp
     document.getElementById('btn-copy-wa').onclick = () => {
       const copyText = document.getElementById('wa-text-preview');
       copyText.select();
       navigator.clipboard.writeText(copyText.value);
-      alert("✅ Format teks WhatsApp berhasil disalin! Tinggal masuk ke WA dan Paste.");
+      alert("✅ Format teks WhatsApp berhasil disalin! Silakan paste di Grup WhatsApp.");
     };
 
-    // Bagikan Langsung via Web Link WhatsApp API
+    // Share Langsung ke WhatsApp
     document.getElementById('btn-share-wa').onclick = () => {
       const payload = encodeURIComponent(document.getElementById('wa-text-preview').value);
       window.open(`https://api.whatsapp.com/send?text=${payload}`, '_blank');
     };
 
-    // Unduh rekap Excel instan
+    // Export Excel
     document.getElementById('btn-export-excel').onclick = () => {
       const dataRows = [["Line Block", "Nama CQI", "Jumlah Target Mesin", "Daftar ID Mesin"]];
       FACTORY_DATA.cqis.forEach(cqi => {
@@ -324,12 +366,50 @@ class LineBasedPlanner {
       const ws = XLSX.utils.aoa_to_sheet(dataRows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Planning Output");
-      XLSX.writeFile(wb, "Rekap_Planning_Line.xlsx");
+      XLSX.writeFile(wb, `Rekap_Planning_Line_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    };
+
+    // =========================================================================
+    // EVENT LISTENER IMPORT EXCEL LIVE
+    // =========================================================================
+    const btnImport = document.getElementById('btn-import-excel');
+    const inputExcel = document.getElementById('input-excel');
+
+    btnImport.onclick = () => inputExcel.click();
+
+    inputExcel.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        btnImport.innerText = "⏳ Membaca Excel...";
+        const importedData = await ExcelParser.parseFile(file);
+
+        if (importedData.machines.length === 0 && importedData.cqis.length === 0) {
+          alert("❌ Data Mesin atau CQI tidak ditemukan di dalam file Excel!");
+          btnImport.innerText = "📂 Import Excel Layout";
+          return;
+        }
+
+        // Perbarui data master & timpa state
+        FACTORY_DATA = importedData;
+        this.initializeState();
+        this.renderFloorGrid();
+        this.updatePage1Counts();
+
+        btnImport.innerText = "📂 Import Excel Layout";
+        alert(`✅ Berhasil mengimpor layout dari Excel:\n• Total Mesin: ${importedData.machines.length} Unit\n• Total CQI: ${importedData.cqis.length} Orang\n• Pembatas Line terdeteksi di Baris ke-${importedData.dividerRow}`);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Gagal membaca file Excel. Pastikan format file sesuai (.xlsx/.xls).");
+        btnImport.innerText = "📂 Import Excel Layout";
+      }
     };
   }
 }
 
-window.onload = () => {
-  const planner = new LineBasedPlanner();
-  planner.start();
-};
+// Inisialisasi saat browser selesai memuat halaman
+window.addEventListener('DOMContentLoaded', () => {
+  const app = new LineBasedPlanner();
+  app.start();
+});
