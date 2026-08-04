@@ -1,0 +1,146 @@
+:root {
+  --bg-dark: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  --text: #f8fafc;
+  --gray-node: #475569;
+  --green-run: #10b981;
+  --red-stop: #ef4444;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  background: var(--surface);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-primary { background: #3b82f6; color: white; }
+.btn-success { background: #22c55e; color: white; }
+.btn-secondary { background: #64748b; color: white; }
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  padding: 1rem 2rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.stat-card h5 { margin: 0; color: #94a3b8; font-size: 0.8rem; }
+.stat-card p { margin: 0.5rem 0 0 0; font-size: 1.5rem; font-weight: bold; }
+
+.filter-bar {
+  padding: 0.5rem 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-bar input, .filter-bar select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem 2rem;
+  gap: 1rem;
+}
+
+.grid-wrapper {
+  flex: 1;
+  overflow: auto;
+  background: #020617;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.factory-grid {
+  display: grid;
+  grid-template-columns: repeat(40, 45px);
+  grid-template-rows: repeat(40, 45px);
+  gap: 4px;
+  padding: 15px;
+}
+
+.grid-node {
+  background: transparent;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  border: 1px dashed #1e293b;
+}
+
+.grid-node.machine {
+  background: var(--gray-node);
+  border: 1px solid var(--border);
+}
+
+.grid-node.machine.running { background: var(--green-run); }
+.grid-node.machine.stop { background: var(--red-stop); }
+
+.grid-node.cqi {
+  background: #6366f1;
+  border: 2px solid #818cf8;
+  font-weight: bold;
+}
+
+.grid-node.cqi.inactive {
+  background: #312e81;
+  border-color: #4338ca;
+  opacity: 0.6;
+}
+
+/* Skema load warna kapasitas CQI */
+.load-low { border: 2px solid #fbbf24 !important; }
+.load-full { border: 2px solid #22c55e !important; }
+.load-empty { border: 2px solid #ef4444 !important; }
+
+.detail-panel {
+  width: 300px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.hidden { display: none !important; }
+.highlight { transform: scale(1.08); box-shadow: 0 0 12px #ffffffff; z-index: 10; }

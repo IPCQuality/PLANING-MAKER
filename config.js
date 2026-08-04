@@ -1,0 +1,6 @@
+export const CONFIG = {
+  GITHUB_TOKEN: "YOUR_PERSONAL_ACCESS_TOKEN_HERE", // Masukkan GitHub PAT Anda di sini
+  REPO_OWNER: "YOUR_GITHUB_USERNAME",
+  REPO_NAME: "YOUR_REPO_NAME",
+  BRANCH: "main"
+};

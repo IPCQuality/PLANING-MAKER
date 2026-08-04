@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CQI Smart Auto-Planning System</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>CQI PLANNER DASHBOARD</h1>
+    <div class="actions">
+      <button id="btn-auto-plan" class="btn btn-primary">⚡ AUTO PLANNING</button>
+      <button id="btn-export" class="btn btn-success">📊 Export Excel</button>
+      <span id="sync-status" class="status-cloud">☁️ Connected</span>
+    </div>
+  </header>
+
+  <section class="stats-container">
+    <div class="stat-card"><h5>Total Mesin</h5><p id="stat-total-m">0</p></div>
+    <div class="stat-card running"><h5>Mesin Running</h5><p id="stat-run-m">0</p></div>
+    <div class="stat-card stop"><h5>Mesin Stop</h5><p id="stat-stop-m">0</p></div>
+    <div class="stat-card item-idle"><h5>Belum Dipilih</h5><p id="stat-idle-m">0</p></div>
+    <div class="stat-card"><h5>Total CQI</h5><p id="stat-total-cqi">0</p></div>
+    <div class="stat-card active-cqi"><h5>CQI Aktif</h5><p id="stat-active-cqi">0</p></div>
+    <div class="stat-card allocated"><h5>Allocated</h5><p id="stat-alloc-m">0</p></div>
+    <div class="stat-card unallocated"><h5>Unallocated</h5><p id="stat-unalloc-m">0</p></div>
+  </section>
+
+  <section class="filter-bar">
+    <input type="text" id="search-machine" placeholder="🔍 Cari Mesin...">
+    <select id="filter-area">
+      <option value="">Semua Area</option>
+      <option value="AST">Area AST</option>
+      <option value="ARPM">Area ARPM</option>
+    </select>
+  </section>
+
+  <main class="workspace">
+    <div class="grid-wrapper">
+      <div id="factory-floor" class="factory-grid"></div>
+    </div>
+
+    <aside id="detail-panel" class="detail-panel hidden">
+      <h3>Detail Target</h3>
+      <div id="detail-content"></div>
+      <button id="btn-close-panel" class="btn btn-secondary">Tutup</button>
+    </aside>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
