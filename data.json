@@ -1,0 +1,11 @@
+{
+  "machines": [
+    { "id": "AST-61-16L", "name": "AST 61-16L", "type": "AST", "line": "A", "x": 110, "y": 90, "gridCol": 3, "gridRow": 4 },
+    { "id": "ARPM-40", "name": "ARPM 40", "type": "ARPM", "line": "C", "x": 140, "y": 780, "gridCol": 4, "gridRow": 39 }
+  ],
+  "cqis": [
+    { "id": "CQI-1", "name": "CQI 1", "line": "A", "x": 110, "y": 30, "gridCol": 3, "gridRow": 1 },
+    { "id": "CQI-18", "name": "CQI 18", "line": "C", "x": 140, "y": 720, "gridCol": 4, "gridRow": 36 }
+  ],
+  "unmapped": []
+}
