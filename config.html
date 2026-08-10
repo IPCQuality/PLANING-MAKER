@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konfigurasi & Planning</title>
+  <style>
+    body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; margin: 0; }
+    .container { max-width: 1200px; margin: auto; display: flex; gap: 20px; align-items: flex-start; }
+    .panel { background: #1e293b; padding: 20px; border-radius: 8px; flex: 1; border: 1px solid #334155; }
+    
+    h2, h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+    input, textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;}
+    
+    .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+    .btn:hover { background: #2563eb; }
+    .btn-success { background: #10b981; } .btn-success:hover { background: #059669; }
+
+    /* Kanban Board for Manual Edit */
+    .kanban-board { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-top: 20px;}
+    .kanban-col { background: #0f172a; min-width: 250px; border-radius: 6px; padding: 10px; border: 1px solid #334155; }
+    .kanban-header { font-weight: bold; margin-bottom: 10px; color: #3b82f6; text-align: center;}
+    .machine-card { background: #1e293b; border: 1px solid #475569; padding: 8px; margin-bottom: 8px; border-radius: 4px; cursor: grab; font-size: 0.85rem; }
+    
+    #dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-box { background: #0f172a; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #334155;}
+    .stat-box span { font-size: 1.2rem; font-weight: bold; color: #10b981; }
+
+    pre { background: #020617; padding: 15px; border-radius: 6px; white-space: pre-wrap; font-size: 0.85rem; color: #e2e8f0; border: 1px solid #334155;}
+    .actions { display: flex; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel" style="max-width: 350px;">
+      <h2>Konfigurasi Planning</h2>
+      
+      <div class="form-group"><label>Jumlah CORE Manpower</label><input type="number" id="numCore" value="1" min="1"></div>
+      <div class="form-group"><label>Jumlah NON CORE</label><input type="number" id="numNonCore" value="0" min="0"></div>
+      
+      <div class="form-group"><label>QC PASSED (1-5)</label><textarea id="qcPassed" rows="3"></textarea></div>
+      <div class="form-group"><label>MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
+      <div class="form-group"><label>Standby OT</label><input type="text" id="standbyOt" value="-"></div>
+      <div class="form-group"><label>Support FG</label><input type="text" id="supportFg" value="-"></div>
+
+      <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
+      <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Export Text</button>
+      <div class="actions">
+        <button class="btn" style="background:#25d366" onclick="shareWA()">💬 WA</button>
+        <button class="btn" style="background:#f59e0b" onclick="exportExcel()">📊 Excel</button>
+      </div>
+      <a href="index.html" style="color:#94a3b8; font-size:0.8rem; text-decoration:none;">⬅ Kembali ke Map</a>
+    </div>
+
+    <div class="panel" style="flex: 2;">
+      <h2>Dashboard Performance & Preview</h2>
+      <div id="dashboard">
+        <div class="stat-box">Target Mesin: <br><span id="db-run">0</span></div>
+        <div class="stat-box">Ter-cover: <br><span id="db-cov">0</span></div>
+        <div class="stat-box">Coverage %: <br><span id="db-pct">0%</span></div>
+        <div class="stat-box">CQI Dipakai: <br><span id="db-cqi">0</span></div>
+        <div class="stat-box">Rata Jarak: <br><span id="db-dist">0 m</span></div>
+        <div class="stat-box">AI Success Rate: <br><span id="db-acc">0%</span></div>
+      </div>
+
+      <div class="kanban-board" id="kanbanBoard">
+        <div style="color:#94a3b8; text-align:center; width:100%; padding: 40px;">Klik "Generate AI Planning" untuk melihat preview dan edit manual (drag & drop).</div>
+      </div>
+      
+      <div id="textOutputContainer" style="display:none; margin-top: 20px;">
+        <h3>Output Final Valid</h3>
+        <pre id="textOutput"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="brain.js"></script>
+  <script>
+    let state = JSON.parse(sessionStorage.getItem('planning_state'));
+    if (!state) { alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
+    document.getElementById('db-run').innerText = state.machines.length;
+    
+    let currentPlan = [];
+    let finalConfig = {};
+
+    function executePlan() {
+      finalConfig = {
+        core: parseInt(document.getElementById('numCore').value) || 1,
+        nonCore: parseInt(document.getElementById('numNonCore').value) || 0,
+        qcPassed: document.getElementById('qcPassed').value,
+        milStd: document.getElementById('milStd').value,
+        standbyOt: document.getElementById('standbyOt').value,
+        supportFg: document.getElementById('supportFg').value
+      };
+      
+      currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
+      renderKanban();
+      updateDashboard();
+    }
+
+    function renderKanban() {
+      const board = document.getElementById('kanbanBoard');
+      board.innerHTML = '';
+      currentPlan.forEach((slot, index) => {
+        let col = document.createElement('div');
+        col.className = 'kanban-col';
+        col.ondragover = e => e.preventDefault();
+        col.ondrop = e => handleDrop(e, slot.slotId);
+        
+        let header = document.createElement('div');
+        header.className = 'kanban-header';
+        header.innerHTML = `${slot.cqi.name} (${slot.core})<br>
+          <small style="color:#9ca3af">Kapasitas: ${slot.machines.length}/${slot.capacity}</small><br>
+          <small style="color:#f59e0b">${slot.nonCore.join(', ')}</small>`;
+        col.appendChild(header);
+
+        slot.machines.forEach(m => {
+          let card = document.createElement('div');
+          card.className = 'machine-card';
+          card.innerText = m.name + " (" + m.line + ")";
+          card.draggable = true;
+          card.ondragstart = e => { e.dataTransfer.setData('machineId', m.id); e.dataTransfer.setData('sourceSlot', slot.slotId); };
+          col.appendChild(card);
+        });
+        board.appendChild(col);
+      });
+    }
+
+    function handleDrop(e, targetSlotId) {
+      let machineId = e.dataTransfer.getData('machineId');
+      let sourceSlotId = e.dataTransfer.getData('sourceSlot');
+      if (sourceSlotId === targetSlotId) return;
+
+      let sourceSlot = currentPlan.find(s => s.slotId === sourceSlotId);
+      let targetSlot = currentPlan.find(s => s.slotId === targetSlotId);
+      
+      let machineIdx = sourceSlot.machines.findIndex(m => m.id === machineId);
+      let machine = sourceSlot.machines[machineIdx];
+      
+      sourceSlot.machines.splice(machineIdx, 1);
+      targetSlot.machines.push(machine);
+      
+      renderKanban();
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      let covered = 0;
+      let totalDist = 0;
+      let totalHist = 0;
+      let mCount = 0;
+
+      currentPlan.forEach(slot => {
+        covered += slot.machines.length;
+        slot.machines.forEach(m => {
+          totalDist += BrainAI.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
+          totalHist += BrainAI.getHistory(m.id, slot.cqi.id);
+          mCount++;
+        });
+      });
+
+      document.getElementById('db-cov').innerText = covered;
+      document.getElementById('db-pct').innerText = ((covered / state.machines.length) * 100).toFixed(1) + '%';
+      document.getElementById('db-cqi').innerText = currentPlan.length;
+      document.getElementById('db-dist').innerText = mCount ? (totalDist / mCount).toFixed(2) + ' m' : '0 m';
+      document.getElementById('db-acc').innerText = mCount ? (totalHist / mCount).toFixed(1) + '%' : '0%';
+    }
+
+    function validateAndExport() {
+      if(currentPlan.length === 0) return alert("Generate planning dulu!");
+      let errors = BrainAI.validate(currentPlan, state.machines.length);
+      
+      if (errors.length > 0) {
+        alert("VALIDASI GAGAL! Perbaiki rule berikut:\n- " + errors.join("\n- "));
+        return;
+      }
+
+      // Record History (Learning AI)
+      currentPlan.forEach(slot => {
+        slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true));
+      });
+
+      let output = BrainAI.formatText(currentPlan, finalConfig);
+      document.getElementById('textOutput').innerText = output;
+      document.getElementById('textOutputContainer').style.display = 'block';
+      
+      navigator.clipboard.writeText(output);
+      alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
+    }
+
+    function shareWA() {
+      let text = document.getElementById('textOutput').innerText;
+      if (!text) return alert("Validasi dan export text dulu!");
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function exportExcel() {
+      if(currentPlan.length === 0) return alert("Generate planning dulu!");
+      let csv = "CQI,CORE,NON CORE,KODE MESIN,LINE\n";
+      currentPlan.forEach(slot => {
+        let nc = slot.nonCore.join(" & ") || "-";
+        slot.machines.forEach(m => {
+          csv += `${slot.cqi.name},${slot.core},${nc},${m.name},${m.line}\n`;
+        });
+      });
+      let blob = new Blob([csv], { type: 'text/csv' });
+      let a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "Planning_Liquid_3.csv";
+      a.click();
+    }
+  </script>
+</body>
+</html>

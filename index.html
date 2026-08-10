@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAP LIQUID 3 - Factory UI</title>
+  <style>
+    :root {
+      --bg-main: #0b0f19; --bg-panel: #111827; --border: #1e293b; --grid-line: #1e293b; 
+      --text-main: #f9fafb; --running: #22c55e; --setup: #eab308; --down: #dc2626; --offplan: #6b7280;
+      --cqi-ready: #3b82f6; --cqi-busy: #f97316; --cqi-main: #a855f7; --cqi-off: #475569;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { font-family: -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    
+    header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .brand { font-weight: 700; font-size: 1.1rem; }
+    .controls { display: flex; gap: 10px; }
+    .btn { background: #4b5563; color: white; border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn:hover { background: #374151; }
+    .btn-primary { background: var(--cqi-ready); border: none; }
+    .btn-warning { background: var(--setup); border: none; }
+    .btn-danger { background: var(--down); border: none; }
+    
+    .main-layout { display: flex; flex: 1; overflow: hidden; }
+    .map-viewport { flex: 1; overflow: auto; padding: 40px; position: relative; background: #030712; }
+    .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; width: max-content; height: max-content; transform-origin: top left; transition: transform 0.1s; }
+    .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; }
+    
+    .node { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; text-align: center; cursor: pointer; border-radius: 4px; position: relative; transition: all 0.2s; }
+    
+    .node-machine.OFFPLAN { background: var(--offplan); color: white; }
+    .node-machine.RUNNING { background: var(--running); color: white; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
+    .node-machine.SETUP { background: var(--setup); color: black; }
+    .node-machine.DOWN { background: var(--down); color: white; }
+
+    .node-cqi.OFF { background: var(--cqi-off); color: white; }
+    .node-cqi.READY { background: var(--cqi-ready); color: white; border: 2px solid white; box-shadow: 0 0 10px var(--cqi-ready); }
+    .node-cqi.BUSY { background: var(--cqi-busy); color: white; }
+    .node-cqi.MAINTENANCE { background: var(--cqi-main); color: white; }
+
+    .node-label { background: transparent; color: #94a3b8; border: 1px dashed #475569; }
+
+    .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; }
+    body.mode-edit .del-btn { display: block; }
+    body.mode-edit .node { cursor: grab; }
+    body.mode-landing .control-edit { display: none; }
+    body.mode-edit .control-landing { display: none; }
+
+    /* Heatmap styling */
+    .heatmap-good { box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.6) !important; border: 1px solid #22c55e; }
+    .heatmap-warn { box-shadow: inset 0 0 20px rgba(234, 179, 8, 0.6) !important; border: 1px solid #eab308; }
+    .heatmap-bad { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.6) !important; border: 1px solid #ef4444; }
+
+    .sidebar { width: 300px; background: var(--bg-panel); border-left: 1px solid var(--border); padding: 16px; }
+    .zoom-controls { position: fixed; bottom: 30px; left: 30px; display: flex; gap: 10px; z-index: 1000; }
+    .zoom-btn { background: #374151; color: white; border: none; width: 40px; height: 40px; border-radius: 6px; cursor: pointer; font-size: 1.4rem; }
+  </style>
+</head>
+<body class="mode-landing">
+  <header>
+    <div class="brand">🏭 MAP LIQUID 3</div>
+    <div class="controls">
+      <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
+      <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
+      <button class="btn control-landing" onclick="backupMap()">💾 Backup Map</button>
+      <button class="btn control-landing" onclick="restoreMap()">📂 Restore Map</button>
+      <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
+
+      <button class="btn btn-primary control-edit" onclick="addNode('machine')">➕ Mesin</button>
+      <button class="btn btn-primary control-edit" onclick="addNode('cqi')">➕ CQI</button>
+      <button class="btn btn-primary control-edit" onclick="addNode('label')">➕ Label</button>
+      <button class="btn btn-success control-edit" onclick="exportMapJson()">💾 Save to map.json</button>
+      <button class="btn control-edit" onclick="toggleEditMode()">⬅️ Selesai Edit</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <div class="map-viewport">
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomOut()">-</button>
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+      </div>
+      <div class="factory-grid" id="factoryGrid"></div>
+    </div>
+    <aside class="sidebar">
+      <h3>Live Status</h3><hr style="border-color:var(--border); margin: 10px 0;">
+      <p>Mesin Running: <strong id="stat-run" style="color:var(--running)">0</strong></p>
+      <p>CQI Ready: <strong id="stat-cqi" style="color:var(--cqi-ready)">0</strong></p>
+      <br>
+      <div style="font-size:0.8rem; color:#9ca3af;">
+        <b>Keterangan Heatmap:</b><br>
+        <span style="color:#22c55e">Hijau:</span> Jarak 0-5m (Baik)<br>
+        <span style="color:#eab308">Kuning:</span> Jarak 5-10m (Peringatan)<br>
+        <span style="color:#ef4444">Merah:</span> Jarak >10m (Buruk)
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    let mapData = { machines: [], cqis: [], labels: [] };
+    let currentZoom = 1;
+    let editMode = false;
+    let showHeatmap = false;
+    let draggedNode = null;
+
+    async function loadMap() {
+      let saved = localStorage.getItem('liquid3_map');
+      if (saved) {
+        mapData = JSON.parse(saved);
+        initializeStatuses();
+      } else {
+        try {
+          const res = await fetch('map.json');
+          mapData = await res.json();
+          initializeStatuses();
+        } catch (e) {
+          alert("Gagal memuat map.json. Pastikan file ada di server.");
+        }
+      }
+    }
+
+    function initializeStatuses() {
+      mapData.machines.forEach(m => m.status = m.status || 'OFFPLAN');
+      mapData.cqis.forEach(c => c.status = c.status || 'OFF');
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('factoryGrid');
+      grid.innerHTML = '';
+      
+      let maxR = 20, maxC = 60;
+      [...mapData.machines, ...mapData.cqis, ...mapData.labels].forEach(n => {
+        if (n.row > maxR) maxR = n.row;
+        if (n.col > maxC) maxC = n.col;
+      });
+      grid.style.gridTemplateColumns = `repeat(${maxC + 2}, 78px)`;
+      grid.style.gridTemplateRows = `repeat(${maxR + 2}, 52px)`;
+      
+      for (let r = 1; r <= maxR + 2; r++) {
+        for (let c = 1; c <= maxC + 2; c++) {
+          let cell = document.createElement('div');
+          cell.className = 'grid-cell';
+          cell.dataset.row = r; cell.dataset.col = c;
+          
+          cell.ondragover = e => e.preventDefault();
+          cell.ondrop = e => handleDrop(e, r, c);
+          grid.appendChild(cell);
+        }
+      }
+
+      const appendToGrid = (node, type) => {
+        let cell = document.querySelector(`.grid-cell[data-row="${node.row}"][data-col="${node.col}"]`);
+        if (!cell) return;
+
+        let div = document.createElement('div');
+        div.className = `node node-${type} ${node.status || ''}`;
+        div.innerHTML = `<span>${node.name}</span>`;
+        div.id = node.id;
+
+        if (editMode) {
+          div.draggable = true;
+          div.ondragstart = e => handleDragStart(e, node, type);
+          let delBtn = document.createElement('div');
+          delBtn.className = 'del-btn';
+          delBtn.innerText = 'X';
+          delBtn.onclick = (e) => { e.stopPropagation(); deleteNode(node.id, type); };
+          div.appendChild(delBtn);
+        } else {
+          if (type === 'machine') div.onclick = () => cycleStatus(node, type);
+          if (type === 'cqi') div.onclick = () => cycleStatus(node, type);
+        }
+
+        // Hitung heatmap
+        if (showHeatmap && type === 'machine' && node.status === 'RUNNING') {
+          let dist = getMinCqiDistance(node);
+          if (dist <= 5) div.classList.add('heatmap-good');
+          else if (dist <= 10) div.classList.add('heatmap-warn');
+          else div.classList.add('heatmap-bad');
+        }
+        
+        cell.appendChild(div);
+      };
+
+      mapData.machines.forEach(m => appendToGrid(m, 'machine'));
+      mapData.cqis.forEach(c => appendToGrid(c, 'cqi'));
+      mapData.labels.forEach(l => appendToGrid(l, 'label'));
+      
+      updateStats();
+    }
+
+    function cycleStatus(node, type) {
+      if (type === 'machine') {
+        const s = ['OFFPLAN', 'RUNNING', 'SETUP', 'DOWN'];
+        node.status = s[(s.indexOf(node.status) + 1) % s.length];
+      } else {
+        const s = ['OFF', 'READY', 'BUSY', 'MAINTENANCE'];
+        node.status = s[(s.indexOf(node.status) + 1) % s.length];
+      }
+      if(showHeatmap) renderGrid();
+      else {
+        let el = document.getElementById(node.id);
+        el.className = `node node-${type} ${node.status}`;
+        updateStats();
+      }
+    }
+
+    function getMinCqiDistance(machine) {
+      let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
+      if (readyCqis.length === 0) return Infinity;
+      return Math.min(...readyCqis.map(c => Math.sqrt(Math.pow(machine.row - c.row, 2) + Math.pow(machine.col - c.col, 2))));
+    }
+
+    function handleDragStart(e, node, type) {
+      draggedNode = { node, type };
+      e.dataTransfer.setData('text/plain', node.id);
+    }
+    function handleDrop(e, r, c) {
+      if (!editMode || !draggedNode) return;
+      e.preventDefault();
+      draggedNode.node.row = r;
+      draggedNode.node.col = c;
+      draggedNode = null;
+      renderGrid();
+    }
+
+    function deleteNode(id, type) {
+      if (!confirm('Hapus node ini?')) return;
+      if (type === 'machine') mapData.machines = mapData.machines.filter(m => m.id !== id);
+      if (type === 'cqi') mapData.cqis = mapData.cqis.filter(c => c.id !== id);
+      if (type === 'label') mapData.labels = mapData.labels.filter(l => l.id !== id);
+      renderGrid();
+    }
+
+    function addNode(type) {
+      let name = prompt(`Nama ${type} baru:`);
+      if (!name) return;
+      let id = type.charAt(0).toUpperCase() + '-' + Date.now();
+      let arr = type === 'machine' ? mapData.machines : (type === 'cqi' ? mapData.cqis : mapData.labels);
+      arr.push({ id, name, row: 1, col: 1, status: type === 'machine' ? 'OFFPLAN' : (type === 'cqi' ? 'OFF' : undefined) });
+      renderGrid();
+    }
+
+    function toggleEditMode() { editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
+    function toggleHeatmap() { showHeatmap = !showHeatmap; renderGrid(); }
+    function zoomIn() { currentZoom += 0.1; document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`; }
+    function zoomOut() { currentZoom = Math.max(0.2, currentZoom - 0.1); document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`; }
+    
+    function backupMap() { localStorage.setItem('liquid3_map', JSON.stringify(mapData)); alert("Map berhasil dibackup ke LocalStorage!"); }
+    function restoreMap() { 
+      let saved = localStorage.getItem('liquid3_map'); 
+      if(saved) { mapData = JSON.parse(saved); renderGrid(); alert("Map di-restore!"); }
+    }
+    
+    function exportMapJson() {
+      let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" });
+      let a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "map.json";
+      a.click();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-run').innerText = mapData.machines.filter(m => m.status === 'RUNNING').length;
+      document.getElementById('stat-cqi').innerText = mapData.cqis.filter(c => c.status === 'READY').length;
+    }
+
+    function goToConfig() {
+      let runMachines = mapData.machines.filter(m => m.status === 'RUNNING');
+      let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
+      if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
+      if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
+      
+      sessionStorage.setItem('planning_state', JSON.stringify({ machines: runMachines, cqis: readyCqis }));
+      window.location.href = 'config.html';
+    }
+
+    loadMap();
+  </script>
+</body>
+</html>
