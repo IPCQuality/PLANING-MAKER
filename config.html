@@ -331,8 +331,7 @@
       let nonCoreData = getListData(storageKeys.nonCore);
       let qcData = getListData(storageKeys.qcPassed);
 
-      // --- 1. AMBIL KENDALI PENUH ATAS FOOTER UNTUK MENCEGAH BUG HILANG/KOSONG ---
-      // Menghapus semua sisa teks footer bawaan (jika dihasilkan AI) dari index 'QC PASSED' dsb ke bawah
+      // --- 1. AMBIL KENDALI PENUH ATAS FOOTER ---
       let cleanOutput = output;
       const footerKeywords = [/QC PASSED/i, /MIL-STD/i, /MIL STD/i, /Standby OT/i, /Support FG/i];
       let minIndex = cleanOutput.length;
@@ -345,23 +344,26 @@
       });
       
       if (minIndex < cleanOutput.length) {
-        cleanOutput = cleanOutput.substring(0, minIndex).trim(); // Hanya sisakan teks core planning
+        cleanOutput = cleanOutput.substring(0, minIndex).trim(); // Hanya sisakan teks planning
       }
 
-      // --- 2. GANTI NAMA "CORE 1", "NON CORE 1", DST ---
-      coreData.forEach((name, i) => {
-        // Mendeteksi kata CORE 1, CORE 2, dst secara pintar & mengabaikan huruf besar/kecil
-        let regex = new RegExp(`\\bCORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
-        cleanOutput = cleanOutput.replace(regex, name);
-      });
-
+      // --- 2. PERBAIKAN URUTAN REPLACE! (NON CORE DIGANTI LEBIH DULU) ---
+      
+      // Langkah A: Ganti teks "NON CORE" lebih dulu. 
+      // Karena jika "CORE" diganti duluan, "NON CORE 1" akan berubah jadi "NON (Nama Core)".
       nonCoreData.forEach((name, i) => {
         let regex = new RegExp(`\\bNON\\s*[-]?\\s*CORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
         cleanOutput = cleanOutput.replace(regex, name);
       });
 
+      // Langkah B: Setelah tidak ada lagi kata NON CORE, baru kita ganti kata "CORE".
+      coreData.forEach((name, i) => {
+        let regex = new RegExp(`\\bCORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
+        cleanOutput = cleanOutput.replace(regex, name);
+      });
+
+
       // --- 3. SUSUN ULANG & TAMBAHKAN FOOTER MANUAL ---
-      // Membangun ulang string untuk QC PASSED (1 nama = tanpa nomor. >1 nama = nomor urut)
       let qcPassedText = "";
       if (qcData.length === 1) {
         qcPassedText = qcData[0];
@@ -369,18 +371,15 @@
         qcPassedText = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n');
       }
 
-      // Mengambil nilai murni dari kolom konfigurasi (biarpun kosong)
       let milStdVal = document.getElementById('milStd').value.trim();
       let standbyVal = document.getElementById('standbyOt').value.trim();
       let supportVal = document.getElementById('supportFg').value.trim();
 
-      // Secara mutlak merender footer pada akhir output dengan format bersih
       cleanOutput += `\n\nQC PASSED :\n${qcPassedText}`;
       cleanOutput += `\nMIL-STD : ${milStdVal}`;
       cleanOutput += `\nStandby OT : ${standbyVal}`;
       cleanOutput += `\nSupport FG : ${supportVal}`;
 
-      // Lempar output ke Editor Text Final
       document.getElementById('textOutput').value = cleanOutput;
       document.getElementById('textOutputContainer').style.display = 'block';
     }
