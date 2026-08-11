@@ -11,47 +11,66 @@
     
     h2, h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
     .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+    label { display: block; margin-bottom: 10px; color: #94a3b8; font-size: 0.9rem; font-weight: bold;}
     input, textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;}
     
     .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
     .btn:hover { background: #2563eb; }
     .btn-success { background: #10b981; } .btn-success:hover { background: #059669; }
 
-    /* Kanban Board for Manual Edit */
-    .kanban-board { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-top: 20px;}
-    .kanban-col { background: #0f172a; min-width: 250px; border-radius: 6px; padding: 10px; border: 1px solid #334155; }
-    .kanban-header { font-weight: bold; margin-bottom: 10px; color: #3b82f6; text-align: center;}
-    .machine-card { background: #1e293b; border: 1px solid #475569; padding: 8px; margin-bottom: 8px; border-radius: 4px; cursor: grab; font-size: 0.85rem; }
+    /* Dynamic List Styles */
+    .list-item { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+    .list-item .num { width: 25px; color: #94a3b8; font-size: 0.9rem; text-align: right; margin-right: 5px; font-weight: bold;}
+    .list-item input { flex: 1; margin: 0; padding: 8px; }
+    .btn-sm { padding: 6px 10px; font-size: 0.9rem; background: #334155; border: none; color: white; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center;}
+    .btn-sm:hover { background: #475569; }
+    .btn-del { background: #ef4444; } .btn-del:hover { background: #dc2626; }
+    .add-btn { background: #0f172a; border: 1px dashed #3b82f6; color: #3b82f6; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; width: 100%; margin-top: 5px; transition: 0.2s;}
+    .add-btn:hover { background: #1e3a8a; color: white;}
     
     #dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .stat-box { background: #0f172a; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #334155;}
     .stat-box span { font-size: 1.2rem; font-weight: bold; color: #10b981; }
 
-    pre { background: #020617; padding: 15px; border-radius: 6px; white-space: pre-wrap; font-size: 0.85rem; color: #e2e8f0; border: 1px solid #334155;}
+    /* Text Editor Style */
+    #textOutput { height: 400px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; resize: vertical; line-height: 1.5; }
     .actions { display: flex; gap: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="panel" style="max-width: 350px;">
+    <div class="panel" style="max-width: 400px;">
       <h2>Konfigurasi Planning</h2>
       
-      <div class="form-group"><label>Jumlah CORE Manpower</label><input type="number" id="numCore" value="1" min="1"></div>
-      <div class="form-group"><label>Jumlah NON CORE</label><input type="number" id="numNonCore" value="0" min="0"></div>
+      <div class="form-group">
+        <label>CORE Manpower</label>
+        <div id="coreList"></div>
+        <button class="add-btn" onclick="addNewItem('core_names', getSavedData('core_names').length, 'coreList')">+ Tambah Core Baru</button>
+      </div>
       
-      <div class="form-group"><label>QC PASSED (1-5)</label><textarea id="qcPassed" rows="3"></textarea></div>
+      <div class="form-group">
+        <label>NON CORE Manpower</label>
+        <div id="nonCoreList"></div>
+        <button class="add-btn" onclick="addNewItem('noncore_names', getSavedData('noncore_names').length, 'nonCoreList')">+ Tambah Non Core Baru</button>
+      </div>
+      
+      <div class="form-group">
+        <label>QC PASSED</label>
+        <div id="qcPassedList"></div>
+        <button class="add-btn" onclick="addNewItem('qc_names', getSavedData('qc_names').length, 'qcPassedList')">+ Tambah QC Baru</button>
+      </div>
+
       <div class="form-group"><label>MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
       <div class="form-group"><label>Standby OT</label><input type="text" id="standbyOt" value="-"></div>
       <div class="form-group"><label>Support FG</label><input type="text" id="supportFg" value="-"></div>
 
       <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
-      <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Export Text</button>
+      <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Copy Text</button>
       <div class="actions">
         <button class="btn" style="background:#25d366" onclick="shareWA()">💬 WA</button>
         <button class="btn" style="background:#f59e0b" onclick="exportExcel()">📊 Excel</button>
       </div>
-      <a href="index.html" style="color:#94a3b8; font-size:0.8rem; text-decoration:none;">⬅ Kembali ke Map</a>
+      <a href="index.html" style="color:#94a3b8; font-size:0.8rem; text-decoration:none; display:block; text-align:center; margin-top: 10px;">⬅ Kembali ke Map</a>
     </div>
 
     <div class="panel" style="flex: 2;">
@@ -64,86 +83,175 @@
         <div class="stat-box">Rata Jarak: <br><span id="db-dist">0 m</span></div>
         <div class="stat-box">AI Success Rate: <br><span id="db-acc">0%</span></div>
       </div>
-
-      <div class="kanban-board" id="kanbanBoard">
-        <div style="color:#94a3b8; text-align:center; width:100%; padding: 40px;">Klik "Generate AI Planning" untuk melihat preview dan edit manual (drag & drop).</div>
-      </div>
       
       <div id="textOutputContainer" style="display:none; margin-top: 20px;">
-        <h3>Output Final Valid</h3>
-        <pre id="textOutput"></pre>
+        <h3>Editor Output Final</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px;">Anda bisa melakukan pengeditan manual secara langsung di kotak teks bawah ini.</p>
+        <textarea id="textOutput" spellcheck="false"></textarea>
       </div>
     </div>
   </div>
 
   <script src="brain.js"></script>
   <script>
-    let state = JSON.parse(sessionStorage.getItem('planning_state'));
-    if (!state) { alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
-    document.getElementById('db-run').innerText = state.machines.length;
+    // --- MANAJEMEN LOCAL STORAGE LIST DINAMIS ---
+    const storageKeys = {
+      core: 'core_names',
+      nonCore: 'noncore_names',
+      qcPassed: 'qc_names'
+    };
+
+    function getSavedData(key) {
+      return JSON.parse(localStorage.getItem(key)) || [''];
+    }
+
+    function saveData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function renderList(containerId, storageKey) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      const data = getSavedData(storageKey);
+
+      data.forEach((val, index) => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+
+        const num = document.createElement('span');
+        num.className = 'num';
+        num.innerText = (index + 1) + '.';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = val;
+        input.placeholder = 'Ketik nama & tekan Enter...';
+        input.oninput = (e) => updateItem(storageKey, index, e.target.value);
+        input.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addNewItem(storageKey, index + 1, containerId);
+          }
+        };
+
+        const upBtn = document.createElement('button');
+        upBtn.className = 'btn-sm';
+        upBtn.innerHTML = '↑';
+        upBtn.title = "Naikkan";
+        upBtn.onclick = () => moveItem(storageKey, index, -1, containerId);
+
+        const downBtn = document.createElement('button');
+        downBtn.className = 'btn-sm';
+        downBtn.innerHTML = '↓';
+        downBtn.title = "Turunkan";
+        downBtn.onclick = () => moveItem(storageKey, index, 1, containerId);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-sm btn-del';
+        delBtn.innerHTML = 'X';
+        delBtn.title = "Hapus";
+        delBtn.onclick = () => removeItem(storageKey, index, containerId);
+
+        item.appendChild(num);
+        item.appendChild(input);
+        item.appendChild(upBtn);
+        item.appendChild(downBtn);
+        item.appendChild(delBtn);
+        container.appendChild(item);
+      });
+    }
+
+    function updateItem(key, index, value) {
+      const data = getSavedData(key);
+      data[index] = value;
+      saveData(key, data);
+    }
+
+    function addNewItem(key, index, containerId) {
+      const data = getSavedData(key);
+      if(index > data.length) index = data.length;
+      data.splice(index, 0, '');
+      saveData(key, data);
+      renderList(containerId, key);
+      
+      setTimeout(() => {
+        const inputs = document.getElementById(containerId).querySelectorAll('input');
+        if(inputs[index]) inputs[index].focus();
+      }, 10);
+    }
+
+    function moveItem(key, index, direction, containerId) {
+      const data = getSavedData(key);
+      if (index + direction < 0 || index + direction >= data.length) return;
+      
+      const temp = data[index];
+      data[index] = data[index + direction];
+      data[index + direction] = temp;
+      
+      saveData(key, data);
+      renderList(containerId, key);
+    }
     
+    function removeItem(key, index, containerId) {
+      const data = getSavedData(key);
+      if (data.length === 1) {
+        data[0] = ''; // Kosongkan saja jika sisa 1
+      } else {
+        data.splice(index, 1);
+      }
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+    
+    function getListData(containerId) {
+      const inputs = document.getElementById(containerId).querySelectorAll('input');
+      return Array.from(inputs).map(inp => inp.value.trim()).filter(val => val !== '');
+    }
+
+    // --- MANAJEMEN STATE & PLANNING ---
+    let state = null;
     let currentPlan = [];
     let finalConfig = {};
 
+    window.onload = () => {
+      // Load Lists
+      renderList('coreList', storageKeys.core);
+      renderList('nonCoreList', storageKeys.nonCore);
+      renderList('qcPassedList', storageKeys.qcPassed);
+
+      // Load State
+      state = JSON.parse(sessionStorage.getItem('planning_state'));
+      if (!state) { 
+        alert("Data kosong! Kembali ke Map."); 
+        window.location.href='index.html'; 
+      } else {
+        document.getElementById('db-run').innerText = state.machines.length;
+      }
+    };
+
     function executePlan() {
+      if(!state) return;
+
+      let coreData = getListData('coreList');
+      let nonCoreData = getListData('nonCoreList');
+      let qcData = getListData('qcPassedList');
+
       finalConfig = {
-        core: parseInt(document.getElementById('numCore').value) || 1,
-        nonCore: parseInt(document.getElementById('numNonCore').value) || 0,
-        qcPassed: document.getElementById('qcPassed').value,
+        coreNames: coreData,
+        core: coreData.length > 0 ? coreData.length : 1, // Fallback angka untuk logic brain.js
+        nonCoreNames: nonCoreData,
+        nonCore: nonCoreData.length,                     // Fallback angka untuk logic brain.js
+        qcPassedNames: qcData,
+        qcPassed: qcData.join('\n'),                     // Format gabungan jika dibutuhkan
         milStd: document.getElementById('milStd').value,
         standbyOt: document.getElementById('standbyOt').value,
         supportFg: document.getElementById('supportFg').value
       };
       
       currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-      renderKanban();
+      
       updateDashboard();
-    }
-
-    function renderKanban() {
-      const board = document.getElementById('kanbanBoard');
-      board.innerHTML = '';
-      currentPlan.forEach((slot, index) => {
-        let col = document.createElement('div');
-        col.className = 'kanban-col';
-        col.ondragover = e => e.preventDefault();
-        col.ondrop = e => handleDrop(e, slot.slotId);
-        
-        let header = document.createElement('div');
-        header.className = 'kanban-header';
-        header.innerHTML = `${slot.cqi.name} (${slot.core})<br>
-          <small style="color:#9ca3af">Kapasitas: ${slot.machines.length}/${slot.capacity}</small><br>
-          <small style="color:#f59e0b">${slot.nonCore.join(', ')}</small>`;
-        col.appendChild(header);
-
-        slot.machines.forEach(m => {
-          let card = document.createElement('div');
-          card.className = 'machine-card';
-          card.innerText = m.name + " (" + m.line + ")";
-          card.draggable = true;
-          card.ondragstart = e => { e.dataTransfer.setData('machineId', m.id); e.dataTransfer.setData('sourceSlot', slot.slotId); };
-          col.appendChild(card);
-        });
-        board.appendChild(col);
-      });
-    }
-
-    function handleDrop(e, targetSlotId) {
-      let machineId = e.dataTransfer.getData('machineId');
-      let sourceSlotId = e.dataTransfer.getData('sourceSlot');
-      if (sourceSlotId === targetSlotId) return;
-
-      let sourceSlot = currentPlan.find(s => s.slotId === sourceSlotId);
-      let targetSlot = currentPlan.find(s => s.slotId === targetSlotId);
-      
-      let machineIdx = sourceSlot.machines.findIndex(m => m.id === machineId);
-      let machine = sourceSlot.machines[machineIdx];
-      
-      sourceSlot.machines.splice(machineIdx, 1);
-      targetSlot.machines.push(machine);
-      
-      renderKanban();
-      updateDashboard();
+      generateTextOutput();
     }
 
     function updateDashboard() {
@@ -168,10 +276,21 @@
       document.getElementById('db-acc').innerText = mCount ? (totalHist / mCount).toFixed(1) + '%' : '0%';
     }
 
+    function generateTextOutput() {
+      if(currentPlan.length === 0) return;
+      
+      // Ambil format text mentah dari BrainAI
+      let output = BrainAI.formatText(currentPlan, finalConfig);
+      
+      // Letakkan hasil ke textarea untuk dapat di-edit
+      document.getElementById('textOutput').value = output;
+      document.getElementById('textOutputContainer').style.display = 'block';
+    }
+
     function validateAndExport() {
       if(currentPlan.length === 0) return alert("Generate planning dulu!");
-      let errors = BrainAI.validate(currentPlan, state.machines.length);
       
+      let errors = BrainAI.validate(currentPlan, state.machines.length);
       if (errors.length > 0) {
         alert("VALIDASI GAGAL! Perbaiki rule berikut:\n- " + errors.join("\n- "));
         return;
@@ -182,17 +301,15 @@
         slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true));
       });
 
-      let output = BrainAI.formatText(currentPlan, finalConfig);
-      document.getElementById('textOutput').innerText = output;
-      document.getElementById('textOutputContainer').style.display = 'block';
-      
-      navigator.clipboard.writeText(output);
+      // Mengambil teks dari textarea yang (mungkin) sudah diedit manual
+      let finalEditedText = document.getElementById('textOutput').value;
+      navigator.clipboard.writeText(finalEditedText);
       alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
     }
 
     function shareWA() {
-      let text = document.getElementById('textOutput').innerText;
-      if (!text) return alert("Validasi dan export text dulu!");
+      let text = document.getElementById('textOutput').value;
+      if (!text) return alert("Generate planning dan pastikan text ada isinya!");
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
