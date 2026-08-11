@@ -45,6 +45,28 @@
     /* Text Editor Style */
     #textOutput { height: 400px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; resize: vertical; line-height: 1.5; }
     .actions { display: flex; gap: 10px; }
+
+    /* --- RESPONSIVE MOBILE UI --- */
+    @media (max-width: 768px) {
+      body { padding: 10px; font-size: 0.9rem; }
+      .container { flex-direction: column; gap: 15px; }
+      .panel { max-width: 100% !important; padding: 15px; }
+      
+      h2 { font-size: 1.2rem; }
+      h3 { font-size: 1.1rem; }
+      
+      .btn { padding: 10px; font-size: 0.9rem; }
+      .btn-sm { padding: 5px 8px; font-size: 0.75rem; }
+      input, textarea { padding: 8px; font-size: 0.85rem; }
+      
+      .list-item .num { font-size: 0.8rem; width: 20px; margin-right: 3px; }
+      .group-header label { font-size: 0.85rem; }
+      .form-group label { font-size: 0.85rem; }
+      
+      #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-box { padding: 8px; font-size: 0.85rem; }
+      .stat-box span { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -88,9 +110,9 @@
         <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC Baru</button>
       </div>
 
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" value=""></div>
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" value=""></div>
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Support FG</label><input type="text" id="supportFg" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" oninput="localStorage.setItem('milStd_val', this.value)" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)" value=""></div>
 
       <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
       <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Copy Text</button>
@@ -259,6 +281,11 @@
       renderList('coreList', storageKeys.core);
       renderList('nonCoreList', storageKeys.nonCore);
       renderList('qcPassedList', storageKeys.qcPassed);
+      
+      // Mengambil data yang tersimpan untuk kolom tambahan
+      document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
+      document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
+      document.getElementById('supportFg').value = localStorage.getItem('supportFg_val') || '';
 
       state = JSON.parse(sessionStorage.getItem('planning_state'));
       if (!state) { 
@@ -331,7 +358,6 @@
       let nonCoreData = getListData(storageKeys.nonCore);
       let qcData = getListData(storageKeys.qcPassed);
 
-      // --- 1. AMBIL KENDALI PENUH ATAS FOOTER ---
       let cleanOutput = output;
       const footerKeywords = [/QC PASSED/i, /MIL-STD/i, /MIL STD/i, /Standby OT/i, /Support FG/i];
       let minIndex = cleanOutput.length;
@@ -344,26 +370,19 @@
       });
       
       if (minIndex < cleanOutput.length) {
-        cleanOutput = cleanOutput.substring(0, minIndex).trim(); // Hanya sisakan teks planning
+        cleanOutput = cleanOutput.substring(0, minIndex).trim(); 
       }
 
-      // --- 2. PERBAIKAN URUTAN REPLACE! (NON CORE DIGANTI LEBIH DULU) ---
-      
-      // Langkah A: Ganti teks "NON CORE" lebih dulu. 
-      // Karena jika "CORE" diganti duluan, "NON CORE 1" akan berubah jadi "NON (Nama Core)".
       nonCoreData.forEach((name, i) => {
         let regex = new RegExp(`\\bNON\\s*[-]?\\s*CORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
         cleanOutput = cleanOutput.replace(regex, name);
       });
 
-      // Langkah B: Setelah tidak ada lagi kata NON CORE, baru kita ganti kata "CORE".
       coreData.forEach((name, i) => {
         let regex = new RegExp(`\\bCORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
         cleanOutput = cleanOutput.replace(regex, name);
       });
 
-
-      // --- 3. SUSUN ULANG & TAMBAHKAN FOOTER MANUAL ---
       let qcPassedText = "";
       if (qcData.length === 1) {
         qcPassedText = qcData[0];
