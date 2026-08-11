@@ -276,12 +276,11 @@
       let nonCoreData = getListData(storageKeys.nonCore);
       let qcData = getListData(storageKeys.qcPassed);
 
-      // Cek dan Atur Output QC PASSED
       let qcPassedFormatted = "";
       if (qcData.length === 1) {
-        qcPassedFormatted = qcData[0]; // Jika 1 nama, hanya tampilkan nama
+        qcPassedFormatted = qcData[0];
       } else if (qcData.length > 1) {
-        qcPassedFormatted = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n'); // Jika banyak, gunakan angka 1., 2., dst
+        qcPassedFormatted = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n');
       }
 
       finalConfig = {
@@ -330,20 +329,59 @@
       
       let coreData = getListData(storageKeys.core);
       let nonCoreData = getListData(storageKeys.nonCore);
+      let qcData = getListData(storageKeys.qcPassed);
 
-      // Otomatis menimpa/mengganti tulisan "Core 1", "Core 2" dengan nama inputan (Abaikan besar-kecil huruf)
+      // --- 1. AMBIL KENDALI PENUH ATAS FOOTER UNTUK MENCEGAH BUG HILANG/KOSONG ---
+      // Menghapus semua sisa teks footer bawaan (jika dihasilkan AI) dari index 'QC PASSED' dsb ke bawah
+      let cleanOutput = output;
+      const footerKeywords = [/QC PASSED/i, /MIL-STD/i, /MIL STD/i, /Standby OT/i, /Support FG/i];
+      let minIndex = cleanOutput.length;
+      
+      footerKeywords.forEach(regex => {
+        let match = cleanOutput.match(regex);
+        if (match && match.index < minIndex) {
+          minIndex = match.index;
+        }
+      });
+      
+      if (minIndex < cleanOutput.length) {
+        cleanOutput = cleanOutput.substring(0, minIndex).trim(); // Hanya sisakan teks core planning
+      }
+
+      // --- 2. GANTI NAMA "CORE 1", "NON CORE 1", DST ---
       coreData.forEach((name, i) => {
-        let regex = new RegExp(`\\bCore\\s*${i+1}\\b`, 'gi');
-        output = output.replace(regex, name);
+        // Mendeteksi kata CORE 1, CORE 2, dst secara pintar & mengabaikan huruf besar/kecil
+        let regex = new RegExp(`\\bCORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
+        cleanOutput = cleanOutput.replace(regex, name);
       });
 
-      // Otomatis menimpa/mengganti tulisan "Non Core 1", "Non Core 2" dengan nama inputan
       nonCoreData.forEach((name, i) => {
-        let regex = new RegExp(`\\bNon\\s*[-]?\\s*Core\\s*${i+1}\\b`, 'gi');
-        output = output.replace(regex, name);
+        let regex = new RegExp(`\\bNON\\s*[-]?\\s*CORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
+        cleanOutput = cleanOutput.replace(regex, name);
       });
 
-      document.getElementById('textOutput').value = output;
+      // --- 3. SUSUN ULANG & TAMBAHKAN FOOTER MANUAL ---
+      // Membangun ulang string untuk QC PASSED (1 nama = tanpa nomor. >1 nama = nomor urut)
+      let qcPassedText = "";
+      if (qcData.length === 1) {
+        qcPassedText = qcData[0];
+      } else if (qcData.length > 1) {
+        qcPassedText = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n');
+      }
+
+      // Mengambil nilai murni dari kolom konfigurasi (biarpun kosong)
+      let milStdVal = document.getElementById('milStd').value.trim();
+      let standbyVal = document.getElementById('standbyOt').value.trim();
+      let supportVal = document.getElementById('supportFg').value.trim();
+
+      // Secara mutlak merender footer pada akhir output dengan format bersih
+      cleanOutput += `\n\nQC PASSED :\n${qcPassedText}`;
+      cleanOutput += `\nMIL-STD : ${milStdVal}`;
+      cleanOutput += `\nStandby OT : ${standbyVal}`;
+      cleanOutput += `\nSupport FG : ${supportVal}`;
+
+      // Lempar output ke Editor Text Final
+      document.getElementById('textOutput').value = cleanOutput;
       document.getElementById('textOutputContainer').style.display = 'block';
     }
 
@@ -379,17 +417,15 @@
       let nonCoreData = getListData(storageKeys.nonCore);
 
       currentPlan.forEach(slot => {
-        // Melakukan penyesuaian nama Core di CSV ekspor jika perlu
         let slotCore = String(slot.core);
         coreData.forEach((name, i) => {
-          let regex = new RegExp(`\\bCore\\s*${i+1}\\b`, 'gi');
+          let regex = new RegExp(`\\bCORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
           slotCore = slotCore.replace(regex, name);
         });
 
-        // Melakukan penyesuaian nama Non Core di CSV ekspor
         let ncString = slot.nonCore.join(" & ") || "-";
         nonCoreData.forEach((name, i) => {
-          let regex = new RegExp(`\\bNon\\s*[-]?\\s*Core\\s*${i+1}\\b`, 'gi');
+          let regex = new RegExp(`\\bNON\\s*[-]?\\s*CORE\\s*[-]?\\s*${i+1}\\b`, 'gi');
           ncString = ncString.replace(regex, name);
         });
 
