@@ -31,7 +31,7 @@ const BrainAI = {
   },
 
   /**
-   * Mengatur & membuat alokasi mesin ke slot CQI berdasarkan skor AI
+   * Mengatur & membuat alokasi mesin ke slot CQI berdasarkan skor AI & aturan khusus
    */
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
@@ -63,9 +63,68 @@ const BrainAI = {
       ncIdx++;
     }
 
-    // ASSIGNMENT DENGAN AI SCORING
+    // HITUNG JUMLAH MESIN RUNNING PER LINE (Untuk aturan 0A - 10A)
+    let lineCounts = {};
+    machines.forEach(m => {
+      if (m.line) {
+        lineCounts[m.line] = (lineCounts[m.line] || 0) + 1;
+      }
+    });
+
     let unassigned = [...machines];
     
+    // --- ATURAN 1: MESIN M2 & M3 EKSKLUSIF DI CQI 19 ---
+    let m2m3Machines = unassigned.filter(m => 
+      ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes(m.name.toUpperCase())
+    );
+    let slot19 = slots.find(s => 
+      String(s.cqi.id) === '19' || String(s.cqi.name) === '19' || String(s.cqi.name).includes('19')
+    );
+    
+    if (m2m3Machines.length > 0 && slot19) {
+      m2m3Machines.forEach(m => {
+        slot19.machines.push(m);
+        unassigned = unassigned.filter(x => x.id !== m.id);
+      });
+      // Kunci kapasitas slot 19 agar tidak dimasuki mesin tambahan lain
+      slot19.capacity = slot19.machines.length;
+    }
+
+    // --- ATURAN 2: MESIN C1 & C2 DI CQI 24 + MAKS 2-3 MESIN APK TERDEKAT ---
+    let c1c2Machines = unassigned.filter(m => 
+      ['C1', 'C2'].includes(m.id.toUpperCase()) || ['C1', 'C2'].includes(m.name.toUpperCase())
+    );
+    let slot24 = slots.find(s => 
+      String(s.cqi.id) === '24' || String(s.cqi.name) === '24' || String(s.cqi.name).includes('24')
+    );
+    
+    if (c1c2Machines.length > 0 && slot24) {
+      c1c2Machines.forEach(m => {
+        slot24.machines.push(m);
+        unassigned = unassigned.filter(x => x.id !== m.id);
+      });
+      
+      // Ambil mesin APK terdekat untuk dimasukkan ke CQI 24
+      let apkCandidates = unassigned.filter(m => 
+        m.name.toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK')
+      );
+      
+      apkCandidates.sort((a, b) => {
+        let distA = this.getDistance(a.row, a.col, slot24.cqi.row, slot24.cqi.col);
+        let distB = this.getDistance(b.row, b.col, slot24.cqi.row, slot24.cqi.col);
+        return distA - distB;
+      });
+
+      let addedApk = apkCandidates.slice(0, 3); // Ambil maks 2-3 mesin APK terdekat
+      addedApk.forEach(m => {
+        if (slot24.machines.length < slot24.capacity) {
+          slot24.machines.push(m);
+          unassigned = unassigned.filter(x => x.id !== m.id);
+        }
+      });
+    }
+
+    // --- ASSIGNMENT MESIN LAINNYA DENGAN AI SCORING ---
     unassigned.forEach(m => {
       let bestSlot = null;
       let bestScore = -Infinity;
@@ -79,9 +138,43 @@ const BrainAI = {
         let histScore = this.getHistory(m.id, slot.cqi.id);
         let lineScore = (m.line === slot.cqi.line) ? 100 : 0;
         let loadScore = ((slot.capacity - slot.machines.length) / slot.capacity) * 100;
-        
-        // BOBOT AI: History 45%, Distance 25%, Line 10%, Load Balance 10%, Avail 10%
-        let totalScore = (histScore * 0.45) + (distScore * 0.25) + (lineScore * 0.10) + (loadScore * 0.10) + (100 * 0.10);
+
+        // PRIORITAS LINE 0A - 10A (Jika running 2, 3, atau 4 mesin)
+        let sameLineBonus = 0;
+        if (m.line && lineCounts[m.line] >= 2 && lineCounts[m.line] <= 4) {
+          let isSameLineCQI = (slot.cqi.line === m.line) || (slot.cqi.name && slot.cqi.name.includes(m.line));
+          if (isSameLineCQI) {
+            sameLineBonus = 200; // Prioritas utama ke CQI line tersebut
+          }
+        }
+
+        // PENGECEKAN CAMPURAN MESIN APK (Tidak boleh campur AST, hanya APK/KH/X)
+        let apkCompatibilityPenalty = 0;
+        let isApk = m.name.toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK');
+        if (isApk) {
+          let hasAst = slot.machines.some(sm => 
+            sm.name.toUpperCase().startsWith('AST') || sm.id.toUpperCase().startsWith('AST')
+          );
+          if (hasAst) {
+            apkCompatibilityPenalty = -150; // Penalti jika dicampur dengan AST
+          }
+        } else if (m.name.toUpperCase().startsWith('AST') || m.id.toUpperCase().startsWith('AST')) {
+          let hasApk = slot.machines.some(sm => 
+            sm.name.toUpperCase().startsWith('APK') || sm.id.toUpperCase().startsWith('APK')
+          );
+          if (hasApk) {
+            apkCompatibilityPenalty = -150; // Penalti jika AST masuk ke slot yang sudah ada APK
+          }
+        }
+
+        // AKUMULASI SKOR BOBOT AI
+        let totalScore = (histScore * 0.40) + 
+                         (distScore * 0.25) + 
+                         (lineScore * 0.15) + 
+                         (loadScore * 0.10) + 
+                         (100 * 0.10) + 
+                         sameLineBonus + 
+                         apkCompatibilityPenalty;
 
         if (totalScore > bestScore) {
           bestScore = totalScore;
@@ -109,6 +202,22 @@ const BrainAI = {
       let maxCap = slot.nonCore.length > 0 ? 8 : 6;
       if (slot.machines.length > maxCap) errors.push(`Rule Gagal: CQI ${slot.cqi.name} melampaui batas kapasitas (${maxCap} mesin).`);
       
+      // Validasi M2 / M3
+      let hasM2M3 = slot.machines.some(m => ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes(m.name.toUpperCase()));
+      if (hasM2M3) {
+        let isOnlyM2M3 = slot.machines.every(m => ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes(m.name.toUpperCase()));
+        if (!isOnlyM2M3) {
+          errors.push(`Rule Gagal: CQI ${slot.cqi.name} memuat M2/M3 dan tidak boleh dicampur mesin lain.`);
+        }
+      }
+
+      // Validasi Pencampuran APK dan AST
+      let hasApk = slot.machines.some(m => m.name.toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK'));
+      let hasAst = slot.machines.some(m => m.name.toUpperCase().startsWith('AST') || m.id.toUpperCase().startsWith('AST'));
+      if (hasApk && hasAst) {
+        errors.push(`Rule Peringatan: CQI ${slot.cqi.name} mencampur mesin APK dan AST.`);
+      }
+
       slot.machines.forEach(m => {
         if (coveredIds.has(m.id)) errors.push(`Validasi: Mesin ${m.name} masuk ke 2 CQI sekaligus.`);
         coveredIds.add(m.id);
