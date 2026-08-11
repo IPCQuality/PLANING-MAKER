@@ -10,48 +10,117 @@
     .panel { background: #1e293b; padding: 20px; border-radius: 8px; flex: 1; border: 1px solid #334155; }
     
     h2, h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9rem; }
+    .form-group { margin-bottom: 20px; }
+    
+    .group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .group-header label { margin-bottom: 0; color: #94a3b8; font-size: 0.9rem; font-weight: bold; }
+    .group-actions { display: flex; gap: 5px; }
+
     input, textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;}
     
     .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
     .btn:hover { background: #2563eb; }
     .btn-success { background: #10b981; } .btn-success:hover { background: #059669; }
 
-    /* Kanban Board for Manual Edit */
-    .kanban-board { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-top: 20px;}
-    .kanban-col { background: #0f172a; min-width: 250px; border-radius: 6px; padding: 10px; border: 1px solid #334155; }
-    .kanban-header { font-weight: bold; margin-bottom: 10px; color: #3b82f6; text-align: center;}
-    .machine-card { background: #1e293b; border: 1px solid #475569; padding: 8px; margin-bottom: 8px; border-radius: 4px; cursor: grab; font-size: 0.85rem; }
+    /* Dynamic List Styles */
+    .list-item { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+    .list-item .num { width: 25px; color: #94a3b8; font-size: 0.9rem; text-align: right; margin-right: 5px; font-weight: bold;}
+    .list-item input { flex: 1; margin: 0; padding: 8px; }
+    
+    .locked-input { background: #1e293b !important; color: #10b981 !important; border-color: #10b981 !important; cursor: not-allowed; font-weight: bold; }
+
+    .btn-sm { padding: 6px 10px; font-size: 0.85rem; background: #334155; border: none; color: white; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .btn-sm:hover { background: #475569; }
+    .btn-lock { background: #10b981; } .btn-lock:hover { background: #059669; }
+    .btn-edit { background: #f59e0b; } .btn-edit:hover { background: #d97706; }
+    .btn-del { background: #ef4444; } .btn-del:hover { background: #dc2626; }
+    
+    .add-btn { background: #0f172a; border: 1px dashed #3b82f6; color: #3b82f6; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; width: 100%; margin-top: 5px; transition: 0.2s;}
+    .add-btn:hover { background: #1e3a8a; color: white;}
     
     #dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .stat-box { background: #0f172a; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #334155;}
     .stat-box span { font-size: 1.2rem; font-weight: bold; color: #10b981; }
 
-    pre { background: #020617; padding: 15px; border-radius: 6px; white-space: pre-wrap; font-size: 0.85rem; color: #e2e8f0; border: 1px solid #334155;}
+    /* Text Editor Style */
+    #textOutput { height: 400px; font-family: monospace; font-size: 0.85rem; color: #e2e8f0; resize: vertical; line-height: 1.5; }
     .actions { display: flex; gap: 10px; }
+
+    /* RESPONSIVE MOBILE UI */
+    @media (max-width: 768px) {
+      body { padding: 10px; font-size: 0.9rem; }
+      .container { flex-direction: column; gap: 15px; }
+      .panel { max-width: 100% !important; padding: 15px; }
+      
+      h2 { font-size: 1.2rem; }
+      h3 { font-size: 1.1rem; }
+      
+      .btn { padding: 10px; font-size: 0.9rem; }
+      .btn-sm { padding: 5px 8px; font-size: 0.75rem; }
+      input, textarea { padding: 8px; font-size: 0.85rem; }
+      
+      .list-item .num { font-size: 0.8rem; width: 20px; margin-right: 3px; }
+      .group-header label { font-size: 0.85rem; }
+      .form-group label { font-size: 0.85rem; }
+      
+      #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-box { padding: 8px; font-size: 0.85rem; }
+      .stat-box span { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="panel" style="max-width: 350px;">
+    <div class="panel" style="max-width: 420px;">
       <h2>Konfigurasi Planning</h2>
       
-      <div class="form-group"><label>Jumlah CORE Manpower</label><input type="number" id="numCore" value="1" min="1"></div>
-      <div class="form-group"><label>Jumlah NON CORE</label><input type="number" id="numNonCore" value="0" min="0"></div>
+      <div class="form-group">
+        <div class="group-header">
+          <label>CORE Manpower</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.core, 'coreList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.core, 'coreList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
+        <div id="coreList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.core, getSavedData(storageKeys.core).length, 'coreList')">+ Tambah Core Baru</button>
+      </div>
       
-      <div class="form-group"><label>QC PASSED (1-5)</label><textarea id="qcPassed" rows="3"></textarea></div>
-      <div class="form-group"><label>MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
-      <div class="form-group"><label>Standby OT</label><input type="text" id="standbyOt" value="-"></div>
-      <div class="form-group"><label>Support FG</label><input type="text" id="supportFg" value="-"></div>
+      <div class="form-group">
+        <div class="group-header">
+          <label>NON CORE Manpower</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.nonCore, 'nonCoreList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.nonCore, 'nonCoreList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
+        <div id="nonCoreList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core Baru</button>
+      </div>
+      
+      <div class="form-group">
+        <div class="group-header">
+          <label>QC PASSED</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.qcPassed, 'qcPassedList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.qcPassed, 'qcPassedList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
+        <div id="qcPassedList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC Baru</button>
+      </div>
+
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" oninput="localStorage.setItem('milStd_val', this.value)" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-weight:bold;">Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)" value=""></div>
 
       <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
-      <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Export Text</button>
+      <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Copy Text</button>
       <div class="actions">
         <button class="btn" style="background:#25d366" onclick="shareWA()">💬 WA</button>
         <button class="btn" style="background:#f59e0b" onclick="exportExcel()">📊 Excel</button>
       </div>
-      <a href="index.html" style="color:#94a3b8; font-size:0.8rem; text-decoration:none;">⬅ Kembali ke Map</a>
+      <a href="index.html" style="color:#94a3b8; font-size:0.8rem; text-decoration:none; display:block; text-align:center; margin-top: 10px;">⬅ Kembali ke Map</a>
     </div>
 
     <div class="panel" style="flex: 2;">
@@ -64,86 +133,197 @@
         <div class="stat-box">Rata Jarak: <br><span id="db-dist">0 m</span></div>
         <div class="stat-box">AI Success Rate: <br><span id="db-acc">0%</span></div>
       </div>
-
-      <div class="kanban-board" id="kanbanBoard">
-        <div style="color:#94a3b8; text-align:center; width:100%; padding: 40px;">Klik "Generate AI Planning" untuk melihat preview dan edit manual (drag & drop).</div>
-      </div>
       
       <div id="textOutputContainer" style="display:none; margin-top: 20px;">
-        <h3>Output Final Valid</h3>
-        <pre id="textOutput"></pre>
+        <h3>Editor Output Final</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px;">Anda bisa melakukan pengeditan manual secara langsung di kotak teks bawah ini.</p>
+        <textarea id="textOutput" spellcheck="false"></textarea>
       </div>
     </div>
   </div>
 
   <script src="brain.js"></script>
   <script>
-    let state = JSON.parse(sessionStorage.getItem('planning_state'));
-    if (!state) { alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
-    document.getElementById('db-run').innerText = state.machines.length;
-    
+    const storageKeys = {
+      core: 'core_names',
+      nonCore: 'noncore_names',
+      qcPassed: 'qc_names'
+    };
+
+    function getSavedData(key) {
+      let raw = JSON.parse(localStorage.getItem(key)) || [''];
+      return raw.map(item => {
+        if (typeof item === 'string') return { name: item, locked: false };
+        return item;
+      });
+    }
+
+    function saveData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function renderList(containerId, storageKey) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      const data = getSavedData(storageKey);
+
+      data.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'list-item';
+
+        const num = document.createElement('span');
+        num.className = 'num';
+        num.innerText = (index + 1) + '.';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = item.name;
+        input.placeholder = 'Ketik nama & tekan Enter...';
+        if (item.locked) {
+          input.readOnly = true;
+          input.classList.add('locked-input');
+        }
+        
+        input.oninput = (e) => updateItemName(storageKey, index, e.target.value);
+        input.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addNewItem(storageKey, index + 1, containerId);
+          }
+        };
+
+        const lockBtn = document.createElement('button');
+        lockBtn.className = item.locked ? 'btn-sm btn-edit' : 'btn-sm btn-lock';
+        lockBtn.innerHTML = item.locked ? '✏️ Edit' : '✓';
+        lockBtn.title = item.locked ? 'Buka Kunci Nama' : 'Kunci Nama';
+        lockBtn.onclick = () => toggleLock(storageKey, index, containerId);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-sm btn-del';
+        delBtn.innerHTML = 'X';
+        delBtn.title = 'Hapus Baris';
+        delBtn.onclick = () => removeItem(storageKey, index, containerId);
+
+        row.appendChild(num);
+        row.appendChild(input);
+        row.appendChild(lockBtn);
+        row.appendChild(delBtn);
+        container.appendChild(row);
+      });
+    }
+
+    function updateItemName(key, index, value) {
+      const data = getSavedData(key);
+      data[index].name = value;
+      saveData(key, data);
+    }
+
+    function toggleLock(key, index, containerId) {
+      const data = getSavedData(key);
+      data[index].locked = !data[index].locked;
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    function addNewItem(key, index, containerId) {
+      const data = getSavedData(key);
+      if (index > data.length) index = data.length;
+      data.splice(index, 0, { name: '', locked: false });
+      saveData(key, data);
+      renderList(containerId, key);
+      
+      setTimeout(() => {
+        const inputs = document.getElementById(containerId).querySelectorAll('input');
+        if (inputs[index]) inputs[index].focus();
+      }, 10);
+    }
+
+    function removeItem(key, index, containerId) {
+      const data = getSavedData(key);
+      if (data.length === 1) {
+        data[0] = { name: '', locked: false };
+      } else {
+        data.splice(index, 1);
+      }
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    function shiftListUp(key, containerId) {
+      const data = getSavedData(key);
+      if (data.length <= 1) return;
+      const first = data.shift();
+      data.push(first);
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    function shiftListDown(key, containerId) {
+      const data = getSavedData(key);
+      if (data.length <= 1) return;
+      const last = data.pop();
+      data.unshift(last);
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    function getListData(storageKey) {
+      const data = getSavedData(storageKey);
+      return data.map(item => item.name.trim()).filter(name => name !== '');
+    }
+
+    let state = null;
     let currentPlan = [];
     let finalConfig = {};
 
+    window.onload = () => {
+      renderList('coreList', storageKeys.core);
+      renderList('nonCoreList', storageKeys.nonCore);
+      renderList('qcPassedList', storageKeys.qcPassed);
+      
+      document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
+      document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
+      document.getElementById('supportFg').value = localStorage.getItem('supportFg_val') || '';
+
+      state = JSON.parse(sessionStorage.getItem('planning_state'));
+      if (!state) { 
+        alert("Data kosong! Kembali ke Map."); 
+        window.location.href='index.html'; 
+      } else {
+        document.getElementById('db-run').innerText = state.machines.length;
+      }
+    };
+
     function executePlan() {
+      if(!state) return;
+
+      let coreData = getListData(storageKeys.core);
+      let nonCoreData = getListData(storageKeys.nonCore);
+      let qcData = getListData(storageKeys.qcPassed);
+
+      let qcPassedFormatted = "";
+      if (qcData.length === 1) {
+        qcPassedFormatted = qcData[0];
+      } else if (qcData.length > 1) {
+        qcPassedFormatted = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n');
+      }
+
       finalConfig = {
-        core: parseInt(document.getElementById('numCore').value) || 1,
-        nonCore: parseInt(document.getElementById('numNonCore').value) || 0,
-        qcPassed: document.getElementById('qcPassed').value,
+        coreNames: coreData,
+        core: coreData.length > 0 ? coreData.length : 1,
+        nonCoreNames: nonCoreData,
+        nonCore: nonCoreData.length,
+        qcPassedNames: qcData,
+        qcPassed: qcPassedFormatted, 
         milStd: document.getElementById('milStd').value,
         standbyOt: document.getElementById('standbyOt').value,
         supportFg: document.getElementById('supportFg').value
       };
       
       currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-      renderKanban();
+      
       updateDashboard();
-    }
-
-    function renderKanban() {
-      const board = document.getElementById('kanbanBoard');
-      board.innerHTML = '';
-      currentPlan.forEach((slot, index) => {
-        let col = document.createElement('div');
-        col.className = 'kanban-col';
-        col.ondragover = e => e.preventDefault();
-        col.ondrop = e => handleDrop(e, slot.slotId);
-        
-        let header = document.createElement('div');
-        header.className = 'kanban-header';
-        header.innerHTML = `${slot.cqi.name} (${slot.core})<br>
-          <small style="color:#9ca3af">Kapasitas: ${slot.machines.length}/${slot.capacity}</small><br>
-          <small style="color:#f59e0b">${slot.nonCore.join(', ')}</small>`;
-        col.appendChild(header);
-
-        slot.machines.forEach(m => {
-          let card = document.createElement('div');
-          card.className = 'machine-card';
-          card.innerText = m.name + " (" + m.line + ")";
-          card.draggable = true;
-          card.ondragstart = e => { e.dataTransfer.setData('machineId', m.id); e.dataTransfer.setData('sourceSlot', slot.slotId); };
-          col.appendChild(card);
-        });
-        board.appendChild(col);
-      });
-    }
-
-    function handleDrop(e, targetSlotId) {
-      let machineId = e.dataTransfer.getData('machineId');
-      let sourceSlotId = e.dataTransfer.getData('sourceSlot');
-      if (sourceSlotId === targetSlotId) return;
-
-      let sourceSlot = currentPlan.find(s => s.slotId === sourceSlotId);
-      let targetSlot = currentPlan.find(s => s.slotId === targetSlotId);
-      
-      let machineIdx = sourceSlot.machines.findIndex(m => m.id === machineId);
-      let machine = sourceSlot.machines[machineIdx];
-      
-      sourceSlot.machines.splice(machineIdx, 1);
-      targetSlot.machines.push(machine);
-      
-      renderKanban();
-      updateDashboard();
+      generateTextOutput();
     }
 
     function updateDashboard() {
@@ -168,43 +348,50 @@
       document.getElementById('db-acc').innerText = mCount ? (totalHist / mCount).toFixed(1) + '%' : '0%';
     }
 
+    function generateTextOutput() {
+      if(currentPlan.length === 0) return;
+      let output = BrainAI.formatText(currentPlan, finalConfig);
+
+      document.getElementById('textOutput').value = output;
+      document.getElementById('textOutputContainer').style.display = 'block';
+    }
+
     function validateAndExport() {
       if(currentPlan.length === 0) return alert("Generate planning dulu!");
-      let errors = BrainAI.validate(currentPlan, state.machines.length);
       
+      let errors = BrainAI.validate(currentPlan, state.machines.length);
       if (errors.length > 0) {
         alert("VALIDASI GAGAL! Perbaiki rule berikut:\n- " + errors.join("\n- "));
         return;
       }
 
-      // Record History (Learning AI)
       currentPlan.forEach(slot => {
         slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true));
       });
 
-      let output = BrainAI.formatText(currentPlan, finalConfig);
-      document.getElementById('textOutput').innerText = output;
-      document.getElementById('textOutputContainer').style.display = 'block';
-      
-      navigator.clipboard.writeText(output);
+      let finalEditedText = document.getElementById('textOutput').value;
+      navigator.clipboard.writeText(finalEditedText);
       alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
     }
 
     function shareWA() {
-      let text = document.getElementById('textOutput').innerText;
-      if (!text) return alert("Validasi dan export text dulu!");
+      let text = document.getElementById('textOutput').value;
+      if (!text) return alert("Generate planning dan pastikan text ada isinya!");
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     function exportExcel() {
       if(currentPlan.length === 0) return alert("Generate planning dulu!");
-      let csv = "CQI,CORE,NON CORE,KODE MESIN,LINE\n";
+      let csv = "CQI,CORE,NON CORE,MESIN (WORKSTATION/KODE),LINE\n";
+
       currentPlan.forEach(slot => {
-        let nc = slot.nonCore.join(" & ") || "-";
-        slot.machines.forEach(m => {
-          csv += `${slot.cqi.name},${slot.core},${nc},${m.name},${m.line}\n`;
-        });
+        let slotCore = String(slot.core);
+        let ncString = slot.nonCore.join(" & ") || "-";
+        let formattedMachines = BrainAI.formatMachineList(slot.machines);
+
+        csv += `"${slot.cqi.name}","${slotCore}","${ncString}","${formattedMachines}","${slot.cqi.line || '-'}"\n`;
       });
+
       let blob = new Blob([csv], { type: 'text/csv' });
       let a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
