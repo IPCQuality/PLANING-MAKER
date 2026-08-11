@@ -1,17 +1,26 @@
 const BrainAI = {
+  /**
+   * Menghitung jarak Euclidean antara dua titik (mesin dan CQI)
+   */
   getDistance(r1, c1, r2, c2) {
     return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(c1 - c2, 2));
   },
 
+  /**
+   * Mengambil persentase keberhasilan hubungan mesin & CQI dari Local Storage
+   */
   getHistory(machineId, cqiId) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (hist[machineId] && hist[machineId][cqiId]) {
       let h = hist[machineId][cqiId];
       return h.count > 0 ? (h.success / h.count) * 100 : 50;
     }
-    return 50; // Skor tengah jika blm ada history
+    return 50; // Skor tengah default jika belum ada riwayat
   },
 
+  /**
+   * Mencatat riwayat manual mesin & CQI ke Local Storage
+   */
   recordHistory(machineId, cqiId, success = true) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (!hist[machineId]) hist[machineId] = {};
@@ -21,11 +30,14 @@ const BrainAI = {
     localStorage.setItem('planning_history', JSON.stringify(hist));
   },
 
+  /**
+   * Mengatur & membuat alokasi mesin ke slot CQI berdasarkan skor AI
+   */
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
     
-    // 1 CQI = 1 CORE. 
+    // 1 CQI = 1 CORE
     let activeCQIs = cqis.slice(0, coreLimit); 
     
     let slots = activeCQIs.map((cqi, i) => {
@@ -35,7 +47,7 @@ const BrainAI = {
         core: `CORE ${i+1}`,
         nonCore: [],
         machines: [],
-        capacity: 6 // Rule jika hanya CORE
+        capacity: 6 // Kapasitas default jika hanya ada CORE
       };
     });
 
@@ -46,12 +58,12 @@ const BrainAI = {
       let slot = slots[ncIdx % slots.length];
       if (slot.nonCore.length < 2) { // Maksimal 2 Non Core per CQI
         slot.nonCore.push(`NON CORE ${i+1}`);
-        slot.capacity = 8; // Rule kapasitas jika ada Non Core
+        slot.capacity = 8; // Kapasitas jika ada Non Core
       }
       ncIdx++;
     }
 
-    // AI SCORING ASSIGNMENT
+    // ASSIGNMENT DENGAN AI SCORING
     let unassigned = [...machines];
     
     unassigned.forEach(m => {
@@ -59,10 +71,10 @@ const BrainAI = {
       let bestScore = -Infinity;
 
       slots.forEach(slot => {
-        if (slot.machines.length >= slot.capacity) return; // Skip jika melanggar Rule
+        if (slot.machines.length >= slot.capacity) return; // Skip jika slot penuh
         
         let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
-        let distScore = Math.max(0, 100 - dist); // Dinormalisasi
+        let distScore = Math.max(0, 100 - dist); // Normalisasi
         
         let histScore = this.getHistory(m.id, slot.cqi.id);
         let lineScore = (m.line === slot.cqi.line) ? 100 : 0;
@@ -85,6 +97,9 @@ const BrainAI = {
     return slots;
   },
 
+  /**
+   * Validasi hasil planning sesuai rule yang ditentukan
+   */
   validate(plan, totalMachinesCount) {
     let errors = [];
     let coveredIds = new Set();
@@ -107,6 +122,9 @@ const BrainAI = {
     return errors;
   },
 
+  /**
+   * Mengubah data objek plan menjadi teks laporan
+   */
   formatText(plan, config) {
     let date = new Date();
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -123,7 +141,7 @@ const BrainAI = {
     });
 
     txt += `QC PASSED\n`;
-    let qcArr = config.qcPassed.split('\n').filter(x => x.trim() !== '');
+    let qcArr = config.qcPassed ? config.qcPassed.split('\n').filter(x => x.trim() !== '') : [];
     for(let i=0; i<5; i++) {
       txt += `${i+1}. ${qcArr[i] || ''}\n`;
     }
@@ -133,5 +151,84 @@ const BrainAI = {
     txt += `Support FG: ${config.supportFg || '-'}\n`;
     
     return txt;
+  },
+
+  /**
+   * Menyingkronkan riwayat dari GitHub Raw URL saat aplikasi pertama kali dibuka,
+   * lalu menggabungkannya dengan Local Storage secara akumulatif.
+   */
+  async initHistory(githubRawUrl) {
+    try {
+      const response = await fetch(githubRawUrl);
+      if (!response.ok) throw new Error("Gagal mengambil file history dari GitHub");
+      const githubHistory = await response.json();
+
+      let localHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
+
+      for (let machineId in githubHistory) {
+        if (!localHistory[machineId]) {
+          localHistory[machineId] = {};
+        }
+        for (let cqiId in githubHistory[machineId]) {
+          if (!localHistory[machineId][cqiId]) {
+            localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
+          } else {
+            localHistory[machineId][cqiId].count += githubHistory[machineId][cqiId].count;
+            localHistory[machineId][cqiId].success += githubHistory[machineId][cqiId].success;
+          }
+        }
+      }
+
+      localStorage.setItem('planning_history', JSON.stringify(localHistory));
+      console.log("✅ History AI berhasil disinkronisasi dengan GitHub!");
+    } catch (error) {
+      console.warn("⚠️ Menggunakan history internal storage. (Sync GitHub gagal/dilewati):", error.message);
+    }
+  },
+
+  /**
+   * Mempelajari teks planning manual, mengekstrak relasi Mesin -> CQI,
+   * memperbarui Local Storage, serta mengembalikan string JSON untuk disimpan ke GitHub.
+   */
+  parseAndLearn(planningText) {
+    const lines = planningText.split('\n');
+    let currentHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
+
+    lines.forEach(line => {
+      let match = line.match(/^\d+\.\s+(.*?)\s+:\s+(.*)$/);
+      
+      if (match) {
+        let machinePart = match[1]; 
+        let personnelPart = match[2];
+
+        let cqiId = personnelPart.split('->').pop().trim();
+        let rawMachines = machinePart.split(/[\+,]/).map(m => m.trim());
+
+        rawMachines.forEach(machineStr => {
+          let machineId = machineStr.replace(/\s*\d+\s*mesin/gi, '').trim();
+          
+          if (!machineId) return;
+
+          if (!currentHistory[machineId]) currentHistory[machineId] = {};
+          if (!currentHistory[machineId][cqiId]) currentHistory[machineId][cqiId] = { count: 0, success: 0 };
+
+          currentHistory[machineId][cqiId].count += 1;
+          currentHistory[machineId][cqiId].success += 1;
+        });
+      }
+    });
+
+    localStorage.setItem('planning_history', JSON.stringify(currentHistory));
+    
+    const jsonOutput = JSON.stringify(currentHistory, null, 2);
+    console.log("📋 Hasil Ekspor history.json (Salin ke GitHub):");
+    console.log(jsonOutput);
+    
+    return jsonOutput;
   }
 };
+
+// Export modul jika dijalankan di Node.js / Module Bundler
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = BrainAI;
+}
