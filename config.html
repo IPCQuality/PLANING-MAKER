@@ -88,9 +88,9 @@
         <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC Baru</button>
       </div>
 
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" value="-"></div>
-      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Support FG</label><input type="text" id="supportFg" value="-"></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" value=""></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Support FG</label><input type="text" id="supportFg" value=""></div>
 
       <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
       <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Copy Text</button>
@@ -170,14 +170,12 @@
           }
         };
 
-        // Tombol Ceklis / Edit
         const lockBtn = document.createElement('button');
         lockBtn.className = item.locked ? 'btn-sm btn-edit' : 'btn-sm btn-lock';
         lockBtn.innerHTML = item.locked ? '✏️ Edit' : '✓';
         lockBtn.title = item.locked ? 'Buka Kunci Nama' : 'Kunci Nama';
         lockBtn.onclick = () => toggleLock(storageKey, index, containerId);
 
-        // Tombol Hapus
         const delBtn = document.createElement('button');
         delBtn.className = 'btn-sm btn-del';
         delBtn.innerHTML = 'X';
@@ -229,7 +227,6 @@
       renderList(containerId, key);
     }
 
-    // Rotasi Naik: elemen ke-1 pindah ke paling bawah
     function shiftListUp(key, containerId) {
       const data = getSavedData(key);
       if (data.length <= 1) return;
@@ -239,7 +236,6 @@
       renderList(containerId, key);
     }
 
-    // Rotasi Turun: elemen terakhir pindah ke paling atas
     function shiftListDown(key, containerId) {
       const data = getSavedData(key);
       if (data.length <= 1) return;
@@ -280,13 +276,21 @@
       let nonCoreData = getListData(storageKeys.nonCore);
       let qcData = getListData(storageKeys.qcPassed);
 
+      // Cek dan Atur Output QC PASSED
+      let qcPassedFormatted = "";
+      if (qcData.length === 1) {
+        qcPassedFormatted = qcData[0]; // Jika 1 nama, hanya tampilkan nama
+      } else if (qcData.length > 1) {
+        qcPassedFormatted = qcData.map((name, i) => `${i + 1}. ${name}`).join('\n'); // Jika banyak, gunakan angka 1., 2., dst
+      }
+
       finalConfig = {
         coreNames: coreData,
         core: coreData.length > 0 ? coreData.length : 1,
         nonCoreNames: nonCoreData,
         nonCore: nonCoreData.length,
         qcPassedNames: qcData,
-        qcPassed: qcData.join('\n'),
+        qcPassed: qcPassedFormatted, 
         milStd: document.getElementById('milStd').value,
         standbyOt: document.getElementById('standbyOt').value,
         supportFg: document.getElementById('supportFg').value
@@ -323,6 +327,22 @@
     function generateTextOutput() {
       if(currentPlan.length === 0) return;
       let output = BrainAI.formatText(currentPlan, finalConfig);
+      
+      let coreData = getListData(storageKeys.core);
+      let nonCoreData = getListData(storageKeys.nonCore);
+
+      // Otomatis menimpa/mengganti tulisan "Core 1", "Core 2" dengan nama inputan (Abaikan besar-kecil huruf)
+      coreData.forEach((name, i) => {
+        let regex = new RegExp(`\\bCore\\s*${i+1}\\b`, 'gi');
+        output = output.replace(regex, name);
+      });
+
+      // Otomatis menimpa/mengganti tulisan "Non Core 1", "Non Core 2" dengan nama inputan
+      nonCoreData.forEach((name, i) => {
+        let regex = new RegExp(`\\bNon\\s*[-]?\\s*Core\\s*${i+1}\\b`, 'gi');
+        output = output.replace(regex, name);
+      });
+
       document.getElementById('textOutput').value = output;
       document.getElementById('textOutputContainer').style.display = 'block';
     }
@@ -354,10 +374,27 @@
     function exportExcel() {
       if(currentPlan.length === 0) return alert("Generate planning dulu!");
       let csv = "CQI,CORE,NON CORE,KODE MESIN,LINE\n";
+      
+      let coreData = getListData(storageKeys.core);
+      let nonCoreData = getListData(storageKeys.nonCore);
+
       currentPlan.forEach(slot => {
-        let nc = slot.nonCore.join(" & ") || "-";
+        // Melakukan penyesuaian nama Core di CSV ekspor jika perlu
+        let slotCore = String(slot.core);
+        coreData.forEach((name, i) => {
+          let regex = new RegExp(`\\bCore\\s*${i+1}\\b`, 'gi');
+          slotCore = slotCore.replace(regex, name);
+        });
+
+        // Melakukan penyesuaian nama Non Core di CSV ekspor
+        let ncString = slot.nonCore.join(" & ") || "-";
+        nonCoreData.forEach((name, i) => {
+          let regex = new RegExp(`\\bNon\\s*[-]?\\s*Core\\s*${i+1}\\b`, 'gi');
+          ncString = ncString.replace(regex, name);
+        });
+
         slot.machines.forEach(m => {
-          csv += `${slot.cqi.name},${slot.core},${nc},${m.name},${m.line}\n`;
+          csv += `${slot.cqi.name},${slotCore},${ncString},${m.name},${m.line}\n`;
         });
       });
       let blob = new Blob([csv], { type: 'text/csv' });
@@ -368,4 +405,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
