@@ -25,7 +25,7 @@
     
     .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
     
-    /* Sidebar Default Tersembunyi (Collapsed) */
+    /* 1. Sidebar Default Tersembunyi (Collapsed) */
     .sidebar { width: 300px; background: var(--bg-panel); border-right: 1px solid var(--border); padding: 16px; position: relative; transition: margin-left 0.3s ease; z-index: 5; }
     .sidebar.collapsed { margin-left: -300px; }
     
@@ -35,16 +35,20 @@
     .map-viewport { flex: 1; overflow: auto; padding: 40px; background: #030712; display: flex; align-items: flex-start; justify-content: flex-start; }
     .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; width: max-content; height: max-content; transform-origin: top left; transition: transform 0.1s; }
     .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; }
+    
+    /* 5. Border Pemisah Area Line A, B, C */
+    .grid-cell.line-boundary { border-right: 3px solid #3b82f6 !important; }
+    .line-header-badge { position: absolute; top: 2px; left: 4px; font-size: 0.6rem; font-weight: bold; color: #3b82f6; opacity: 0.8; pointer-events: none; }
 
     /* Node Style */
     .node { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; text-align: center; cursor: pointer; border-radius: 4px; position: relative; transition: all 0.2s; padding: 2px; }
     
-    /* Mesin Hanya 3 Keadaan: OFF, PERBAIKAN, RUNNING */
+    /* 3. Mesin Hanya 3 Keadaan: OFF, PERBAIKAN, RUNNING */
     .node-machine.OFF { background: var(--offplan); color: white; }
     .node-machine.PERBAIKAN { background: var(--down); color: white; }
     .node-machine.RUNNING { background: var(--running); color: white; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
 
-    /* CQI Hanya 2 Keadaan: READY (Bisa Digunakan) & OFF (Tidak Bisa Digunakan) */
+    /* 4. CQI Hanya 2 Keadaan: READY (Bisa Digunakan) & OFF (Tidak Bisa Digunakan) */
     .node-cqi.OFF { background: var(--cqi-off); color: white; }
     .node-cqi.READY { background: var(--cqi-ready); color: white; border: 2px solid white; box-shadow: 0 0 10px var(--cqi-ready); }
 
@@ -136,7 +140,7 @@
     let draggedNode = null;
     let activeModalType = '';
 
-    // Toggle Sidebar Live Status
+    // 1. Toggle Sidebar Live Status
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const btn = document.getElementById('toggleSidebarBtn');
@@ -160,14 +164,23 @@
       }
     }
 
+    // Hitung posisi Line berdasarkan Kolom pada grid
+    function getLineByCol(col, totalCols) {
+      let colA_end = Math.floor(totalCols / 3);
+      let colB_end = Math.floor((totalCols / 3) * 2);
+      if (col <= colA_end) return "Line A";
+      if (col <= colB_end) return "Line B";
+      return "Line C";
+    }
+
     function initializeStatuses() {
-      // Normalisasi status Mesin (OFF, PERBAIKAN, RUNNING)
+      // 3. Normalisasi status Mesin (OFF, PERBAIKAN, RUNNING)
       mapData.machines.forEach(m => {
         if (!m.status || m.status === 'OFFPLAN') m.status = 'OFF';
         else if (m.status === 'SETUP' || m.status === 'DOWN') m.status = 'PERBAIKAN';
       });
 
-      // Normalisasi status CQI (OFF, READY)
+      // 4. Normalisasi status CQI (OFF, READY)
       mapData.cqis.forEach(c => {
         if (c.status !== 'READY') c.status = 'OFF';
       });
@@ -187,24 +200,43 @@
 
       let totalCols = maxC + 2;
       let totalRows = maxR + 2;
+      let colA_end = Math.floor(totalCols / 3);
+      let colB_end = Math.floor((totalCols / 3) * 2);
 
       grid.style.gridTemplateColumns = `repeat(${totalCols}, 78px)`;
       grid.style.gridTemplateRows = `repeat(${totalRows}, 52px)`;
       
-      // Render Grid Cell
+      // Update otomatis property line mesin sesuai dengan kolom awal saat render
+      mapData.machines.forEach(m => {
+        m.line = getLineByCol(m.col, totalCols);
+      });
+
+      // 5. Render Grid Cell & Garis Batas Line A, B, C
       for (let r = 1; r <= totalRows; r++) {
         for (let c = 1; c <= totalCols; c++) {
           let cell = document.createElement('div');
           cell.className = 'grid-cell';
           cell.dataset.row = r; cell.dataset.col = c;
+          
+          // Beri penanda garis border vertikal pemisah Line A, Line B, dan Line C
+          if (c === colA_end || c === colB_end) {
+            cell.classList.add('line-boundary');
+          }
+
+          // Label penanda area di baris paling atas (Row 1)
+          if (r === 1) {
+            if (c === 1) cell.innerHTML += `<div class="line-header-badge">LINE A</div>`;
+            else if (c === colA_end + 1) cell.innerHTML += `<div class="line-header-badge">LINE B</div>`;
+            else if (c === colB_end + 1) cell.innerHTML += `<div class="line-header-badge">LINE C</div>`;
+          }
 
           cell.ondragover = e => e.preventDefault();
-          cell.ondrop = e => handleDrop(e, r, c);
+          cell.ondrop = e => handleDrop(e, r, c, totalCols);
           grid.appendChild(cell);
         }
       }
 
-      // Tampilkan Penamaan (Hanya `node.name`)
+      // 2. Tampilkan Penamaan Seperti Awal (Hanya `node.name`)
       const appendToGrid = (node, type) => {
         let cell = document.querySelector(`.grid-cell[data-row="${node.row}"][data-col="${node.col}"]`);
         if (!cell) return;
@@ -245,9 +277,11 @@
 
     function cycleStatus(node, type) {
       if (type === 'machine') {
+        // 3. Mesin: OFF -> PERBAIKAN -> RUNNING
         const s = ['OFF', 'PERBAIKAN', 'RUNNING'];
         node.status = s[(s.indexOf(node.status) + 1) % s.length];
       } else if (type === 'cqi') {
+        // 4. CQI: OFF -> READY
         const s = ['OFF', 'READY'];
         node.status = s[(s.indexOf(node.status) + 1) % s.length];
       }
@@ -273,13 +307,17 @@
       e.dataTransfer.setData('text/plain', node.id);
     }
     
-    // Saat objek (mesin/label/cqi) dijatuhkan
-    function handleDrop(e, r, c) {
+    // 5. Saat Mesin Dipindahkan, Properti `line` Otomatis Terupdate
+    function handleDrop(e, r, c, totalCols) {
       if (!editMode || !draggedNode) return;
       e.preventDefault();
       draggedNode.node.row = r;
       draggedNode.node.col = c;
       
+      if (draggedNode.type === 'machine') {
+        draggedNode.node.line = getLineByCol(c, totalCols);
+      }
+
       draggedNode = null;
       renderGrid();
     }
