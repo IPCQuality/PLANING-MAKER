@@ -10,8 +10,12 @@
     .panel { background: #1e293b; padding: 20px; border-radius: 8px; flex: 1; border: 1px solid #334155; }
     
     h2, h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 0; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 10px; color: #94a3b8; font-size: 0.9rem; font-weight: bold;}
+    .form-group { margin-bottom: 20px; }
+    
+    .group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .group-header label { margin-bottom: 0; color: #94a3b8; font-size: 0.9rem; font-weight: bold; }
+    .group-actions { display: flex; gap: 5px; }
+
     input, textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;}
     
     .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
@@ -22,9 +26,15 @@
     .list-item { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
     .list-item .num { width: 25px; color: #94a3b8; font-size: 0.9rem; text-align: right; margin-right: 5px; font-weight: bold;}
     .list-item input { flex: 1; margin: 0; padding: 8px; }
-    .btn-sm { padding: 6px 10px; font-size: 0.9rem; background: #334155; border: none; color: white; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center;}
+    
+    .locked-input { background: #1e293b !important; color: #10b981 !important; border-color: #10b981 !important; cursor: not-allowed; font-weight: bold; }
+
+    .btn-sm { padding: 6px 10px; font-size: 0.85rem; background: #334155; border: none; color: white; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; }
     .btn-sm:hover { background: #475569; }
+    .btn-lock { background: #10b981; } .btn-lock:hover { background: #059669; }
+    .btn-edit { background: #f59e0b; } .btn-edit:hover { background: #d97706; }
     .btn-del { background: #ef4444; } .btn-del:hover { background: #dc2626; }
+    
     .add-btn { background: #0f172a; border: 1px dashed #3b82f6; color: #3b82f6; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; width: 100%; margin-top: 5px; transition: 0.2s;}
     .add-btn:hover { background: #1e3a8a; color: white;}
     
@@ -39,30 +49,48 @@
 </head>
 <body>
   <div class="container">
-    <div class="panel" style="max-width: 400px;">
+    <div class="panel" style="max-width: 420px;">
       <h2>Konfigurasi Planning</h2>
       
       <div class="form-group">
-        <label>CORE Manpower</label>
+        <div class="group-header">
+          <label>CORE Manpower</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.core, 'coreList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.core, 'coreList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
         <div id="coreList"></div>
-        <button class="add-btn" onclick="addNewItem('core_names', getSavedData('core_names').length, 'coreList')">+ Tambah Core Baru</button>
+        <button class="add-btn" onclick="addNewItem(storageKeys.core, getSavedData(storageKeys.core).length, 'coreList')">+ Tambah Core Baru</button>
       </div>
       
       <div class="form-group">
-        <label>NON CORE Manpower</label>
+        <div class="group-header">
+          <label>NON CORE Manpower</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.nonCore, 'nonCoreList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.nonCore, 'nonCoreList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
         <div id="nonCoreList"></div>
-        <button class="add-btn" onclick="addNewItem('noncore_names', getSavedData('noncore_names').length, 'nonCoreList')">+ Tambah Non Core Baru</button>
+        <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core Baru</button>
       </div>
       
       <div class="form-group">
-        <label>QC PASSED</label>
+        <div class="group-header">
+          <label>QC PASSED</label>
+          <div class="group-actions">
+            <button class="btn-sm" onclick="shiftListUp(storageKeys.qcPassed, 'qcPassedList')" title="Rotasi Naik">▲ Naik</button>
+            <button class="btn-sm" onclick="shiftListDown(storageKeys.qcPassed, 'qcPassedList')" title="Rotasi Turun">▼ Turun</button>
+          </div>
+        </div>
         <div id="qcPassedList"></div>
-        <button class="add-btn" onclick="addNewItem('qc_names', getSavedData('qc_names').length, 'qcPassedList')">+ Tambah QC Baru</button>
+        <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC Baru</button>
       </div>
 
-      <div class="form-group"><label>MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
-      <div class="form-group"><label>Standby OT</label><input type="text" id="standbyOt" value="-"></div>
-      <div class="form-group"><label>Support FG</label><input type="text" id="supportFg" value="-"></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">MIL-STD</label><input type="text" id="milStd" value="Standard"></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Standby OT</label><input type="text" id="standbyOt" value="-"></div>
+      <div class="form-group"><label style="color:#94a3b8; font-size:0.9rem; font-weight:bold;">Support FG</label><input type="text" id="supportFg" value="-"></div>
 
       <button class="btn" onclick="executePlan()">🧠 Generate AI Planning</button>
       <button class="btn btn-success" onclick="validateAndExport()">✅ Validasi & Copy Text</button>
@@ -94,7 +122,6 @@
 
   <script src="brain.js"></script>
   <script>
-    // --- MANAJEMEN LOCAL STORAGE LIST DINAMIS ---
     const storageKeys = {
       core: 'core_names',
       nonCore: 'noncore_names',
@@ -102,7 +129,11 @@
     };
 
     function getSavedData(key) {
-      return JSON.parse(localStorage.getItem(key)) || [''];
+      let raw = JSON.parse(localStorage.getItem(key)) || [''];
+      return raw.map(item => {
+        if (typeof item === 'string') return { name: item, locked: false };
+        return item;
+      });
     }
 
     function saveData(key, data) {
@@ -114,9 +145,9 @@
       container.innerHTML = '';
       const data = getSavedData(storageKey);
 
-      data.forEach((val, index) => {
-        const item = document.createElement('div');
-        item.className = 'list-item';
+      data.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'list-item';
 
         const num = document.createElement('span');
         num.className = 'num';
@@ -124,9 +155,14 @@
 
         const input = document.createElement('input');
         input.type = 'text';
-        input.value = val;
+        input.value = item.name;
         input.placeholder = 'Ketik nama & tekan Enter...';
-        input.oninput = (e) => updateItem(storageKey, index, e.target.value);
+        if (item.locked) {
+          input.readOnly = true;
+          input.classList.add('locked-input');
+        }
+        
+        input.oninput = (e) => updateItemName(storageKey, index, e.target.value);
         input.onkeydown = (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -134,78 +170,88 @@
           }
         };
 
-        const upBtn = document.createElement('button');
-        upBtn.className = 'btn-sm';
-        upBtn.innerHTML = '↑';
-        upBtn.title = "Naikkan";
-        upBtn.onclick = () => moveItem(storageKey, index, -1, containerId);
+        // Tombol Ceklis / Edit
+        const lockBtn = document.createElement('button');
+        lockBtn.className = item.locked ? 'btn-sm btn-edit' : 'btn-sm btn-lock';
+        lockBtn.innerHTML = item.locked ? '✏️ Edit' : '✓';
+        lockBtn.title = item.locked ? 'Buka Kunci Nama' : 'Kunci Nama';
+        lockBtn.onclick = () => toggleLock(storageKey, index, containerId);
 
-        const downBtn = document.createElement('button');
-        downBtn.className = 'btn-sm';
-        downBtn.innerHTML = '↓';
-        downBtn.title = "Turunkan";
-        downBtn.onclick = () => moveItem(storageKey, index, 1, containerId);
-
+        // Tombol Hapus
         const delBtn = document.createElement('button');
         delBtn.className = 'btn-sm btn-del';
         delBtn.innerHTML = 'X';
-        delBtn.title = "Hapus";
+        delBtn.title = 'Hapus Baris';
         delBtn.onclick = () => removeItem(storageKey, index, containerId);
 
-        item.appendChild(num);
-        item.appendChild(input);
-        item.appendChild(upBtn);
-        item.appendChild(downBtn);
-        item.appendChild(delBtn);
-        container.appendChild(item);
+        row.appendChild(num);
+        row.appendChild(input);
+        row.appendChild(lockBtn);
+        row.appendChild(delBtn);
+        container.appendChild(row);
       });
     }
 
-    function updateItem(key, index, value) {
+    function updateItemName(key, index, value) {
       const data = getSavedData(key);
-      data[index] = value;
+      data[index].name = value;
       saveData(key, data);
+    }
+
+    function toggleLock(key, index, containerId) {
+      const data = getSavedData(key);
+      data[index].locked = !data[index].locked;
+      saveData(key, data);
+      renderList(containerId, key);
     }
 
     function addNewItem(key, index, containerId) {
       const data = getSavedData(key);
-      if(index > data.length) index = data.length;
-      data.splice(index, 0, '');
+      if (index > data.length) index = data.length;
+      data.splice(index, 0, { name: '', locked: false });
       saveData(key, data);
       renderList(containerId, key);
       
       setTimeout(() => {
         const inputs = document.getElementById(containerId).querySelectorAll('input');
-        if(inputs[index]) inputs[index].focus();
+        if (inputs[index]) inputs[index].focus();
       }, 10);
     }
 
-    function moveItem(key, index, direction, containerId) {
-      const data = getSavedData(key);
-      if (index + direction < 0 || index + direction >= data.length) return;
-      
-      const temp = data[index];
-      data[index] = data[index + direction];
-      data[index + direction] = temp;
-      
-      saveData(key, data);
-      renderList(containerId, key);
-    }
-    
     function removeItem(key, index, containerId) {
       const data = getSavedData(key);
       if (data.length === 1) {
-        data[0] = ''; // Kosongkan saja jika sisa 1
+        data[0] = { name: '', locked: false };
       } else {
         data.splice(index, 1);
       }
       saveData(key, data);
       renderList(containerId, key);
     }
-    
-    function getListData(containerId) {
-      const inputs = document.getElementById(containerId).querySelectorAll('input');
-      return Array.from(inputs).map(inp => inp.value.trim()).filter(val => val !== '');
+
+    // Rotasi Naik: elemen ke-1 pindah ke paling bawah
+    function shiftListUp(key, containerId) {
+      const data = getSavedData(key);
+      if (data.length <= 1) return;
+      const first = data.shift();
+      data.push(first);
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    // Rotasi Turun: elemen terakhir pindah ke paling atas
+    function shiftListDown(key, containerId) {
+      const data = getSavedData(key);
+      if (data.length <= 1) return;
+      const last = data.pop();
+      data.unshift(last);
+      saveData(key, data);
+      renderList(containerId, key);
+    }
+
+    function getListData(storageKey) {
+      const data = getSavedData(storageKey);
+      return data.map(item => item.name.trim()).filter(name => name !== '');
     }
 
     // --- MANAJEMEN STATE & PLANNING ---
@@ -214,12 +260,10 @@
     let finalConfig = {};
 
     window.onload = () => {
-      // Load Lists
       renderList('coreList', storageKeys.core);
       renderList('nonCoreList', storageKeys.nonCore);
       renderList('qcPassedList', storageKeys.qcPassed);
 
-      // Load State
       state = JSON.parse(sessionStorage.getItem('planning_state'));
       if (!state) { 
         alert("Data kosong! Kembali ke Map."); 
@@ -232,17 +276,17 @@
     function executePlan() {
       if(!state) return;
 
-      let coreData = getListData('coreList');
-      let nonCoreData = getListData('nonCoreList');
-      let qcData = getListData('qcPassedList');
+      let coreData = getListData(storageKeys.core);
+      let nonCoreData = getListData(storageKeys.nonCore);
+      let qcData = getListData(storageKeys.qcPassed);
 
       finalConfig = {
         coreNames: coreData,
-        core: coreData.length > 0 ? coreData.length : 1, // Fallback angka untuk logic brain.js
+        core: coreData.length > 0 ? coreData.length : 1,
         nonCoreNames: nonCoreData,
-        nonCore: nonCoreData.length,                     // Fallback angka untuk logic brain.js
+        nonCore: nonCoreData.length,
         qcPassedNames: qcData,
-        qcPassed: qcData.join('\n'),                     // Format gabungan jika dibutuhkan
+        qcPassed: qcData.join('\n'),
         milStd: document.getElementById('milStd').value,
         standbyOt: document.getElementById('standbyOt').value,
         supportFg: document.getElementById('supportFg').value
@@ -278,11 +322,7 @@
 
     function generateTextOutput() {
       if(currentPlan.length === 0) return;
-      
-      // Ambil format text mentah dari BrainAI
       let output = BrainAI.formatText(currentPlan, finalConfig);
-      
-      // Letakkan hasil ke textarea untuk dapat di-edit
       document.getElementById('textOutput').value = output;
       document.getElementById('textOutputContainer').style.display = 'block';
     }
@@ -296,12 +336,10 @@
         return;
       }
 
-      // Record History (Learning AI)
       currentPlan.forEach(slot => {
         slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true));
       });
 
-      // Mengambil teks dari textarea yang (mungkin) sudah diedit manual
       let finalEditedText = document.getElementById('textOutput').value;
       navigator.clipboard.writeText(finalEditedText);
       alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
@@ -330,4 +368,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
