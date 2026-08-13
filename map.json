@@ -1103,7 +1103,7 @@
       "status": "OFF"
     },
     {
-      "id": "C-1786639967437",
+      "id": "CQI-24",
       "name": "CQI 25",
       "row": 13,
       "col": 21,
@@ -1351,7 +1351,7 @@
       "borderColor": "#3b82f6",
       "textColor": "#60a5fa"
       
-    }
+    },
     {
       "id": "line-ww",
       "name": "WW",
