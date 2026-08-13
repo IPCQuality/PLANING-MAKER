@@ -42,26 +42,32 @@
 
     .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
 
-    /* Line Box */
+    /* Line Box (Diperbarui) */
     .line-box {
       position: relative;
       border: 3px dashed #3b82f6;
       background: transparent;
       border-radius: 0;
-      z-index: 4;
+      z-index: 1; /* Pindah ke bawah layer sel grid */
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      pointer-events: none;
+      pointer-events: none; /* Biarkan klik menembus ke node & grid di bawahnya */
     }
     body.mode-edit .line-box {
-      pointer-events: auto;
-      cursor: move;
       border-style: dashed;
       background: rgba(255, 255, 255, 0.02);
-      z-index: 5;
+      z-index: 3; /* Cukup agar border terlihat, tapi pointer-events tetap none */
     }
+    /* Agar Line Area tetap bisa di-drag lewat judul header-nya */
+    body.mode-edit .line-box-header {
+      cursor: grab;
+    }
+    body.mode-edit .line-box-header:active {
+      cursor: grabbing;
+    }
+    
     .line-box-header {
       font-size: 0.75rem;
       font-weight: 800;
@@ -69,7 +75,7 @@
       background: rgba(15, 23, 42, 0.9);
       padding: 4px 8px;
       width: max-content;
-      pointer-events: none;
+      pointer-events: auto; /* Mengizinkan interaksi pada judul area */
       letter-spacing: 0.5px;
       border-bottom-right-radius: 6px;
       border-right: 1px solid var(--border);
@@ -87,6 +93,7 @@
       cursor: se-resize;
       display: none;
       z-index: 20;
+      pointer-events: auto; /* Mengizinkan interaksi pada handle tarik */
     }
     body.mode-edit .resize-handle { display: block; }
 
@@ -101,7 +108,7 @@
 
     .node-label { background: transparent; color: #94a3b8; border: 1px dashed #475569; font-size: 0.75rem; }
 
-    .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; z-index: 15; }
+    .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; z-index: 15; pointer-events: auto; /* Tombol X bisa diklik */ }
     body.mode-edit .del-btn { display: block; }
     body.mode-edit .node { cursor: grab; }
     body.mode-landing .control-edit { display: none; }
@@ -394,7 +401,7 @@
           if (editMode) {
             lineEl.draggable = true;
             lineEl.ondragstart = (e) => {
-              if (e.target.classList.contains('resize-handle')) {
+              if (e.target.classList.contains('resize-handle') || e.target.classList.contains('del-btn')) {
                 e.preventDefault();
                 return;
               }
