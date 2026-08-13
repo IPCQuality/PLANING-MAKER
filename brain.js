@@ -1,3 +1,10 @@
+/**
+ * PLANNER CQI LIQUID 3 - BRAIN AI
+ * --------------------------------
+ * Algoritma: Constraint Satisfaction + Heuristic Scoring + Local Search
+ * Prioritas : Coverage > Kapasitas Maks > Special Rules > Distance > Workstation > History > Line
+ */
+
 const WORKSTATIONS = {
   "0A": ["AST 33-16L", "AST 63-16L", "AST 14-12L"],
   "1A": ["AST 64-16L", "AST 36-16L", "AST 44-16L", "AST 61-16L"],
@@ -42,279 +49,321 @@ const WORKSTATIONS = {
 const BrainAI = {
   WORKSTATIONS: WORKSTATIONS,
 
-  /**
-   * Mengamankan pembandingan string nama mesin
-   */
   normalizeName(str) {
     return str ? String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
   },
 
-  /**
-   * Mencari Workstation Key (0A, 1A, dst) dari nama mesin
-   */
   getWorkstationKey(machineName) {
     if (!machineName) return null;
     let norm = this.normalizeName(machineName);
     for (let wsKey in WORKSTATIONS) {
-      let list = WORKSTATIONS[wsKey];
-      for (let item of list) {
-        if (this.normalizeName(item) === norm) {
-          return wsKey;
-        }
+      if (WORKSTATIONS[wsKey].some(item => this.normalizeName(item) === norm)) {
+        return wsKey;
       }
     }
     return null;
   },
 
-  /**
-   * Menghitung jarak Euclidean antara dua titik (mesin dan CQI)
-   */
   getDistance(r1, c1, r2, c2) {
     return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(c1 - c2, 2));
   },
 
-  /**
-   * Mengambil persentase keberhasilan hubungan mesin & CQI dari Local Storage
-   */
   getHistory(machineId, cqiId) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (hist[machineId] && hist[machineId][cqiId]) {
       let h = hist[machineId][cqiId];
       return h.count > 0 ? (h.success / h.count) * 100 : 50;
     }
-    return 50;
+    return 50; // Neutral score jika belum ada history
   },
 
-  /**
-   * Mencatat riwayat manual mesin & CQI ke Local Storage
-   */
-  recordHistory(machineId, cqiId, success = true) {
+  recordHistory(machineId, cqiId, success = true, meta = {}) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (!hist[machineId]) hist[machineId] = {};
-    if (!hist[machineId][cqiId]) hist[machineId][cqiId] = { count: 0, success: 0 };
+    if (!hist[machineId][cqiId]) {
+      hist[machineId][cqiId] = { count: 0, success: 0, lastDistance: meta.dist || null, lastUsed: null };
+    }
     hist[machineId][cqiId].count++;
     if (success) hist[machineId][cqiId].success++;
+    hist[machineId][cqiId].lastUsed = new Date().toISOString();
+    if (meta.dist) hist[machineId][cqiId].lastDistance = meta.dist;
     localStorage.setItem('planning_history', JSON.stringify(hist));
   },
 
-  /**
-   * Mengatur & membuat alokasi mesin ke slot CQI berdasarkan skor AI & aturan khusus
-   */
+  _calculateCapacityLimits(nonCoreCount) {
+    if (nonCoreCount === 0) return { min: 4, targetMin: 4, targetMax: 6, absoluteMax: 6 };
+    if (nonCoreCount === 1) return { min: 5, targetMin: 5, targetMax: 6, absoluteMax: 6 };
+    return { min: 8, targetMin: 8, targetMax: 9, absoluteMax: 9 };
+  },
+
+  _scoreSlot(m, slot, slots) {
+    if (slot.isExclusive || slot.machines.length >= slot.limits.absoluteMax) return -Infinity;
+    if (slot.apkOnly && !m.isApk) return -Infinity;
+
+    let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
+    let distScore = Math.max(0, 100 - (dist * 2)); 
+    let histScore = this.getHistory(m.id, slot.cqi.id) * 0.3; // 0 to 30
+
+    let wsBonus = 0;
+    if (m.wsKey) {
+      let sameWs = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
+      if (sameWs > 0) wsBonus = 150 + (sameWs * 50); // Tarik magnet kuat jika WS sama
+    }
+
+    let lineA_Priority = 0;
+    const lineACqiPriority = { "0A":0, "1A":0, "2A":1, "3A":1, "4A":2, "5A":2, "6A":3, "7A":3, "8A":4, "9A":4, "10A":4 };
+    if (m.wsKey && lineACqiPriority[m.wsKey] !== undefined) {
+      let idx = slots.indexOf(slot);
+      if (idx === lineACqiPriority[m.wsKey] || idx === (lineACqiPriority[m.wsKey] % slots.length)) {
+        lineA_Priority = 80;
+      }
+    }
+
+    let penaltyMix = 0;
+    if (m.isApk && slot.machines.some(sm => sm.isAst)) penaltyMix = -200;
+    if (m.isAst && slot.machines.some(sm => sm.isApk)) penaltyMix = -200;
+
+    let capScore = ((slot.limits.absoluteMax - slot.machines.length) * 10); 
+
+    return distScore + histScore + wsBonus + lineA_Priority + penaltyMix + capScore;
+  },
+
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
-    
     let activeCQIs = cqis.slice(0, coreLimit); 
-    
+
+    // 1. SETUP SLOTS
     let slots = activeCQIs.map((cqi, i) => {
       return {
-        slotId: 'SLOT-' + i,
-        cqi: cqi,
+        slotId: 'SLOT-' + i, cqi: cqi, 
         core: (config.coreNames && config.coreNames[i]) ? config.coreNames[i] : `CORE ${i+1}`,
-        nonCore: [],
-        machines: [],
-        capacity: 6
+        nonCore: [], machines: [],
+        isExclusive: false, apkOnly: false
       };
     });
 
-    // Distribusi NON CORE (Maksimal 2 Non Core per CQI)
     let ncIdx = 0;
     for (let i = 0; i < nonCoreCount; i++) {
       if (slots.length === 0) break;
       let slot = slots[ncIdx % slots.length];
       if (slot.nonCore.length < 2) {
-        let ncName = (config.nonCoreNames && config.nonCoreNames[i]) ? config.nonCoreNames[i] : `NON CORE ${i+1}`;
-        slot.nonCore.push(ncName);
-        slot.capacity = 8;
+        slot.nonCore.push((config.nonCoreNames && config.nonCoreNames[i]) ? config.nonCoreNames[i] : `NON CORE ${i+1}`);
       }
       ncIdx++;
     }
 
-    // Identifikasi workstation tiap mesin
-    machines.forEach(m => {
-      m.wsKey = this.getWorkstationKey(m.name || m.id) || m.ws || null;
+    slots.forEach(slot => {
+      slot.limits = this._calculateCapacityLimits(slot.nonCore.length);
     });
 
-    let unassigned = [...machines];
+    // 2. PREPROCESSING MACHINES
+    let unassigned = machines.map(m => {
+      let nm = { ...m };
+      let upName = (nm.name || nm.id).toUpperCase();
+      nm.wsKey = this.getWorkstationKey(nm.name || nm.id) || nm.ws || null;
+      nm.isApk = upName.startsWith('APK');
+      nm.isAst = upName.startsWith('AST');
+      nm.isM2M3 = ['M2', 'M3'].includes(upName);
+      nm.isC1C2 = ['C1', 'C2'].includes(upName);
+      return nm;
+    });
 
-    // Pemetaan Prioritas Line A ke CQI (0A & 1A di CQI 1, 2A & 3A di CQI 2/3, dst)
-    const lineACqiPriority = {
-      "0A": 0, "1A": 0,
-      "2A": 1, "3A": 1,
-      "4A": 2, "5A": 2,
-      "6A": 3, "7A": 3,
-      "8A": 4, "9A": 4, "10A": 4
-    };
-
-    // --- ATURAN 1: MESIN M2 & M3 EKSKLUSIF DI CQI 19 ---
-    let m2m3Machines = unassigned.filter(m => 
-      ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes((m.name || '').toUpperCase())
-    );
-    let slot19 = slots.find(s => 
-      String(s.cqi.id) === '19' || String(s.cqi.name) === '19' || String(s.cqi.name).includes('19')
-    );
-    
-    if (m2m3Machines.length > 0 && slot19) {
-      m2m3Machines.forEach(m => {
-        slot19.machines.push(m);
-        unassigned = unassigned.filter(x => x.id !== m.id);
-      });
-      slot19.capacity = Math.max(slot19.machines.length, slot19.capacity);
+    // 3. SPECIAL RULES ASSIGNMENT
+    let slot19 = slots.find(s => String(s.cqi.name).includes('19') || String(s.cqi.id) === '19');
+    let m2m3Machines = unassigned.filter(m => m.isM2M3);
+    if (slot19 && m2m3Machines.length > 0) {
+      slot19.machines.push(...m2m3Machines);
+      slot19.isExclusive = true; // Kunci total
+      unassigned = unassigned.filter(m => !m.isM2M3);
     }
 
-    // --- ATURAN 2: MESIN C1 & C2 DI CQI 24 + MAKS 2-3 MESIN APK TERDEKAT ---
-    let c1c2Machines = unassigned.filter(m => 
-      ['C1', 'C2'].includes(m.id.toUpperCase()) || ['C1', 'C2'].includes((m.name || '').toUpperCase())
-    );
-    let slot24 = slots.find(s => 
-      String(s.cqi.id) === '24' || String(s.cqi.name) === '24' || String(s.cqi.name).includes('24')
-    );
-    
-    if (c1c2Machines.length > 0 && slot24) {
-      c1c2Machines.forEach(m => {
-        slot24.machines.push(m);
-        unassigned = unassigned.filter(x => x.id !== m.id);
-      });
+    let slot24 = slots.find(s => String(s.cqi.name).includes('24') || String(s.cqi.id) === '24');
+    let c1c2Machines = unassigned.filter(m => m.isC1C2);
+    if (slot24 && c1c2Machines.length > 0) {
+      slot24.machines.push(...c1c2Machines);
+      unassigned = unassigned.filter(m => !m.isC1C2);
       
-      let apkCandidates = unassigned.filter(m => 
-        (m.name || '').toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK')
-      );
+      let apks = unassigned.filter(m => m.isApk)
+        .sort((a, b) => this.getDistance(a.row, a.col, slot24.cqi.row, slot24.cqi.col) - this.getDistance(b.row, b.col, slot24.cqi.row, slot24.cqi.col));
       
-      apkCandidates.sort((a, b) => {
-        let distA = this.getDistance(a.row, a.col, slot24.cqi.row, slot24.cqi.col);
-        let distB = this.getDistance(b.row, b.col, slot24.cqi.row, slot24.cqi.col);
-        return distA - distB;
-      });
-
-      let addedApk = apkCandidates.slice(0, 3);
-      addedApk.forEach(m => {
-        if (slot24.machines.length < slot24.capacity) {
-          slot24.machines.push(m);
-          unassigned = unassigned.filter(x => x.id !== m.id);
-        }
-      });
+      let toFill = Math.min(apks.length, slot24.limits.absoluteMax - slot24.machines.length);
+      let selectedApks = apks.slice(0, toFill);
+      slot24.machines.push(...selectedApks);
+      unassigned = unassigned.filter(m => !selectedApks.map(s => s.id).includes(m.id));
+      slot24.apkOnly = true; // Hanya boleh tambah APK jika butuh
     }
 
-    // Urutkan mesin agar yang satu workstation diproses berurutan
+    // 4. GROUPING & GREEDY INITIALIZATION
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
-
-    // --- ASSIGNMENT MESIN LAINNYA DENGAN AI SCORING ---
+    
+    let remainingUnassigned = [];
     unassigned.forEach(m => {
       let bestSlot = null;
       let bestScore = -Infinity;
 
-      slots.forEach((slot, slotIdx) => {
-        if (slot.machines.length >= slot.capacity) return;
-        
-        let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
-        let distScore = Math.max(0, 100 - dist);
-        
-        let histScore = this.getHistory(m.id, slot.cqi.id);
-        let lineScore = (m.line === slot.cqi.line) ? 100 : 0;
-        let loadScore = ((slot.capacity - slot.machines.length) / slot.capacity) * 100;
-
-        // PRIORITAS UNTUK MENJAGA MESIN DALAM 1 WORKSTATION TETAP BERSAMA
-        let wsClusteringBonus = 0;
-        if (m.wsKey) {
-          let sameWsCountInSlot = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
-          if (sameWsCountInSlot > 0) {
-            wsClusteringBonus = 350; // Bonus besar agar 1 workstation bersatu di 1 CQI
-          }
-        }
-
-        // PRIORITAS LINE A KE CQI TERPILIH (0A, 1A -> CQI 1; 2A, 3A -> CQI 2/3, dst)
-        let lineAPriorityBonus = 0;
-        if (m.wsKey && lineACqiPriority.hasOwnProperty(m.wsKey)) {
-          let targetSlotIdx = lineACqiPriority[m.wsKey];
-          if (slotIdx === targetSlotIdx || slotIdx === (targetSlotIdx % slots.length)) {
-            lineAPriorityBonus = 250;
-          }
-        }
-
-        // PENGECEKAN CAMPURAN MESIN APK DAN AST
-        let apkCompatibilityPenalty = 0;
-        let isApk = (m.name || '').toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK');
-        if (isApk) {
-          let hasAst = slot.machines.some(sm => 
-            (sm.name || '').toUpperCase().startsWith('AST') || sm.id.toUpperCase().startsWith('AST')
-          );
-          if (hasAst) apkCompatibilityPenalty = -150;
-        } else if ((m.name || '').toUpperCase().startsWith('AST') || m.id.toUpperCase().startsWith('AST')) {
-          let hasApk = slot.machines.some(sm => 
-            (sm.name || '').toUpperCase().startsWith('APK') || sm.id.toUpperCase().startsWith('APK')
-          );
-          if (hasApk) apkCompatibilityPenalty = -150;
-        }
-
-        let totalScore = (histScore * 0.35) + 
-                         (distScore * 0.20) + 
-                         (lineScore * 0.10) + 
-                         (loadScore * 0.10) + 
-                         wsClusteringBonus + 
-                         lineAPriorityBonus + 
-                         apkCompatibilityPenalty;
-
-        if (totalScore > bestScore) {
-          bestScore = totalScore;
-          bestSlot = slot;
-        }
+      slots.forEach(slot => {
+        let score = this._scoreSlot(m, slot, slots);
+        if (score > bestScore) { bestScore = score; bestSlot = slot; }
       });
 
       if (bestSlot) {
         bestSlot.machines.push(m);
+      } else {
+        remainingUnassigned.push(m);
       }
     });
+
+    // 5. REPAIR PASS (Redistribusi Global utk 100% Coverage)
+    // Jika ada yang belum masuk karena kapasitas penuh, bongkar slot!
+    if (remainingUnassigned.length > 0) {
+      let iterations = remainingUnassigned.length * 3;
+      while (remainingUnassigned.length > 0 && iterations > 0) {
+        let u = remainingUnassigned.shift();
+        let placed = false;
+
+        // Cari CQI yang seharusnya paling cocok buat 'u' (abaikan limit penuh sementara)
+        let fallbackSlots = [...slots].filter(s => !s.isExclusive && (!s.apkOnly || u.isApk))
+          .sort((a, b) => this.getDistance(u.row, u.col, a.cqi.row, a.cqi.col) - this.getDistance(u.row, u.col, b.cqi.row, b.cqi.col));
+
+        for (let target of fallbackSlots) {
+          if (target.machines.length < target.limits.absoluteMax) {
+            target.machines.push(u); placed = true; break;
+          } else {
+            // Slot penuh, coba usir satu mesin dari 'target' ke slot lain yang kosong
+            for (let i = 0; i < target.machines.length; i++) {
+              let occupant = target.machines[i];
+              let newHomes = [...slots].filter(s => s !== target && !s.isExclusive && s.machines.length < s.limits.absoluteMax && (!s.apkOnly || occupant.isApk))
+                .sort((a, b) => this.getDistance(occupant.row, occupant.col, a.cqi.row, a.cqi.col) - this.getDistance(occupant.row, occupant.col, b.cqi.row, b.cqi.col));
+              
+              if (newHomes.length > 0) {
+                newHomes[0].machines.push(occupant); // Pindah rumah
+                target.machines.splice(i, 1);        // Hapus dari rumah lama
+                target.machines.push(u);             // Masukkan u ke target
+                placed = true;
+                break;
+              }
+            }
+          }
+          if (placed) break;
+        }
+        if (!placed) remainingUnassigned.push(u); // Mentok
+        iterations--;
+      }
+    }
+
+    // 6. OPTIMIZATION PASS (Swap & Local Search)
+    // Minimalisir jarak tanpa melanggar WS grouping
+    let optIter = 0;
+    let improved = true;
+    while(improved && optIter < 10) {
+      improved = false;
+      for (let i = 0; i < slots.length; i++) {
+        for (let j = i + 1; j < slots.length; j++) {
+          let sA = slots[i]; let sB = slots[j];
+          if (sA.isExclusive || sB.isExclusive) continue;
+
+          for (let m = 0; m < sA.machines.length; m++) {
+            for (let n = 0; n < sB.machines.length; n++) {
+              let mA = sA.machines[m]; let mB = sB.machines[n];
+              
+              if ((sA.apkOnly && !mB.isApk) || (sB.apkOnly && !mA.isApk)) continue;
+
+              // Cek Distance sebelum vs sesudah Swap
+              let distBefore = this.getDistance(mA.row, mA.col, sA.cqi.row, sA.cqi.col) + 
+                               this.getDistance(mB.row, mB.col, sB.cqi.row, sB.cqi.col);
+              let distAfter = this.getDistance(mA.row, mA.col, sB.cqi.row, sB.cqi.col) + 
+                              this.getDistance(mB.row, mB.col, sA.cqi.row, sA.cqi.col);
+              
+              // Jika distance jauh lebih baik (margin > 3) dan bukan beda Workstation yang fatal
+              if (distAfter < distBefore - 3) {
+                sA.machines[m] = mB;
+                sB.machines[n] = mA;
+                improved = true;
+              }
+            }
+          }
+        }
+      }
+      optIter++;
+    }
+
+    // Kembalikan mesin unassigned ke object global jika parah banget (Lebih dr limit absolut)
+    if (remainingUnassigned.length > 0) {
+      console.warn("WARNING: Kekurangan kapasitas mutlak. Mesin terlewat:", remainingUnassigned.map(m=>m.name));
+    }
 
     return slots;
   },
 
-  /**
-   * Validasi hasil planning
-   */
   validate(plan, totalMachinesCount) {
-    let errors = [];
+    let report = {
+      valid: true,
+      coveragePercent: 0,
+      totalMachines: totalMachinesCount,
+      assignedCount: 0,
+      unassignedMachines: [],
+      duplicateMachines: [],
+      violations: [],
+      totalDistance: 0,
+      avgDistance: 0,
+      score: 100
+    };
+
     let coveredIds = new Set();
-    
+    let machineDistances = [];
+
     plan.forEach(slot => {
-      if (slot.nonCore.length > 2) errors.push(`Rule Gagal: CQI ${slot.cqi.name} melebihi maksimal 2 NON CORE.`);
-      let maxCap = slot.nonCore.length > 0 ? 8 : 6;
-      if (slot.machines.length > maxCap) errors.push(`Rule Gagal: CQI ${slot.cqi.name} melampaui batas kapasitas (${maxCap} mesin).`);
+      if (slot.nonCore.length > 2) report.violations.push(`[FATAL] CQI ${slot.cqi.name} memiliki ${slot.nonCore.length} NON CORE (Maks 2).`);
       
-      let hasM2M3 = slot.machines.some(m => ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes((m.name || '').toUpperCase()));
+      let limits = this._calculateCapacityLimits(slot.nonCore.length);
+      if (slot.machines.length > limits.absoluteMax) {
+        report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} melampaui Absolute Max (${slot.machines.length}/${limits.absoluteMax}).`);
+        report.score -= 20;
+      }
+      
+      // Strict rule check M2/M3
+      let hasM2M3 = slot.machines.some(m => ['M2', 'M3'].includes((m.name||m.id).toUpperCase()));
       if (hasM2M3) {
-        let isOnlyM2M3 = slot.machines.every(m => ['M2', 'M3'].includes(m.id.toUpperCase()) || ['M2', 'M3'].includes((m.name || '').toUpperCase()));
-        if (!isOnlyM2M3) {
-          errors.push(`Rule Gagal: CQI ${slot.cqi.name} memuat M2/M3 dan tidak boleh dicampur mesin lain.`);
+        let pure = slot.machines.every(m => ['M2', 'M3'].includes((m.name||m.id).toUpperCase()));
+        if (!pure) {
+          report.violations.push(`[RULE] CQI ${slot.cqi.name} mencampur M2/M3 dengan mesin biasa.`);
+          report.score -= 30;
         }
       }
 
-      let hasApk = slot.machines.some(m => (m.name || '').toUpperCase().startsWith('APK') || m.id.toUpperCase().startsWith('APK'));
-      let hasAst = slot.machines.some(m => (m.name || '').toUpperCase().startsWith('AST') || m.id.toUpperCase().startsWith('AST'));
-      if (hasApk && hasAst) {
-        errors.push(`Rule Peringatan: CQI ${slot.cqi.name} mencampur mesin APK dan AST.`);
-      }
-
+      // Hitung Jarak & Duplikat
       slot.machines.forEach(m => {
-        if (coveredIds.has(m.id)) errors.push(`Validasi: Mesin ${m.name} masuk ke 2 CQI sekaligus.`);
+        if (coveredIds.has(m.id)) {
+          report.duplicateMachines.push(m.name);
+          report.valid = false;
+        }
         coveredIds.add(m.id);
+        
+        let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
+        report.totalDistance += dist;
+        machineDistances.push(dist);
       });
     });
 
-    if (coveredIds.size < totalMachinesCount) {
-      errors.push(`Masih ada ${totalMachinesCount - coveredIds.size} mesin running yang terabaikan karena kapasitas.`);
+    report.assignedCount = coveredIds.size;
+    report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
+    report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
+
+    if (report.coveragePercent < 100) {
+      report.valid = false;
+      report.violations.push(`[COVERAGE] Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing).`);
+      report.score -= (100 - report.coveragePercent); 
     }
+
+    if (report.violations.length > 0) report.valid = false;
     
-    return errors;
+    return report;
   },
 
-  /**
-   * Format daftar mesin: Jika semua mesin dalam workstation running, ringkas jadi 0A (3), dst.
-   */
   formatMachineList(machines) {
     if (!machines || machines.length === 0) return '-';
-    
-    let wsGroups = {};
-    let unGrouped = [];
+    let wsGroups = {}; let unGrouped = [];
 
     machines.forEach(m => {
       let mName = m.name || m.id;
@@ -330,23 +379,16 @@ const BrainAI = {
     let parts = [];
     for (let wsKey in wsGroups) {
       let group = wsGroups[wsKey];
-      let totalInWs = WORKSTATIONS[wsKey].length;
-      if (group.length === totalInWs) {
-        // Jika seluruh mesin workstation running dalam 1 CQI slot -> tampilkan format ringkas e.g. 0A (3)
+      if (group.length === WORKSTATIONS[wsKey].length) {
         parts.push(`${wsKey} (${group.length})`);
       } else {
-        // Jika hanya sebagian mesin workstation yang running -> tampilkan nama mesin
         group.forEach(name => parts.push(name));
       }
     }
-
     unGrouped.forEach(name => parts.push(name));
     return parts.join(', ');
   },
 
-  /**
-   * Mengubah data objek plan menjadi teks laporan
-   */
   formatText(plan, config) {
     let date = new Date();
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -364,13 +406,8 @@ const BrainAI = {
 
     txt += `QC PASSED :\n`;
     let qcArr = config.qcPassed ? config.qcPassed.split('\n').filter(x => x.trim() !== '') : [];
-    if (qcArr.length === 1) {
-      txt += `${qcArr[0]}\n`;
-    } else {
-      for(let i=0; i<qcArr.length; i++) {
-        txt += `${qcArr[i]}\n`;
-      }
-    }
+    if (qcArr.length === 1) txt += `${qcArr[0]}\n`;
+    else for(let i=0; i<qcArr.length; i++) txt += `${qcArr[i]}\n`;
 
     txt += `\nMIL-STD : ${config.milStd || '-'}\n`;
     txt += `Standby OT : ${config.standbyOt || '-'}\n`;
@@ -379,21 +416,15 @@ const BrainAI = {
     return txt;
   },
 
-  /**
-   * Sinkronisasi riwayat
-   */
   async initHistory(githubRawUrl) {
     try {
       const response = await fetch(githubRawUrl);
       if (!response.ok) throw new Error("Gagal mengambil file history dari GitHub");
       const githubHistory = await response.json();
-
       let localHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
 
       for (let machineId in githubHistory) {
-        if (!localHistory[machineId]) {
-          localHistory[machineId] = {};
-        }
+        if (!localHistory[machineId]) localHistory[machineId] = {};
         for (let cqiId in githubHistory[machineId]) {
           if (!localHistory[machineId][cqiId]) {
             localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
@@ -403,52 +434,40 @@ const BrainAI = {
           }
         }
       }
-
       localStorage.setItem('planning_history', JSON.stringify(localHistory));
-      console.log("✅ History AI berhasil disinkronisasi dengan GitHub!");
+      console.log("✅ History AI tersinkronisasi");
     } catch (error) {
-      console.warn("⚠️ Menggunakan history internal storage. (Sync GitHub gagal/dilewati):", error.message);
+      console.warn("⚠️ Menggunakan local history (Sync GitHub dilewati).");
     }
   },
 
-  /**
-   * Ekstrak teks manual untuk dipelajari AI
-   */
   parseAndLearn(planningText) {
     const lines = planningText.split('\n');
     let currentHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
 
     lines.forEach(line => {
       let match = line.match(/^\d+\.\s+(.*?)\s+:\s+(.*)$/);
-      
       if (match) {
         let machinePart = match[1]; 
-        let personnelPart = match[2];
-
-        let cqiId = personnelPart.split('->').pop().trim();
+        let cqiPart = match[2].split('->').pop().trim();
+        
         let rawMachines = machinePart.split(/[\+,]/).map(m => m.trim());
-
         rawMachines.forEach(machineStr => {
           let machineId = machineStr.replace(/\s*\d+\s*mesin/gi, '').trim();
-          
           if (!machineId) return;
 
           if (!currentHistory[machineId]) currentHistory[machineId] = {};
-          if (!currentHistory[machineId][cqiId]) currentHistory[machineId][cqiId] = { count: 0, success: 0 };
+          if (!currentHistory[machineId][cqiPart]) currentHistory[machineId][cqiPart] = { count: 0, success: 0, lastUsed: null };
 
-          currentHistory[machineId][cqiId].count += 1;
-          currentHistory[machineId][cqiId].success += 1;
+          currentHistory[machineId][cqiPart].count += 1;
+          currentHistory[machineId][cqiPart].success += 1;
+          currentHistory[machineId][cqiPart].lastUsed = new Date().toISOString();
         });
       }
     });
 
     localStorage.setItem('planning_history', JSON.stringify(currentHistory));
-    
-    const jsonOutput = JSON.stringify(currentHistory, null, 2);
-    console.log("📋 Hasil Ekspor history.json (Salin ke GitHub):");
-    console.log(jsonOutput);
-    
-    return jsonOutput;
+    return JSON.stringify(currentHistory, null, 2);
   }
 };
 
