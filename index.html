@@ -21,6 +21,7 @@
     .btn-primary { background: var(--cqi-ready); border: none; }
     .btn-success { background: var(--running); border: none; }
     .btn-warning { background: var(--setup); border: none; }
+    .btn-danger { background: var(--down); border: none; }
     
     /* LAYOUT UTAMA & SLIDING PANEL */
     .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
@@ -147,6 +148,7 @@
     <div class="controls">
       <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
       <button class="btn btn-success control-landing" onclick="setAllMachinesRunning()">🏃 All MC Running</button>
+      <button class="btn btn-danger control-landing" onclick="setAllMachinesOff()">🛑 OFF All Mesin</button>
       <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
       <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
 
@@ -208,13 +210,9 @@
     let draggedNode = null;
     let activeModalType = '';
 
-    // Dimensi pasti berdasarkan 55 Kolom & 20 Baris
-    // Width = 40 (Header Kiri) + (55 * 78) = 4330
-    // Height = 28 (Header Atas) + (20 * 52) = 1068
     const GRID_WIDTH = 4330;
     const GRID_HEIGHT = 1068;
 
-    // Geser Kiri-Kanan Menggunakan Scroll Mouse
     const mapViewport = document.getElementById('mapViewport');
     mapViewport.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0) {
@@ -262,8 +260,35 @@
         ];
       }
 
-      mapData.machines.forEach(m => { if (m.status !== 'RUNNING') m.status = 'OFF'; });
-      mapData.cqis.forEach(c => { if (c.status !== 'READY') c.status = 'OFF'; });
+      // Cek apakah ada data tersimpan di localStorage untuk restore status terakhir
+      const savedState = localStorage.getItem('factory_internal_storage');
+      if (savedState) {
+        try {
+          const parsed = JSON.parse(savedState);
+          
+          // Restore status mesin
+          if (parsed.machines) {
+            parsed.machines.forEach(savedM => {
+              let targetM = mapData.machines.find(m => m.id === savedM.id || m.name === savedM.name);
+              if (targetM) targetM.status = savedM.status;
+            });
+          }
+
+          // Restore status CQI
+          if (parsed.cqis) {
+            parsed.cqis.forEach(savedC => {
+              let targetC = mapData.cqis.find(c => c.id === savedC.id || c.name === savedC.name);
+              if (targetC) targetC.status = savedC.status;
+            });
+          }
+        } catch (err) {
+          console.error("Gagal memuat status dari internal storage:", err);
+        }
+      } else {
+        mapData.machines.forEach(m => { if (m.status !== 'RUNNING') m.status = 'OFF'; });
+        mapData.cqis.forEach(c => { if (c.status !== 'READY') c.status = 'OFF'; });
+      }
+
       renderGrid();
     }
 
@@ -370,7 +395,6 @@
       panel.classList.toggle('closed');
       btn.innerText = panel.classList.contains('closed') ? '▶' : '◀';
       
-      // Tunggu animasi slide selesai, lalu update batas zoom
       setTimeout(applyZoom, 300); 
     }
 
@@ -540,20 +564,17 @@
       updateStatsAndButtons();
     }
 
-    // LOGIKA ZOOM DAN BOUNDARY SCROLL //
     function applyZoom() {
-      // Hitung batas minimal agar Grid tidak pernah lebih kecil dari Viewport
       const viewport = document.getElementById('mapViewport');
       const minZoomX = viewport.clientWidth / GRID_WIDTH;
       const minZoomY = viewport.clientHeight / GRID_HEIGHT;
-      const minZoom = Math.max(minZoomX, minZoomY); // Ambil yang lebih besar (mencegah black border)
+      const minZoom = Math.max(minZoomX, minZoomY);
 
       if (currentZoom < minZoom) currentZoom = minZoom;
       if (currentZoom > 3) currentZoom = 3;
 
       document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
       
-      // Kunci ukuran wrapper, jadi Overflow/Scroll Browser langsung mengikuti persis di perbatasan grid!
       const wrapper = document.getElementById('gridWrapper');
       wrapper.style.width = `${GRID_WIDTH * currentZoom}px`;
       wrapper.style.height = `${GRID_HEIGHT * currentZoom}px`;
@@ -563,7 +584,6 @@
     function zoomOut() { currentZoom -= 0.1; applyZoom(); }
     window.addEventListener('resize', applyZoom);
 
-    // FUNGSI LAINNYA
     function initResizeLine(e, line) {
       let startX = e.clientX, startY = e.clientY;
       let startW = line.width, startH = line.height;
@@ -587,6 +607,7 @@
     }
 
     function setAllMachinesRunning() { mapData.machines.forEach(m => m.status = 'RUNNING'); renderGrid(); }
+    function setAllMachinesOff() { mapData.machines.forEach(m => m.status = 'OFF'); renderGrid(); }
 
     function cycleStatus(node, type) {
       if (type === 'machine') {
@@ -677,6 +698,14 @@
       let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
       if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
       if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
+
+      // Simpan status On/Off mesin dan CQI ke Internal Storage (localStorage) sebelum berpindah halaman
+      const currentStateToSave = {
+        machines: mapData.machines.map(m => ({ id: m.id, name: m.name, status: m.status })),
+        cqis: mapData.cqis.map(c => ({ id: c.id, name: c.name, status: c.status }))
+      };
+      localStorage.setItem('factory_internal_storage', JSON.stringify(currentStateToSave));
+
       sessionStorage.setItem('planning_state', JSON.stringify({ machines: runMachines, cqis: readyCqis }));
       window.location.href = 'config.html';
     }
