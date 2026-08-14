@@ -81,12 +81,13 @@
     .ws-btn.active-partial { background: #ca8a04; color: white; border-color: #eab308; }
 
     /* VIEWPORT DAN BUNGKUSAN GRID (UNTUK LOCK SCROLL) */
-    .map-viewport { flex: 1; overflow-y: hidden; overflow-x: auto; background: #030712; position: relative; }
+    /* Diubah overflow menjadi hidden sebagai default */
+    .map-viewport { flex: 1; overflow: hidden; background: #030712; position: relative; }
     .grid-wrapper { overflow: hidden; transform-origin: top left; }
     .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; transform-origin: top left; }
     
     .excel-header { background: #1e293b; color: #94a3b8; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid #334155; user-select: none; z-index: 5; }
-    .excel-corner { background: #0f172a; color: #64748b; font-size: 0.65rem; }
+    .excel-corner { background: #0f172a; color: #64748b; font-size: 0.85rem; }
     .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
 
     /* Line Box */
@@ -109,12 +110,12 @@
     body.mode-edit .resize-handle { display: block; }
 
     /* Node Style */
-    .node { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; text-align: center; cursor: pointer; border-radius: 4px; position: relative; transition: all 0.2s; padding: 2px; z-index: 10; }
+    .node { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; text-align: center; cursor: pointer; border-radius: 4px; position: relative; transition: all 0.2s; padding: 2px; z-index: 10; }
     .node-machine.OFF { background: var(--offplan); color: white; }
     .node-machine.RUNNING { background: var(--running); color: white; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
     .node-cqi.OFF { background: var(--cqi-off); color: white; }
     .node-cqi.READY { background: var(--cqi-ready); color: white; border: 2px solid white; box-shadow: 0 0 10px var(--cqi-ready); }
-    .node-label { background: transparent; color: #94a3b8; border: 1px dashed #475569; font-size: 0.75rem; }
+    .node-label { background: transparent; color: #94a3b8; border: 1px dashed #475569; font-size: 0.85rem; }
 
     .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; z-index: 15; pointer-events: auto; }
     body.mode-edit .del-btn { display: block; }
@@ -147,8 +148,7 @@
     <div class="brand">🏭 MAP LIQUID 3</div>
     <div class="controls">
       <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
-      <button class="btn btn-success control-landing" onclick="setAllMachinesRunning()">🏃 All MC Running</button>
-      <button class="btn btn-danger control-landing" onclick="setAllMachinesOff()">🛑 OFF All Mesin</button>
+      <!-- Tombol Run MC dan Off All sudah dipindah ke panel kiri -->
       <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
       <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
 
@@ -168,6 +168,12 @@
         <h3>(Runing / Line)</h3>
       </div>
       <div class="panel-body">
+        <!-- Posisi baru untuk Tombol MC Control -->
+        <div style="display: flex; gap: 8px; margin-bottom: 5px;">
+          <button class="btn btn-success" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesRunning()">🏃 Run All</button>
+          <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesOff()">🛑 Off All</button>
+        </div>
+
         <div class="stats-box">
           <div class="stat-line"><span>Mesin Running:</span> <span class="stat-val" id="statMachine">0 / 0</span></div>
           <div class="stat-line"><span>CQI Terpakai:</span> <span class="stat-val" id="statCqi">0 / 0</span></div>
@@ -204,7 +210,8 @@
   <script src="brain.js"></script>
   <script>
     let mapData = { machines: [], cqis: [], labels: [], lines: [] };
-    let currentZoom = 1;
+    // Set inisial currentZoom ke 0 agar saat loading akan otomatis terkunci ke zoom-out paling maksimal
+    let currentZoom = 0; 
     let editMode = false;
     let showHeatmap = false;
     let draggedNode = null;
@@ -570,7 +577,14 @@
       const minZoomY = viewport.clientHeight / GRID_HEIGHT;
       const minZoom = Math.max(minZoomX, minZoomY);
 
-      if (currentZoom < minZoom) currentZoom = minZoom;
+      // Logika scrollbar dan auto max-zoom-out
+      if (currentZoom <= minZoom) {
+        currentZoom = minZoom;
+        viewport.style.overflow = 'hidden'; // Menghilangkan bar saat zoom mentok out
+      } else {
+        viewport.style.overflow = 'auto';   // Memunculkan bar saat di-zoom in
+      }
+
       if (currentZoom > 3) currentZoom = 3;
 
       document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
