@@ -13,7 +13,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body { font-family: -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 30; position: relative; }
     .brand { font-weight: 700; font-size: 1.1rem; }
     .controls { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn { background: #4b5563; color: white; border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
@@ -22,93 +22,100 @@
     .btn-success { background: var(--running); border: none; }
     .btn-warning { background: var(--setup); border: none; }
     
-    /* WORKSTATION QUICK TOGGLE BAR */
-    .ws-bar { background: #111827; border-bottom: 1px solid var(--border); padding: 8px 15px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; z-index: 9; max-height: 100px; overflow-y: auto; }
-    .ws-title { font-size: 0.75rem; font-weight: bold; color: #94a3b8; margin-right: 5px; }
-    .ws-btn { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; }
+    /* LAYOUT UTAMA & SLIDING PANEL */
+    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+    
+    .side-panel {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s ease;
+      z-index: 20;
+    }
+    .side-panel.closed { margin-left: -280px; }
+    
+    .panel-toggle-btn {
+      position: absolute;
+      left: 280px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 48px;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      color: #94a3b8;
+      cursor: pointer;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: left 0.3s ease, background 0.2s;
+      box-shadow: 3px 0 6px rgba(0,0,0,0.3);
+    }
+    .panel-toggle-btn:hover { background: #334155; color: white; }
+    .side-panel.closed ~ .panel-toggle-btn { left: 0; }
+
+    .panel-header { padding: 15px; border-bottom: 1px solid var(--border); background: #0f172a; }
+    .panel-header h3 { font-size: 0.95rem; color: #f1f5f9; margin: 0; font-weight: 700; text-align: center; }
+    
+    .panel-body { padding: 15px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px; }
+    
+    /* STATISTIK DI PANEL */
+    .stats-box { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; font-size: 0.8rem; color: #94a3b8; display: flex; flex-direction: column; gap: 6px; }
+    .stat-line { display: flex; justify-content: space-between; }
+    .stat-val { font-weight: 700; color: #e2e8f0; }
+
+    /* TOMBOL WORKSTATION (0A, 1A, Dst) */
+    .ws-group { margin-bottom: 10px; }
+    .ws-group-title { font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; font-weight: bold; border-bottom: 1px dashed #334155; padding-bottom: 4px; }
+    .ws-group-buttons { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ws-btn { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; flex: 1 1 calc(33.333% - 5px); text-align: center; }
     .ws-btn:hover { background: #334155; color: white; }
     .ws-btn.active-all { background: #16a34a; color: white; border-color: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.4); }
     .ws-btn.active-partial { background: #ca8a04; color: white; border-color: #eab308; }
 
-    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+    /* VIEWPORT DAN BUNGKUSAN GRID (UNTUK LOCK SCROLL) */
+    .map-viewport { flex: 1; overflow-y: hidden; overflow-x: auto; background: #030712; position: relative; }
+    .grid-wrapper { overflow: hidden; transform-origin: top left; }
+    .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; transform-origin: top left; }
     
-    /* Area Viewport dan Grid */
-    .map-viewport { flex: 1; overflow: auto; padding: 40px; background: #030712; display: flex; align-items: flex-start; justify-content: flex-start; }
-    .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; width: max-content; height: max-content; transform-origin: top left; transition: transform 0.1s; }
-    
-    /* Excel Style Headers */
     .excel-header { background: #1e293b; color: #94a3b8; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid #334155; user-select: none; z-index: 5; }
     .excel-corner { background: #0f172a; color: #64748b; font-size: 0.65rem; }
-
     .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
 
-    /* Line Box (Diperbarui) */
+    /* Line Box */
     .line-box {
-      position: relative;
-      border: 3px dashed #3b82f6;
-      background: transparent;
-      border-radius: 0;
-      z-index: 1; /* Pindah ke bawah layer sel grid */
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      pointer-events: none; /* Biarkan klik menembus ke node & grid di bawahnya */
+      position: relative; border: 3px dashed #3b82f6; background: transparent; border-radius: 0; z-index: 1; 
+      box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; pointer-events: none; 
     }
-    body.mode-edit .line-box {
-      border-style: dashed;
-      background: rgba(255, 255, 255, 0.02);
-      z-index: 3; /* Cukup agar border terlihat, tapi pointer-events tetap none */
-    }
-    /* Agar Line Area tetap bisa di-drag lewat judul header-nya */
-    body.mode-edit .line-box-header {
-      cursor: grab;
-    }
-    body.mode-edit .line-box-header:active {
-      cursor: grabbing;
-    }
-    
+    body.mode-edit .line-box { border-style: dashed; background: rgba(255, 255, 255, 0.02); z-index: 3; }
+    body.mode-edit .line-box-header { cursor: grab; }
+    body.mode-edit .line-box-header:active { cursor: grabbing; }
     .line-box-header {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: #60a5fa;
-      background: rgba(15, 23, 42, 0.9);
-      padding: 4px 8px;
-      width: max-content;
-      pointer-events: auto; /* Mengizinkan interaksi pada judul area */
-      letter-spacing: 0.5px;
-      border-bottom-right-radius: 6px;
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem; font-weight: 800; color: #60a5fa; background: rgba(15, 23, 42, 0.9);
+      padding: 4px 8px; width: max-content; pointer-events: auto; letter-spacing: 0.5px;
+      border-bottom-right-radius: 6px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
     }
     .resize-handle {
-      width: 14px;
-      height: 14px;
-      background: #3b82f6;
-      border: 2px solid #ffffff;
-      border-radius: 3px;
-      position: absolute;
-      bottom: -6px;
-      right: -6px;
-      cursor: se-resize;
-      display: none;
-      z-index: 20;
-      pointer-events: auto; /* Mengizinkan interaksi pada handle tarik */
+      width: 14px; height: 14px; background: #3b82f6; border: 2px solid #ffffff; border-radius: 3px;
+      position: absolute; bottom: -6px; right: -6px; cursor: se-resize; display: none; z-index: 20; pointer-events: auto; 
     }
     body.mode-edit .resize-handle { display: block; }
 
     /* Node Style */
     .node { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; text-align: center; cursor: pointer; border-radius: 4px; position: relative; transition: all 0.2s; padding: 2px; z-index: 10; }
-    
     .node-machine.OFF { background: var(--offplan); color: white; }
     .node-machine.RUNNING { background: var(--running); color: white; box-shadow: inset 0 0 10px rgba(255,255,255,0.3); }
-
     .node-cqi.OFF { background: var(--cqi-off); color: white; }
     .node-cqi.READY { background: var(--cqi-ready); color: white; border: 2px solid white; box-shadow: 0 0 10px var(--cqi-ready); }
-
     .node-label { background: transparent; color: #94a3b8; border: 1px dashed #475569; font-size: 0.75rem; }
 
-    .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; z-index: 15; pointer-events: auto; /* Tombol X bisa diklik */ }
+    .del-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; line-height: 16px; text-align: center; cursor: pointer; z-index: 15; pointer-events: auto; }
     body.mode-edit .del-btn { display: block; }
     body.mode-edit .node { cursor: grab; }
     body.mode-landing .control-edit { display: none; }
@@ -118,8 +125,9 @@
     .heatmap-warn { box-shadow: inset 0 0 20px rgba(234, 179, 8, 0.6) !important; border: 1px solid #eab308; }
     .heatmap-bad { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.6) !important; border: 1px solid #ef4444; }
 
-    .zoom-controls { position: fixed; bottom: 30px; left: 30px; display: flex; gap: 10px; z-index: 1000; }
-    .zoom-btn { background: #374151; color: white; border: none; width: 40px; height: 40px; border-radius: 6px; cursor: pointer; font-size: 1.4rem; }
+    .zoom-controls { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 1000; }
+    .zoom-btn { background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; color: white; width: 45px; height: 45px; border-radius: 8px; cursor: pointer; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .zoom-btn:hover { background: #334155; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -151,16 +159,32 @@
     </div>
   </header>
 
-  <!-- WORKSTATION QUICK TOGGLE BAR -->
-  <div class="ws-bar control-landing" id="wsBar"></div>
-
   <div class="main-layout">
-    <div class="map-viewport">
-      <div class="zoom-controls">
-        <button class="zoom-btn" onclick="zoomOut()">-</button>
-        <button class="zoom-btn" onclick="zoomIn()">+</button>
+    <!-- PANEL GESER KIRI -->
+    <div class="side-panel control-landing" id="sidePanel">
+      <div class="panel-header">
+        <h3>(Runing / Line)</h3>
       </div>
-      <div class="factory-grid" id="factoryGrid"></div>
+      <div class="panel-body">
+        <div class="stats-box">
+          <div class="stat-line"><span>Mesin Running:</span> <span class="stat-val" id="statMachine">0 / 0</span></div>
+          <div class="stat-line"><span>CQI Terpakai:</span> <span class="stat-val" id="statCqi">0 / 0</span></div>
+        </div>
+        <div id="wsBtnContainer"></div>
+      </div>
+    </div>
+    
+    <div class="panel-toggle-btn control-landing" onclick="toggleSidePanel()" id="panelToggleBtn">◀</div>
+
+    <div class="map-viewport" id="mapViewport">
+      <div class="grid-wrapper" id="gridWrapper">
+        <div class="factory-grid" id="factoryGrid"></div>
+      </div>
+    </div>
+    
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomOut()">-</button>
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
     </div>
   </div>
 
@@ -184,6 +208,21 @@
     let draggedNode = null;
     let activeModalType = '';
 
+    // Dimensi pasti berdasarkan 55 Kolom & 20 Baris
+    // Width = 40 (Header Kiri) + (55 * 78) = 4330
+    // Height = 28 (Header Atas) + (20 * 52) = 1068
+    const GRID_WIDTH = 4330;
+    const GRID_HEIGHT = 1068;
+
+    // Geser Kiri-Kanan Menggunakan Scroll Mouse
+    const mapViewport = document.getElementById('mapViewport');
+    mapViewport.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        mapViewport.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+
     function getColLetter(col) {
       let letter = '';
       while (col > 0) {
@@ -196,7 +235,6 @@
 
     async function loadMap() {
       const githubUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/map.json';
-      
       try {
         const res = await fetch(githubUrl);
         if (!res.ok) throw new Error("Gagal load dari GitHub");
@@ -212,6 +250,7 @@
       }
       initializeStatuses();
       renderWorkstationButtons();
+      applyZoom();
     }
 
     function initializeStatuses() {
@@ -219,27 +258,19 @@
         mapData.lines = [
           { id: 'line-a', name: 'LINE A', row: 2, col: 4, width: 24, height: 8, borderColor: '#3b82f6', textColor: '#60a5fa' },
           { id: 'line-b', name: 'LINE B', row: 11, col: 4, width: 27, height: 6, borderColor: '#3b82f6', textColor: '#60a5fa' },
-          { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#60a5fa' },
-          { id: 'line-ww', name: 'WW', row: 7, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#60a5fa' },
-          { id: 'line-ot', name: 'OT', row: 2, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#60a5fa' }
+          { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#60a5fa' }
         ];
       }
 
-      mapData.machines.forEach(m => {
-        if (m.status !== 'RUNNING') m.status = 'OFF';
-      });
-
-      mapData.cqis.forEach(c => {
-        if (c.status !== 'READY') c.status = 'OFF';
-      });
-
+      mapData.machines.forEach(m => { if (m.status !== 'RUNNING') m.status = 'OFF'; });
+      mapData.cqis.forEach(c => { if (c.status !== 'READY') c.status = 'OFF'; });
       renderGrid();
     }
 
     function renderWorkstationButtons() {
-      const wsBar = document.getElementById('wsBar');
-      if (!wsBar) return;
-      wsBar.innerHTML = '<span class="ws-title">⚡ Running Per Workstation:</span>';
+      const container = document.getElementById('wsBtnContainer');
+      if (!container) return;
+      container.innerHTML = '';
 
       const groups = [
         { title: "LINE A", keys: ["0A", "1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A"] },
@@ -249,29 +280,42 @@
       ];
 
       groups.forEach(g => {
-        let groupSpan = document.createElement('span');
-        groupSpan.style.display = 'inline-flex';
-        groupSpan.style.gap = '4px';
-        groupSpan.style.alignItems = 'center';
-        groupSpan.style.marginRight = '8px';
+        let groupDiv = document.createElement('div');
+        groupDiv.className = 'ws-group';
+        
+        let titleDiv = document.createElement('div');
+        titleDiv.className = 'ws-group-title';
+        titleDiv.innerText = g.title;
+        groupDiv.appendChild(titleDiv);
 
+        let btnsDiv = document.createElement('div');
+        btnsDiv.className = 'ws-group-buttons';
+        
         g.keys.forEach(key => {
           let btn = document.createElement('button');
           btn.className = 'ws-btn';
           btn.innerText = key;
-          btn.title = `Klik untuk Running/Off-kan Workstation ${key}`;
-          btn.onclick = () => toggleWorkstation(key);
           btn.id = 'ws-btn-' + key;
-          groupSpan.appendChild(btn);
+          btn.onclick = () => toggleWorkstation(key);
+          btnsDiv.appendChild(btn);
         });
-
-        wsBar.appendChild(groupSpan);
+        
+        groupDiv.appendChild(btnsDiv);
+        container.appendChild(groupDiv);
       });
 
-      updateWorkstationButtonStates();
+      updateStatsAndButtons();
     }
 
-    function updateWorkstationButtonStates() {
+    function updateStatsAndButtons() {
+      const totalMac = mapData.machines.length;
+      const runMac = mapData.machines.filter(m => m.status === 'RUNNING').length;
+      document.getElementById('statMachine').innerText = `${runMac} / ${totalMac}`;
+
+      const totalCqi = mapData.cqis.length;
+      const readyCqi = mapData.cqis.filter(c => c.status === 'READY').length;
+      document.getElementById('statCqi').innerText = `${readyCqi} / ${totalCqi}`;
+
       if (typeof WORKSTATIONS === 'undefined') return;
 
       for (let key in WORKSTATIONS) {
@@ -315,32 +359,27 @@
       let allRunning = wsMachines.every(m => m.status === 'RUNNING');
       let targetStatus = allRunning ? 'OFF' : 'RUNNING';
 
-      wsMachines.forEach(m => {
-        m.status = targetStatus;
-      });
+      wsMachines.forEach(m => m.status = targetStatus);
 
       renderGrid();
-      updateWorkstationButtonStates();
+    }
+
+    function toggleSidePanel() {
+      const panel = document.getElementById('sidePanel');
+      const btn = document.getElementById('panelToggleBtn');
+      panel.classList.toggle('closed');
+      btn.innerText = panel.classList.contains('closed') ? '▶' : '◀';
+      
+      // Tunggu animasi slide selesai, lalu update batas zoom
+      setTimeout(applyZoom, 300); 
     }
 
     function renderGrid() {
       const grid = document.getElementById('factoryGrid');
       grid.innerHTML = '';
       
-      let maxR = 20, maxC = 30;
-      [...mapData.machines, ...mapData.cqis, ...mapData.labels].forEach(n => {
-        if (n.row > maxR) maxR = n.row;
-        if (n.col > maxC) maxC = n.col;
-      });
-      if (mapData.lines) {
-        mapData.lines.forEach(l => {
-          if (l.row + l.height - 1 > maxR) maxR = l.row + l.height - 1;
-          if (l.col + l.width - 1 > maxC) maxC = l.col + l.width - 1;
-        });
-      }
-
-      let totalCols = maxC + 2;
-      let totalRows = maxR + 2;
+      let totalCols = 55;
+      let totalRows = 20;
 
       grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`;
       grid.style.gridTemplateRows = `28px repeat(${totalRows}, 52px)`;
@@ -376,7 +415,6 @@
           cell.dataset.col = c;
           cell.style.gridRow = `${r + 1}`;
           cell.style.gridColumn = `${c + 1}`;
-
           cell.ondragover = e => e.preventDefault();
           cell.ondrop = e => handleDrop(e, r, c);
           grid.appendChild(cell);
@@ -401,10 +439,7 @@
           if (editMode) {
             lineEl.draggable = true;
             lineEl.ondragstart = (e) => {
-              if (e.target.classList.contains('resize-handle') || e.target.classList.contains('del-btn')) {
-                e.preventDefault();
-                return;
-              }
+              if (e.target.classList.contains('resize-handle') || e.target.classList.contains('del-btn')) return;
               draggedNode = { node: line, type: 'line' };
               e.dataTransfer.setData('text/plain', line.id);
             };
@@ -412,19 +447,14 @@
             let delBtn = document.createElement('div');
             delBtn.className = 'del-btn';
             delBtn.innerText = 'X';
-            delBtn.style.top = '2px';
-            delBtn.style.right = '2px';
+            delBtn.style.top = '2px'; delBtn.style.right = '2px';
             delBtn.onclick = (e) => { e.stopPropagation(); deleteNode(line.id, 'line'); };
             lineEl.appendChild(delBtn);
 
             let handle = document.createElement('div');
             handle.className = 'resize-handle';
             handle.style.backgroundColor = line.borderColor || '#3b82f6';
-            handle.onmousedown = (e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              initResizeLine(e, line);
-            };
+            handle.onmousedown = (e) => { e.stopPropagation(); e.preventDefault(); initResizeLine(e, line); };
             lineEl.appendChild(handle);
           }
 
@@ -470,13 +500,9 @@
       if (showHeatmap) {
         const svgNS = "http://www.w3.org/2000/svg";
         let svg = document.createElementNS(svgNS, "svg");
-        svg.style.position = "absolute";
-        svg.style.top = "0";
-        svg.style.left = "0";
-        svg.style.width = "100%";
-        svg.style.height = "100%";
-        svg.style.pointerEvents = "none";
-        svg.style.zIndex = "8";
+        svg.style.position = "absolute"; svg.style.top = "0"; svg.style.left = "0";
+        svg.style.width = "100%"; svg.style.height = "100%";
+        svg.style.pointerEvents = "none"; svg.style.zIndex = "8";
 
         mapData.machines.forEach(m => {
           if (m.status === 'RUNNING') {
@@ -496,10 +522,8 @@
               let endY = 28 + (nearest.row - 1) * 52 + 26;
 
               let line = document.createElementNS(svgNS, "line");
-              line.setAttribute("x1", startX);
-              line.setAttribute("y1", startY);
-              line.setAttribute("x2", endX);
-              line.setAttribute("y2", endY);
+              line.setAttribute("x1", startX); line.setAttribute("y1", startY);
+              line.setAttribute("x2", endX); line.setAttribute("y2", endY);
               
               if (minDist <= 5) line.setAttribute("stroke", "#22c55e");
               else if (minDist <= 10) line.setAttribute("stroke", "#eab308");
@@ -513,29 +537,44 @@
         });
         grid.appendChild(svg);
       }
-
-      updateWorkstationButtonStates();
+      updateStatsAndButtons();
     }
 
+    // LOGIKA ZOOM DAN BOUNDARY SCROLL //
+    function applyZoom() {
+      // Hitung batas minimal agar Grid tidak pernah lebih kecil dari Viewport
+      const viewport = document.getElementById('mapViewport');
+      const minZoomX = viewport.clientWidth / GRID_WIDTH;
+      const minZoomY = viewport.clientHeight / GRID_HEIGHT;
+      const minZoom = Math.max(minZoomX, minZoomY); // Ambil yang lebih besar (mencegah black border)
+
+      if (currentZoom < minZoom) currentZoom = minZoom;
+      if (currentZoom > 3) currentZoom = 3;
+
+      document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
+      
+      // Kunci ukuran wrapper, jadi Overflow/Scroll Browser langsung mengikuti persis di perbatasan grid!
+      const wrapper = document.getElementById('gridWrapper');
+      wrapper.style.width = `${GRID_WIDTH * currentZoom}px`;
+      wrapper.style.height = `${GRID_HEIGHT * currentZoom}px`;
+    }
+
+    function zoomIn() { currentZoom += 0.1; applyZoom(); }
+    function zoomOut() { currentZoom -= 0.1; applyZoom(); }
+    window.addEventListener('resize', applyZoom);
+
+    // FUNGSI LAINNYA
     function initResizeLine(e, line) {
-      let startX = e.clientX;
-      let startY = e.clientY;
-      let startW = line.width;
-      let startH = line.height;
+      let startX = e.clientX, startY = e.clientY;
+      let startW = line.width, startH = line.height;
 
       function onMouseMove(moveEvent) {
-        let dx = moveEvent.clientX - startX;
-        let dy = moveEvent.clientY - startY;
-
-        let colDelta = Math.round(dx / (78 * currentZoom));
-        let rowDelta = Math.round(dy / (52 * currentZoom));
-
-        let newW = Math.max(1, startW + colDelta);
-        let newH = Math.max(1, startH + rowDelta);
+        let dx = moveEvent.clientX - startX; let dy = moveEvent.clientY - startY;
+        let colDelta = Math.round(dx / (78 * currentZoom)); let rowDelta = Math.round(dy / (52 * currentZoom));
+        let newW = Math.max(1, startW + colDelta); let newH = Math.max(1, startH + rowDelta);
 
         if (newW !== line.width || newH !== line.height) {
-          line.width = newW;
-          line.height = newH;
+          line.width = newW; line.height = newH;
           let lineEl = document.getElementById(line.id);
           if (lineEl) {
             lineEl.style.gridColumn = `${line.col + 1} / span ${line.width}`;
@@ -543,40 +582,25 @@
           }
         }
       }
-
-      function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        renderGrid();
-      }
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      function onMouseUp() { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); renderGrid(); }
+      document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
     }
 
-    function setAllMachinesRunning() {
-      mapData.machines.forEach(m => m.status = 'RUNNING');
-      renderGrid();
-      updateWorkstationButtonStates();
-    }
+    function setAllMachinesRunning() { mapData.machines.forEach(m => m.status = 'RUNNING'); renderGrid(); }
 
     function cycleStatus(node, type) {
       if (type === 'machine') {
-        const s = ['OFF', 'RUNNING'];
-        node.status = s[(s.indexOf(node.status) + 1) % s.length];
+        const s = ['OFF', 'RUNNING']; node.status = s[(s.indexOf(node.status) + 1) % s.length];
       } else if (type === 'cqi') {
-        const s = ['OFF', 'READY'];
-        node.status = s[(s.indexOf(node.status) + 1) % s.length];
+        const s = ['OFF', 'READY']; node.status = s[(s.indexOf(node.status) + 1) % s.length];
       }
 
       if(showHeatmap) renderGrid();
       else {
         let el = document.getElementById(node.id);
-        if(el) {
-          el.className = `node node-${type} ${node.status}`;
-        }
+        if(el) el.className = `node node-${type} ${node.status}`;
+        updateStatsAndButtons();
       }
-      updateWorkstationButtonStates();
     }
 
     function getMinCqiDistance(machine) {
@@ -585,22 +609,9 @@
       return Math.min(...readyCqis.map(c => Math.sqrt(Math.pow(machine.row - c.row, 2) + Math.pow(machine.col - c.col, 2))));
     }
 
-    function handleDragStart(e, node, type) {
-      draggedNode = { node, type };
-      e.dataTransfer.setData('text/plain', node.id);
-    }
-
-    function handleDrop(e, r, c) {
-      if (!editMode || !draggedNode) return;
-      e.preventDefault();
-
-      draggedNode.node.row = r;
-      draggedNode.node.col = c;
-
-      draggedNode = null;
-      renderGrid();
-    }
-
+    function handleDragStart(e, node, type) { draggedNode = { node, type }; e.dataTransfer.setData('text/plain', node.id); }
+    function handleDrop(e, r, c) { if (!editMode || !draggedNode) return; e.preventDefault(); draggedNode.node.row = r; draggedNode.node.col = c; draggedNode = null; renderGrid(); }
+    
     function deleteNode(id, type) {
       if (!confirm('Hapus item ini?')) return;
       if (type === 'machine') mapData.machines = mapData.machines.filter(m => m.id !== id);
@@ -617,123 +628,48 @@
       container.innerHTML = '';
 
       if (type === 'machine') {
-        title.innerText = "Tambah Mesin Baru";
-        container.innerHTML = `
-          <div class="form-group">
-            <label>Nama Mesin</label>
-            <input type="text" id="macName" class="form-control" placeholder="Contoh: AST 33-16L" required>
-          </div>
-        `;
+        title.innerText = "Tambah Mesin Baru"; container.innerHTML = `<div class="form-group"><label>Nama Mesin</label><input type="text" id="macName" class="form-control" placeholder="Contoh: AST 33-16L" required></div>`;
       } else if (type === 'cqi') {
-        title.innerText = "Tambah CQI Baru";
-        container.innerHTML = `
-          <div class="form-group">
-            <label>Nama CQI</label>
-            <input type="text" id="cqiName" class="form-control" placeholder="Contoh: CQI-01" required>
-          </div>
-        `;
+        title.innerText = "Tambah CQI Baru"; container.innerHTML = `<div class="form-group"><label>Nama CQI</label><input type="text" id="cqiName" class="form-control" placeholder="Contoh: CQI-01" required></div>`;
       } else if (type === 'label') {
-        title.innerText = "Tambah Label Baru";
-        container.innerHTML = `
-          <div class="form-group">
-            <label>Nama Label</label>
-            <input type="text" id="lblName" class="form-control" placeholder="Contoh: 0A" required>
-          </div>
-          <div class="form-group">
-            <label>Baris (Row)</label>
-            <input type="number" id="lblRow" class="form-control" value="5" min="1" required>
-          </div>
-          <div class="form-group">
-            <label>Kolom (Col)</label>
-            <input type="number" id="lblCol" class="form-control" value="5" min="1" required>
-          </div>
-        `;
+        title.innerText = "Tambah Label Baru"; container.innerHTML = `<div class="form-group"><label>Nama Label</label><input type="text" id="lblName" class="form-control" placeholder="Contoh: 0A" required></div><div class="form-group"><label>Baris (Row)</label><input type="number" id="lblRow" class="form-control" value="5" min="1" required></div><div class="form-group"><label>Kolom (Col)</label><input type="number" id="lblCol" class="form-control" value="5" min="1" required></div>`;
       } else if (type === 'line') {
-        title.innerText = "Tambah Batas Line Baru";
-        container.innerHTML = `
-          <div class="form-group">
-            <label>Nama Batas Line</label>
-            <input type="text" id="lineName" class="form-control" placeholder="Contoh: LINE D" required>
-          </div>
-          <div class="form-group">
-            <label>Lebar (Jumlah Kolom)</label>
-            <input type="number" id="lineWidth" class="form-control" value="8" min="1" required>
-          </div>
-          <div class="form-group">
-            <label>Tinggi (Jumlah Baris)</label>
-            <input type="number" id="lineHeight" class="form-control" value="12" min="1" required>
-          </div>
-        `;
+        title.innerText = "Tambah Batas Line Baru"; container.innerHTML = `<div class="form-group"><label>Nama Batas Line</label><input type="text" id="lineName" class="form-control" placeholder="Contoh: LINE D" required></div><div class="form-group"><label>Lebar (Jumlah Kolom)</label><input type="number" id="lineWidth" class="form-control" value="8" min="1" required></div><div class="form-group"><label>Tinggi (Jumlah Baris)</label><input type="number" id="lineHeight" class="form-control" value="12" min="1" required></div>`;
       }
-
       document.getElementById('nodeModal').classList.add('active');
     }
 
-    function closeNodeModal() {
-      document.getElementById('nodeModal').classList.remove('active');
-    }
+    function closeNodeModal() { document.getElementById('nodeModal').classList.remove('active'); }
 
     function submitNodeModal() {
       let id = activeModalType.charAt(0).toUpperCase() + '-' + Date.now();
-      
       if (activeModalType === 'machine') {
         const name = document.getElementById('macName').value.trim();
-        if (!name) return alert('Nama mesin tidak boleh kosong!');
-        mapData.machines.push({ id, name, row: 1, col: 1, status: 'OFF' });
-      } 
-      else if (activeModalType === 'cqi') {
+        if (!name) return alert('Nama mesin tidak boleh kosong!'); mapData.machines.push({ id, name, row: 1, col: 1, status: 'OFF' });
+      } else if (activeModalType === 'cqi') {
         const name = document.getElementById('cqiName').value.trim();
-        if (!name) return alert('Nama CQI tidak boleh kosong!');
-        mapData.cqis.push({ id, name, row: 1, col: 1, status: 'OFF' });
-      } 
-      else if (activeModalType === 'label') {
+        if (!name) return alert('Nama CQI tidak boleh kosong!'); mapData.cqis.push({ id, name, row: 1, col: 1, status: 'OFF' });
+      } else if (activeModalType === 'label') {
         const name = document.getElementById('lblName').value.trim();
-        const row = parseInt(document.getElementById('lblRow').value) || 5;
-        const col = parseInt(document.getElementById('lblCol').value) || 5;
-        if (!name) return alert('Nama label tidak boleh kosong!');
-        mapData.labels.push({ id, name, row, col });
-      }
-      else if (activeModalType === 'line') {
+        const row = parseInt(document.getElementById('lblRow').value) || 5; const col = parseInt(document.getElementById('lblCol').value) || 5;
+        if (!name) return alert('Nama label tidak boleh kosong!'); mapData.labels.push({ id, name, row, col });
+      } else if (activeModalType === 'line') {
         const name = document.getElementById('lineName').value.trim();
-        const width = parseInt(document.getElementById('lineWidth').value) || 8;
-        const height = parseInt(document.getElementById('lineHeight').value) || 12;
+        const width = parseInt(document.getElementById('lineWidth').value) || 8; const height = parseInt(document.getElementById('lineHeight').value) || 12;
         if (!name) return alert('Nama Line tidak boleh kosong!');
-
-        const palette = [
-          { border: '#a855f7', text: '#c084fc' },
-          { border: '#ec4899', text: '#f472b6' },
-          { border: '#14b8a6', text: '#2dd4bf' }
-        ];
+        const palette = [{ border: '#a855f7', text: '#c084fc' }, { border: '#ec4899', text: '#f472b6' }, { border: '#14b8a6', text: '#2dd4bf' }];
         const style = palette[Math.floor(Math.random() * palette.length)];
-
-        mapData.lines.push({
-          id: 'line-' + Date.now(),
-          name,
-          row: 1,
-          col: 1,
-          width,
-          height,
-          borderColor: style.border,
-          textColor: style.text
-        });
+        mapData.lines.push({ id: 'line-' + Date.now(), name, row: 1, col: 1, width, height, borderColor: style.border, textColor: style.text });
       }
-
-      closeNodeModal();
-      renderGrid();
+      closeNodeModal(); renderGrid();
     }
 
     function toggleEditMode() { editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
     function toggleHeatmap() { showHeatmap = !showHeatmap; renderGrid(); }
     
-    function zoomIn() { currentZoom += 0.1; document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`; }
-    function zoomOut() { currentZoom = Math.max(0.2, currentZoom - 0.1); document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`; }
-    
     function exportMapJson() {
       let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" });
-      let a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = "map.json";
-      a.click();
+      let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "map.json"; a.click();
     }
 
     function goToConfig() {
@@ -741,7 +677,6 @@
       let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
       if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
       if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
-      
       sessionStorage.setItem('planning_state', JSON.stringify({ machines: runMachines, cqis: readyCqis }));
       window.location.href = 'config.html';
     }
