@@ -8,6 +8,7 @@
  * 4. Buat Slot CQI
  * 5. Masukkan Mesin
  * 6. Pembagian Prioritas
+ * 6.5 Paksa & Geser (Bulldozer Logic - Jarak Aktual)
  * 7. Optimasi
  * 8. Validasi Akhir
  */
@@ -95,8 +96,8 @@ const BrainAI = {
   },
 
   /**
-   * Jarak Aktual (Manhattan Distance).
-   * Menghitung jalur berbelok mengikuti lorong, tidak ditarik garis lurus (Euclidean).
+   * JARAK AKTUAL (Manhattan Distance)
+   * Mengukur sesuai jalur jalan tegak lurus pada grid map, BUKAN garis lurus miring (Euclidean).
    */
   getDistance(r1, c1, r2, c2) {
     return Math.abs(r1 - r2) + Math.abs(c1 - c2);
@@ -130,7 +131,7 @@ const BrainAI = {
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
 
     let is19 = cqiIdStr === '19';
-    if (is19) return 0; // CQI 19 tidak perlu NON CORE
+    if (is19) return 0;
 
     let is24 = cqiIdStr === '24';
     let hasC1C2 = slot.machines.some(m => m.isC1C2);
@@ -156,14 +157,13 @@ const BrainAI = {
     }
   },
 
-  // STEP 5: CEK APAKAH MESIN BOLEH MASUK CQI
+  // STEP 5: CEK APAKAH MESIN BOLEH MASUK CQI (Strict Maximum Capacity)
   _canAcceptMachine(slot, m, availableNC) {
     if (slot.isExclusive) return { can: false };
 
     let hasAst = slot.machines.some(sm => sm.isAst);
     let hasApk = slot.machines.some(sm => sm.isApk || sm.isC1C2);
 
-    // Cek Campur AST + APK/K/X
     if (hasAst && (m.isApk || m.isC1C2)) return { can: false, reason: "strict_mix" };
     if (hasApk && m.isAst) return { can: false, reason: "strict_mix" };
 
@@ -180,7 +180,6 @@ const BrainAI = {
     let hasC1C2 = slot.machines.some(sm => sm.isC1C2) || m.isC1C2;
     let isAstDominant = astCount > 0;
     
-    // Cek Kapasitas Cukup
     let absoluteMax;
     if (is24 && hasC1C2) {
       absoluteMax = 4;
@@ -191,22 +190,19 @@ const BrainAI = {
     }
     
     if (astCount + apkCount > absoluteMax) return { can: false, reason: "capacity" }; 
-    // Cek NON CORE Tersedia
     if (neededNC > availableNC) return { can: false, reason: "no_nc" }; 
     
     return { can: true, neededNC: Math.max(0, neededNC), reqNC: reqNC, absoluteMax: absoluteMax };
   },
 
-  // STEP 6: PEMBAGIAN MESIN (Penentuan Skor Prioritas)
+  // STEP 6: PEMBAGIAN MESIN (Skoring)
   _scoreSlot(m, slot, slots, availableNC) {
     let acceptStatus = this._canAcceptMachine(slot, m, availableNC);
     if (!acceptStatus.can) return -Infinity;
 
-    // 3. Jarak paling dekat (Jalur aktual)
     let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
     let distScore = Math.max(0, 100 - (dist * 2)); 
     
-    // 1. CQI Sesuai History (Mapping Acuan)
     let histScore = this.getHistory(m.id, slot.cqi.id) * 0.3; 
     let priorityBonus = 0;
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
@@ -216,7 +212,6 @@ const BrainAI = {
         priorityBonus = 2000; 
     }
 
-    // 2. Workstation sama dan terdekat
     let wsBonus = 0;
     if (m.wsKey) {
       let sameWs = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
@@ -272,12 +267,7 @@ const BrainAI = {
         let is24 = cqiIdStr === '24';
 
         unassigned.forEach(m => {
-            // Evaluasi Jarak & History
-            if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) {
-                score += 1500;
-            }
-            
-            // Evaluasi Jarak Aktual
+            if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) score += 1500;
             let dist = this.getDistance(m.row, m.col, cqi.row, cqi.col);
             if (dist < 15) score += 200;
             else if (dist < 30) score += 100;
@@ -286,7 +276,6 @@ const BrainAI = {
             
             score += this.getHistory(m.id, cqi.id) * 0.1;
             
-            // Cek Rule Khusus untuk penentuan CQI M2/M3 dan C1/C2
             if (is19 && m.isM2M3) score += 10000;
             if (is24 && m.isC1C2) score += 10000;
         });
@@ -319,7 +308,6 @@ const BrainAI = {
       }
     };
 
-    // EKSEKUSI CEK RULE KHUSUS (M2/M3 & C1/C2)
     let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     let m2m3Machines = unassigned.filter(m => m.isM2M3);
     if (slot19 && m2m3Machines.length > 0) {
@@ -348,7 +336,7 @@ const BrainAI = {
       applyNonCoreIfNeeded(slot24);
     }
 
-    // Jaga agar CORE tidak Kosong (Seeding)
+    // SEEDING
     slots.forEach(slot => {
       if (slot.machines.length === 0 && unassigned.length > 0) {
         unassigned.sort((a, b) => this.getDistance(a.row, a.col, slot.cqi.row, slot.cqi.col) - this.getDistance(b.row, b.col, slot.cqi.row, slot.cqi.col));
@@ -361,7 +349,7 @@ const BrainAI = {
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
     
     // ==========================================
-    // STEP 5 & 6: MASUKKAN & PEMBAGIAN MESIN
+    // STEP 5: MASUKKAN MESIN (Skenario Normal)
     // ==========================================
     let remainingUnassigned = [];
     unassigned.forEach(m => {
@@ -381,57 +369,82 @@ const BrainAI = {
       }
     });
 
-    // Fallback logic untuk mesin yang masih belum masuk
+    // ==========================================
+    // STEP 6.5: PAKSA & GESER (BULLDOZER LOGIC)
+    // Paksakan mesin yang tersisa ke CQI terdekat (Jalur Aktual/Manhattan).
+    // Jika penuh, geser penghuni lama ke CQI terdekat lainnya.
+    // ==========================================
     if (remainingUnassigned.length > 0) {
-      let iterations = remainingUnassigned.length * 3;
+      // Loop ditingkatkan untuk memastikan proses cascading geser selesai
+      let iterations = remainingUnassigned.length * 5; 
+      
       while (remainingUnassigned.length > 0 && iterations > 0) {
         let u = remainingUnassigned.shift();
         let placed = false;
 
+        // Cari CQI terdekat secara aktual (Tegak lurus sesuai lorong)
         let fallbackSlots = [...slots].filter(s => !s.isExclusive)
           .sort((a, b) => this.getDistance(u.row, u.col, a.cqi.row, a.cqi.col) - this.getDistance(u.row, u.col, b.cqi.row, b.cqi.col));
 
         for (let target of fallbackSlots) {
           let accept = this._canAcceptMachine(target, u, nonCorePool.length);
+          
           if (accept.can) {
             target.machines.push(u); 
             applyNonCoreIfNeeded(target);
             placed = true; 
             break;
-          } else {
-            // Coba tukar tempat internal
+          } 
+          // Jika ditolak hanya karena masalah kapasitas atau kurang NON CORE (Bukan beda tipe AST/APK)
+          else if (accept.reason === "capacity" || accept.reason === "no_nc") {
+            
+            // Coba geser salah satu mesin di dalam CQI ini (Occupant)
             for (let i = 0; i < target.machines.length; i++) {
               let occupant = target.machines[i];
+              
+              // Angkat occupant sementara untuk memberi ruang
               target.machines.splice(i, 1); 
 
               let acceptU = this._canAcceptMachine(target, u, nonCorePool.length);
+              
               if (acceptU.can) {
+                // Cari rumah baru untuk si Occupant (Memprioritaskan jarak aktual terdekat dari Occupant ke CQI baru)
                 let newHomes = [...slots].filter(s => s !== target && !s.isExclusive)
                   .sort((a, b) => this.getDistance(occupant.row, occupant.col, a.cqi.row, a.cqi.col) - this.getDistance(occupant.row, occupant.col, b.cqi.row, b.cqi.col));
                 
                 let foundHome = false;
                 for(let home of newHomes) {
-                  let acceptOcc = this._canAcceptMachine(home, occupant, nonCorePool.length - acceptU.neededNC);
+                  let currentNC = nonCorePool.length - acceptU.neededNC;
+                  let acceptOcc = this._canAcceptMachine(home, occupant, Math.max(0, currentNC));
+                  
                   if(acceptOcc.can) {
-                     target.machines.push(u); applyNonCoreIfNeeded(target);
-                     home.machines.push(occupant); applyNonCoreIfNeeded(home);
-                     placed = true; foundHome = true;
+                     // Eksekusi Tukar! U masuk target, Occupant pindah ke Home.
+                     target.machines.push(u); 
+                     applyNonCoreIfNeeded(target);
+                     
+                     home.machines.push(occupant); 
+                     applyNonCoreIfNeeded(home);
+                     
+                     placed = true; 
+                     foundHome = true;
                      break;
                   }
                 }
                 if (foundHome) break;
               }
+              // Jika gagal menemukan tempat untuk Occupant, kembalikan posisi semula (Rollback)
               target.machines.splice(i, 0, occupant); 
             }
           }
           if (placed) break;
         }
+        
+        // Jika masih gagal meski sudah dicoba geser, kembalikan ke antrean bawah
         if (!placed) remainingUnassigned.push(u); 
         iterations--;
       }
     }
 
-    // Maksimalkan Sisa Non Core jika masih ada
     slots.forEach(slot => {
       let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
       let is19 = match && match[0] === '19';
@@ -463,7 +476,6 @@ const BrainAI = {
               let distAfter = this.getDistance(mA.row, mA.col, sB.cqi.row, sB.cqi.col) + 
                               this.getDistance(mB.row, mB.col, sA.cqi.row, sA.cqi.col);
               
-              // Jika ditukar posisi jarak menjadi lebih pendek DAN rule tetap aman
               if (distAfter < distBefore - 3) {
                 sA.machines.splice(m, 1); sA.machines.push(mB);
                 sB.machines.splice(n, 1); sB.machines.push(mA);
@@ -480,7 +492,6 @@ const BrainAI = {
                 let reqB = this._getRequiredNonCore(sB, astB, apkB);
 
                 if (!validA || !validB || reqA > sA.nonCore.length || reqB > sB.nonCore.length) {
-                   // Rollback jika rule tidak aman
                    sA.machines.splice(sA.machines.length-1, 1); sA.machines.splice(m, 0, mA);
                    sB.machines.splice(sB.machines.length-1, 1); sB.machines.splice(n, 0, mB);
                 } else {
@@ -500,14 +511,13 @@ const BrainAI = {
 
     slots.leftoverNonCores = nonCorePool;
 
-    // Sorting Hasil Output
     slots.sort((a,b) => {
         let mA = String(a.cqi.name || a.cqi.id).match(/\d+/);
         let mB = String(b.cqi.name || b.cqi.id).match(/\d+/);
         return (mA ? parseInt(mA[0]) : 0) - (mB ? parseInt(mB[0]) : 0);
     });
 
-    return slots; // MENGHASILKAN OUTPUT PLANNING
+    return slots;
   },
 
   // ==========================================
@@ -531,7 +541,6 @@ const BrainAI = {
     let machineDistances = [];
 
     plan.forEach(slot => {
-      // Validasi CORE tidak kosong
       if (slot.machines.length === 0) {
         report.violations.push(`[FATAL] CQI ${slot.cqi.name} KOSONG. CORE tidak boleh tersisa.`);
         report.valid = false;
@@ -540,7 +549,6 @@ const BrainAI = {
       let astCount = slot.machines.filter(sm => (sm.name||sm.id).toUpperCase().startsWith('AST')).length;
       let apkCount = slot.machines.filter(sm => !(sm.name||sm.id).toUpperCase().startsWith('AST')).length;
       
-      // Validasi Mix AST & APK
       if (astCount > 0 && apkCount > 0) {
         let hasRealApk = slot.machines.some(sm => (sm.name||sm.id).toUpperCase().startsWith('APK') || (sm.name||sm.id).toUpperCase().startsWith('K') || (sm.name||sm.id).toUpperCase().startsWith('X'));
         if (astCount > 0 && hasRealApk) {
@@ -571,13 +579,11 @@ const BrainAI = {
         report.valid = false;
       }
       
-      // Validasi NON CORE Sesuai Aturan
       if (slot.nonCore.length < reqNC && slot.machines.length > 0) {
         report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} butuh ${reqNC} NC, stok dipasangkan ${slot.nonCore.length}.`);
         report.score -= 20;
       }
 
-      // Validasi Tidak Overload
       if (slot.machines.length > absoluteMax) {
         report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} melampaui batas formasi absolute (${slot.machines.length}/${absoluteMax}).`);
         report.score -= 20;
@@ -593,7 +599,6 @@ const BrainAI = {
       }
 
       slot.machines.forEach(m => {
-        // Validasi Duplikat Mesin
         if (coveredIds.has(m.id)) {
           report.duplicateMachines.push(m.name);
           report.valid = false;
@@ -610,7 +615,6 @@ const BrainAI = {
     report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
-    // Validasi Semua Mesin Masuk
     if (report.coveragePercent < 100) {
       report.valid = false;
       report.violations.push(`[COVERAGE] Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing).`);
