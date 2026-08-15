@@ -1,19 +1,15 @@
 /**
- * PLANNER CQI LIQUID 3 - BRAIN AI
- * --------------------------------
- * Aturan Baru:
- * 1. Auto-Detect CQI: Jumlah CQI menyesuaikan CORE. Sistem otomatis memindai dan memilih CQI
- *    yang paling ideal & terdekat dengan mesin yang running.
- * 2. Acuan Prioritas Historikal: AI memprioritaskan penyebaran sesuai dengan riwayat tanggal 14 Agustus 2026.
- * 
- * Aturan Lama: 
- * - Kapasitas AST : Max 4 (0 NC), Max 6 (1 NC), Max 8 (2 NC)
- * - Kapasitas APK : Max 5 (0 NC), Max 7 (1 NC), Max 8 (2 NC)
- * - DILARANG KERAS membiarkan CORE kosong.
- * - DILARANG KERAS menyatukan AST dan APK/K/X dalam 1 CQI.
- * - CQI 24 (C1, C2) = 0 NC. Jika C1, C2 + 2 APK = 1 NC.
- * - Maksimalkan NON CORE (hingga batas max 2 per slot, kecuali CQI 19).
- * - CQI 19 tidak perlu ditambah NON CORE.
+ * PLANNER CQI LIQUID 3 - BRAIN AI (UPDATED WORKFLOW)
+ * --------------------------------------------------
+ * Sesuai dengan Alur:
+ * 1. Identifikasi Mesin
+ * 2. Cek Rule Khusus (CQI 19 & 24)
+ * 3. Pilih CQI Terbaik
+ * 4. Buat Slot CQI
+ * 5. Masukkan Mesin
+ * 6. Pembagian Prioritas
+ * 7. Optimasi
+ * 8. Validasi Akhir
  */
 
 const WORKSTATIONS = {
@@ -57,23 +53,23 @@ const WORKSTATIONS = {
   "OT": ["M2", "M3"]
 };
 
-// ACUAN PRIORITAS BERDASARKAN PLANNING LIQUID 3 - 14 AGUSTUS 2026
+// ACUAN PRIORITAS BERDASARKAN PLANNING LIQUID 3
 const CQI_PRIORITY_MAP = {
   "1": ["0A", "1A"],
-  "2": ["2A", "2B"], // 46-16L, 45-16L masuk di 2B
+  "2": ["2A", "2B"],
   "3": ["3A", "4A"],
-  "4": ["3A", "4A", "5B"], // Ditambahkan 5B untuk 24-12L
+  "4": ["3A", "4A", "5B"],
   "5": ["5A", "6A"],
   "6": ["5A", "6A"],
   "7": ["7A", "8A"],
-  "8": ["8A", "9A", "10B"], // Ditambahkan 10B untuk 13-12L
+  "8": ["8A", "9A", "10B"],
   "9": ["9A", "10A"],
   "10": ["10A", "1C", "2C"],
-  "11": ["1B", "2B"], // Ditambahkan 2B untuk 43-16L, 42-16L
-  "13": ["3B", "5B"], // Ditambahkan 5B untuk AST 31, 23, 62
-  "14": ["0B", "6B", "7A", "10B"], // Ditambahkan 10B untuk 25-12L
-  "15": ["7B", "8B", "9B"], // Ditambahkan 9B (73-12L), 8B (APK 15, 12)
-  "17": ["3C", "4C", "5C", "8C"], // Ditambahkan 5C (APK 54), 8C (APK 58, 59)
+  "11": ["1B", "2B"],
+  "13": ["3B", "5B"],
+  "14": ["0B", "6B", "7A", "10B"],
+  "15": ["7B", "8B", "9B"],
+  "17": ["3C", "4C", "5C", "8C"],
   "18": ["2C", "3C", "4C", "5C"],
   "19": ["OT"],
   "20": ["6C", "7C", "8C", "9C", "10C"],
@@ -98,8 +94,12 @@ const BrainAI = {
     return null;
   },
 
+  /**
+   * Jarak Aktual (Manhattan Distance).
+   * Menghitung jalur berbelok mengikuti lorong, tidak ditarik garis lurus (Euclidean).
+   */
   getDistance(r1, c1, r2, c2) {
-    return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(c1 - c2, 2));
+    return Math.abs(r1 - r2) + Math.abs(c1 - c2);
   },
 
   getHistory(machineId, cqiId) {
@@ -124,18 +124,18 @@ const BrainAI = {
     localStorage.setItem('planning_history', JSON.stringify(hist));
   },
 
+  // PENENTUAN ATURAN KAPASITAS & NON CORE
   _getRequiredNonCore(slot, astCount, apkCount) {
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
 
     let is19 = cqiIdStr === '19';
-    if (is19) return 0; // ATURAN: CQI 19 tidak perlu ditambah NON CORE
+    if (is19) return 0; // CQI 19 tidak perlu NON CORE
 
     let is24 = cqiIdStr === '24';
     let hasC1C2 = slot.machines.some(m => m.isC1C2);
     let total = astCount + apkCount;
     
-    // ATURAN KHUSUS CQI 24
     if (is24 && hasC1C2) {
        if (total <= 2) return 0; 
        return 1; 
@@ -145,25 +145,25 @@ const BrainAI = {
     
     let isAstDominant = astCount > 0;
     
-    // ATURAN KAPASITAS
     if (isAstDominant) {
-      if (total <= 4) return 0; // 1 CORE
-      if (total <= 6) return 1; // 1 CORE + 1 NC
-      return 2;                 // 1 CORE + 2 NC (Max 8)
+      if (total <= 4) return 0;
+      if (total <= 6) return 1;
+      return 2;
     } else {
-      if (total <= 5) return 0; // 1 CORE
-      if (total <= 7) return 1; // 1 CORE + 1 NC
-      return 2;                 // 1 CORE + 2 NC (Max 8)
+      if (total <= 5) return 0;
+      if (total <= 7) return 1;
+      return 2;
     }
   },
 
+  // STEP 5: CEK APAKAH MESIN BOLEH MASUK CQI
   _canAcceptMachine(slot, m, availableNC) {
     if (slot.isExclusive) return { can: false };
 
     let hasAst = slot.machines.some(sm => sm.isAst);
     let hasApk = slot.machines.some(sm => sm.isApk || sm.isC1C2);
 
-    // Strict Mix Check
+    // Cek Campur AST + APK/K/X
     if (hasAst && (m.isApk || m.isC1C2)) return { can: false, reason: "strict_mix" };
     if (hasApk && m.isAst) return { can: false, reason: "strict_mix" };
 
@@ -180,6 +180,7 @@ const BrainAI = {
     let hasC1C2 = slot.machines.some(sm => sm.isC1C2) || m.isC1C2;
     let isAstDominant = astCount > 0;
     
+    // Cek Kapasitas Cukup
     let absoluteMax;
     if (is24 && hasC1C2) {
       absoluteMax = 4;
@@ -190,36 +191,39 @@ const BrainAI = {
     }
     
     if (astCount + apkCount > absoluteMax) return { can: false, reason: "capacity" }; 
+    // Cek NON CORE Tersedia
     if (neededNC > availableNC) return { can: false, reason: "no_nc" }; 
     
     return { can: true, neededNC: Math.max(0, neededNC), reqNC: reqNC, absoluteMax: absoluteMax };
   },
 
+  // STEP 6: PEMBAGIAN MESIN (Penentuan Skor Prioritas)
   _scoreSlot(m, slot, slots, availableNC) {
     let acceptStatus = this._canAcceptMachine(slot, m, availableNC);
     if (!acceptStatus.can) return -Infinity;
 
+    // 3. Jarak paling dekat (Jalur aktual)
     let dist = this.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
     let distScore = Math.max(0, 100 - (dist * 2)); 
+    
+    // 1. CQI Sesuai History (Mapping Acuan)
     let histScore = this.getHistory(m.id, slot.cqi.id) * 0.3; 
-
-    let ncPenalty = acceptStatus.neededNC > 0 ? -1000 : 0; 
-
-    // PRIORITAS SESUAI HISTORY TANGGAL 14 AGUSTUS (Prioritas Tertinggi)
     let priorityBonus = 0;
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
 
     if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) {
-        priorityBonus = 2000; // Bonus mutlak memastikan mereka menyatu dengan mapping acuan
+        priorityBonus = 2000; 
     }
 
+    // 2. Workstation sama dan terdekat
     let wsBonus = 0;
     if (m.wsKey) {
       let sameWs = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
       if (sameWs > 0) wsBonus = 500 + (sameWs * 200); 
     }
 
+    let ncPenalty = acceptStatus.neededNC > 0 ? -1000 : 0; 
     let totalMachines = slot.machines.length + 1;
     let capScore = ((acceptStatus.absoluteMax - totalMachines) * 10); 
 
@@ -230,6 +234,7 @@ const BrainAI = {
     return distScore + histScore + wsBonus + priorityBonus + capScore + ncPenalty - workloadPenalty;
   },
 
+  // INPUT DATA & PROSES UTAMA
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
@@ -239,23 +244,25 @@ const BrainAI = {
       nonCorePool.push((config.nonCoreNames && config.nonCoreNames[i]) ? config.nonCoreNames[i] : `NON CORE ${i+1}`);
     }
 
-    // PRE-PROCESS MESIN
+    // ==========================================
+    // STEP 1: IDENTIFIKASI MESIN
+    // ==========================================
     let unassigned = machines.map(m => {
       let nm = { ...m };
       let upName = (nm.name || nm.id).toUpperCase();
       nm.wsKey = this.getWorkstationKey(nm.name || nm.id) || nm.ws || null;
+      
       nm.isApk = upName.startsWith('APK') || upName.startsWith('K') || upName.startsWith('X');
       nm.isAst = upName.startsWith('AST');
       nm.isM2M3 = ['M2', 'M3'].includes(upName);
       nm.isC1C2 = ['C1', 'C2'].includes(upName);
+      
       return nm;
     });
 
-    // =========================================================================
-    // RULE BARU 1: AUTO DETECT CQI IDEAL (Sesuai Jumlah CORE)
-    // AI men-scan seluruh CQI yang READY di peta, lalu memberikan skor.
-    // CQI dengan skor teratas sebanyak `coreLimit` akan otomatis dipilih.
-    // =========================================================================
+    // ==========================================
+    // STEP 2 & 3: PILIH CQI TERBAIK
+    // ==========================================
     let cqiScores = cqis.map(cqi => {
         let score = 0;
         let match = String(cqi.name || cqi.id).match(/\d+/);
@@ -265,36 +272,33 @@ const BrainAI = {
         let is24 = cqiIdStr === '24';
 
         unassigned.forEach(m => {
-            // Rules Mutlak Override
-            if (is19 && m.isM2M3) score += 10000;
-            if (is24 && m.isC1C2) score += 10000;
-
-            // Prioritas Mapping (Acuan Tanggal 14 Agustus)
+            // Evaluasi Jarak & History
             if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) {
                 score += 1500;
             }
             
-            // Jarak aktual ke CQI tersebut
+            // Evaluasi Jarak Aktual
             let dist = this.getDistance(m.row, m.col, cqi.row, cqi.col);
             if (dist < 15) score += 200;
             else if (dist < 30) score += 100;
             else if (dist < 50) score += 50;
             else if (dist < 80) score += 20;
-        });
-
-        // Skor historikal umum
-        unassigned.forEach(m => {
+            
             score += this.getHistory(m.id, cqi.id) * 0.1;
+            
+            // Cek Rule Khusus untuk penentuan CQI M2/M3 dan C1/C2
+            if (is19 && m.isM2M3) score += 10000;
+            if (is24 && m.isC1C2) score += 10000;
         });
-
         return { cqi: cqi, score: score };
     });
 
-    // Sort descending (terbaik ke terburuk) dan ambil pas sebanyak coreLimit
     cqiScores.sort((a, b) => b.score - a.score);
     let activeCQIs = cqiScores.slice(0, coreLimit).map(cs => cs.cqi);
 
-    // Bikin Slot dari CQI terpilih
+    // ==========================================
+    // STEP 4: BUAT SLOT CQI
+    // ==========================================
     let slots = activeCQIs.map((cqi, i) => {
       return {
         slotId: 'SLOT-' + i, 
@@ -315,11 +319,8 @@ const BrainAI = {
       }
     };
 
-    // RULE 19 (M2/M3 -> OT)
-    let slot19 = slots.find(s => {
-      let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
-      return match && match[0] === '19';
-    });
+    // EKSEKUSI CEK RULE KHUSUS (M2/M3 & C1/C2)
+    let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     let m2m3Machines = unassigned.filter(m => m.isM2M3);
     if (slot19 && m2m3Machines.length > 0) {
       slot19.machines.push(...m2m3Machines);
@@ -328,11 +329,7 @@ const BrainAI = {
       applyNonCoreIfNeeded(slot19);
     }
 
-    // RULE 24 (C1/C2 -> WW + APK Syarat NC)
-    let slot24 = slots.find(s => {
-      let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
-      return match && match[0] === '24';
-    });
+    let slot24 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
     let c1c2Machines = unassigned.filter(m => m.isC1C2);
     if (slot24 && c1c2Machines.length > 0) {
       slot24.machines.push(...c1c2Machines);
@@ -351,7 +348,7 @@ const BrainAI = {
       applyNonCoreIfNeeded(slot24);
     }
 
-    // SEEDING (Pastikan Tidak Ada CORE Tersisa/Kosong)
+    // Jaga agar CORE tidak Kosong (Seeding)
     slots.forEach(slot => {
       if (slot.machines.length === 0 && unassigned.length > 0) {
         unassigned.sort((a, b) => this.getDistance(a.row, a.col, slot.cqi.row, slot.cqi.col) - this.getDistance(b.row, b.col, slot.cqi.row, slot.cqi.col));
@@ -363,6 +360,9 @@ const BrainAI = {
 
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
     
+    // ==========================================
+    // STEP 5 & 6: MASUKKAN & PEMBAGIAN MESIN
+    // ==========================================
     let remainingUnassigned = [];
     unassigned.forEach(m => {
       let bestSlot = null;
@@ -381,6 +381,7 @@ const BrainAI = {
       }
     });
 
+    // Fallback logic untuk mesin yang masih belum masuk
     if (remainingUnassigned.length > 0) {
       let iterations = remainingUnassigned.length * 3;
       while (remainingUnassigned.length > 0 && iterations > 0) {
@@ -398,6 +399,7 @@ const BrainAI = {
             placed = true; 
             break;
           } else {
+            // Coba tukar tempat internal
             for (let i = 0; i < target.machines.length; i++) {
               let occupant = target.machines[i];
               target.machines.splice(i, 1); 
@@ -429,6 +431,7 @@ const BrainAI = {
       }
     }
 
+    // Maksimalkan Sisa Non Core jika masih ada
     slots.forEach(slot => {
       let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
       let is19 = match && match[0] === '19';
@@ -439,6 +442,9 @@ const BrainAI = {
       }
     });
 
+    // ==========================================
+    // STEP 7: OPTIMASI
+    // ==========================================
     let optIter = 0;
     let improved = true;
     while(improved && optIter < 10) {
@@ -457,6 +463,7 @@ const BrainAI = {
               let distAfter = this.getDistance(mA.row, mA.col, sB.cqi.row, sB.cqi.col) + 
                               this.getDistance(mB.row, mB.col, sA.cqi.row, sA.cqi.col);
               
+              // Jika ditukar posisi jarak menjadi lebih pendek DAN rule tetap aman
               if (distAfter < distBefore - 3) {
                 sA.machines.splice(m, 1); sA.machines.push(mB);
                 sB.machines.splice(n, 1); sB.machines.push(mA);
@@ -473,6 +480,7 @@ const BrainAI = {
                 let reqB = this._getRequiredNonCore(sB, astB, apkB);
 
                 if (!validA || !validB || reqA > sA.nonCore.length || reqB > sB.nonCore.length) {
+                   // Rollback jika rule tidak aman
                    sA.machines.splice(sA.machines.length-1, 1); sA.machines.splice(m, 0, mA);
                    sB.machines.splice(sB.machines.length-1, 1); sB.machines.splice(n, 0, mB);
                 } else {
@@ -492,16 +500,19 @@ const BrainAI = {
 
     slots.leftoverNonCores = nonCorePool;
 
-    // Sort Slot untuk Display bedasarkan angka CQI
+    // Sorting Hasil Output
     slots.sort((a,b) => {
         let mA = String(a.cqi.name || a.cqi.id).match(/\d+/);
         let mB = String(b.cqi.name || b.cqi.id).match(/\d+/);
         return (mA ? parseInt(mA[0]) : 0) - (mB ? parseInt(mB[0]) : 0);
     });
 
-    return slots;
+    return slots; // MENGHASILKAN OUTPUT PLANNING
   },
 
+  // ==========================================
+  // STEP 8: VALIDASI AKHIR
+  // ==========================================
   validate(plan, totalMachinesCount) {
     let report = {
       valid: true,
@@ -520,14 +531,16 @@ const BrainAI = {
     let machineDistances = [];
 
     plan.forEach(slot => {
+      // Validasi CORE tidak kosong
       if (slot.machines.length === 0) {
-        report.violations.push(`[FATAL] CQI ${slot.cqi.name} KOSONG. CORE tidak boleh tersisa/menganggur.`);
+        report.violations.push(`[FATAL] CQI ${slot.cqi.name} KOSONG. CORE tidak boleh tersisa.`);
         report.valid = false;
       }
 
       let astCount = slot.machines.filter(sm => (sm.name||sm.id).toUpperCase().startsWith('AST')).length;
       let apkCount = slot.machines.filter(sm => !(sm.name||sm.id).toUpperCase().startsWith('AST')).length;
       
+      // Validasi Mix AST & APK
       if (astCount > 0 && apkCount > 0) {
         let hasRealApk = slot.machines.some(sm => (sm.name||sm.id).toUpperCase().startsWith('APK') || (sm.name||sm.id).toUpperCase().startsWith('K') || (sm.name||sm.id).toUpperCase().startsWith('X'));
         if (astCount > 0 && hasRealApk) {
@@ -558,11 +571,13 @@ const BrainAI = {
         report.valid = false;
       }
       
+      // Validasi NON CORE Sesuai Aturan
       if (slot.nonCore.length < reqNC && slot.machines.length > 0) {
         report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} butuh ${reqNC} NC, stok dipasangkan ${slot.nonCore.length}.`);
         report.score -= 20;
       }
 
+      // Validasi Tidak Overload
       if (slot.machines.length > absoluteMax) {
         report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} melampaui batas formasi absolute (${slot.machines.length}/${absoluteMax}).`);
         report.score -= 20;
@@ -578,6 +593,7 @@ const BrainAI = {
       }
 
       slot.machines.forEach(m => {
+        // Validasi Duplikat Mesin
         if (coveredIds.has(m.id)) {
           report.duplicateMachines.push(m.name);
           report.valid = false;
@@ -594,6 +610,7 @@ const BrainAI = {
     report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
+    // Validasi Semua Mesin Masuk
     if (report.coveragePercent < 100) {
       report.valid = false;
       report.violations.push(`[COVERAGE] Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing).`);
