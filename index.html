@@ -80,9 +80,9 @@
     .ws-btn.active-all { background: #16a34a; color: white; border-color: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.4); }
     .ws-btn.active-partial { background: #ca8a04; color: white; border-color: #eab308; }
 
-    /* VIEWPORT DAN BUNGKUSAN GRID (UNTUK LOCK SCROLL) */
-    /* Diubah overflow menjadi hidden sebagai default */
-    .map-viewport { flex: 1; overflow: hidden; background: #030712; position: relative; }
+    /* VIEWPORT DAN BUNGKUSAN GRID */
+    .map-viewport { flex: 1; overflow: auto; background: #030712; position: relative; cursor: grab; }
+    .map-viewport:active { cursor: grabbing; }
     .grid-wrapper { overflow: hidden; transform-origin: top left; }
     .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: #030712; transform-origin: top left; }
     
@@ -148,7 +148,6 @@
     <div class="brand">🏭 MAP LIQUID 3</div>
     <div class="controls">
       <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
-      <!-- Tombol Run MC dan Off All sudah dipindah ke panel kiri -->
       <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
       <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
 
@@ -168,7 +167,6 @@
         <h3>(Runing / Line)</h3>
       </div>
       <div class="panel-body">
-        <!-- Posisi baru untuk Tombol MC Control -->
         <div style="display: flex; gap: 8px; margin-bottom: 5px;">
           <button class="btn btn-success" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesRunning()">🏃 Run All</button>
           <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesOff()">🛑 Off All</button>
@@ -210,8 +208,7 @@
   <script src="brain.js"></script>
   <script>
     let mapData = { machines: [], cqis: [], labels: [], lines: [] };
-    // Set inisial currentZoom ke 0 agar saat loading akan otomatis terkunci ke zoom-out paling maksimal
-    let currentZoom = 0; 
+    let currentZoom = null; // Diatur otomatis saat init
     let editMode = false;
     let showHeatmap = false;
     let draggedNode = null;
@@ -220,7 +217,27 @@
     const GRID_WIDTH = 4330;
     const GRID_HEIGHT = 1068;
 
+    // Mouse Drag to Pan implementation for mapViewport
     const mapViewport = document.getElementById('mapViewport');
+    let isPanning = false;
+    let startX, startY;
+
+    mapViewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.node') || e.target.closest('.line-box') || e.target.tagName === 'BUTTON') return;
+      isPanning = true;
+      startX = e.clientX - mapViewport.scrollLeft;
+      startY = e.clientY - mapViewport.scrollTop;
+    });
+
+    mapViewport.addEventListener('mouseleave', () => { isPanning = false; });
+    mapViewport.addEventListener('mouseup', () => { isPanning = false; });
+    mapViewport.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      e.preventDefault();
+      mapViewport.scrollLeft = e.clientX - startX;
+      mapViewport.scrollTop = e.clientY - startY;
+    });
+
     mapViewport.addEventListener('wheel', (e) => {
       if (e.deltaY !== 0) {
         e.preventDefault();
@@ -255,7 +272,7 @@
       }
       initializeStatuses();
       renderWorkstationButtons();
-      applyZoom();
+      applyZoom(true); // Inisialisasi awal zoom agar langsung pas & bisa digeser
     }
 
     function initializeStatuses() {
@@ -267,21 +284,16 @@
         ];
       }
 
-      // Cek apakah ada data tersimpan di localStorage untuk restore status terakhir
       const savedState = localStorage.getItem('factory_internal_storage');
       if (savedState) {
         try {
           const parsed = JSON.parse(savedState);
-          
-          // Restore status mesin
           if (parsed.machines) {
             parsed.machines.forEach(savedM => {
               let targetM = mapData.machines.find(m => m.id === savedM.id || m.name === savedM.name);
               if (targetM) targetM.status = savedM.status;
             });
           }
-
-          // Restore status CQI
           if (parsed.cqis) {
             parsed.cqis.forEach(savedC => {
               let targetC = mapData.cqis.find(c => c.id === savedC.id || c.name === savedC.name);
@@ -383,16 +395,12 @@
         return wsList.some(item => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(item));
       });
 
-      if (wsMachines.length === 0) {
-        alert(`Tidak ada mesin yang cocok dengan Workstation ${wsKey} di map.`);
-        return;
-      }
+      if (wsMachines.length === 0) return;
 
       let allRunning = wsMachines.every(m => m.status === 'RUNNING');
       let targetStatus = allRunning ? 'OFF' : 'RUNNING';
 
       wsMachines.forEach(m => m.status = targetStatus);
-
       renderGrid();
     }
 
@@ -401,8 +409,7 @@
       const btn = document.getElementById('panelToggleBtn');
       panel.classList.toggle('closed');
       btn.innerText = panel.classList.contains('closed') ? '▶' : '◀';
-      
-      setTimeout(applyZoom, 300); 
+      setTimeout(() => applyZoom(false), 300); 
     }
 
     function renderGrid() {
@@ -514,13 +521,6 @@
           if (type === 'machine' || type === 'cqi') div.onclick = () => cycleStatus(node, type);
         }
 
-        if (showHeatmap && type === 'machine' && node.status === 'RUNNING') {
-          let dist = getMinCqiDistance(node);
-          if (dist <= 5) div.classList.add('heatmap-good');
-          else if (dist <= 10) div.classList.add('heatmap-warn');
-          else div.classList.add('heatmap-bad');
-        }
-        
         cell.appendChild(div);
       };
 
@@ -528,6 +528,7 @@
       mapData.cqis.forEach(c => appendToGrid(c, 'cqi'));
       mapData.labels.forEach(l => appendToGrid(l, 'label'));
 
+      // RENDER HEATMAP DENGAN JALUR AKTUAL (MANHATTAN ROUTING - SIKU)
       if (showHeatmap) {
         const svgNS = "http://www.w3.org/2000/svg";
         let svg = document.createElementNS(svgNS, "svg");
@@ -540,10 +541,10 @@
             let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
             if (readyCqis.length > 0) {
               let nearest = readyCqis[0];
-              let minDist = Math.sqrt(Math.pow(m.row - nearest.row, 2) + Math.pow(m.col - nearest.col, 2));
+              let minDist = Math.abs(m.row - nearest.row) + Math.abs(m.col - nearest.col);
               
               for (let i = 1; i < readyCqis.length; i++) {
-                let d = Math.sqrt(Math.pow(m.row - readyCqis[i].row, 2) + Math.pow(m.col - readyCqis[i].col, 2));
+                let d = Math.abs(m.row - readyCqis[i].row) + Math.abs(m.col - readyCqis[i].col);
                 if (d < minDist) { minDist = d; nearest = readyCqis[i]; }
               }
 
@@ -552,17 +553,22 @@
               let endX = 40 + (nearest.col - 1) * 78 + 39;
               let endY = 28 + (nearest.row - 1) * 52 + 26;
 
-              let line = document.createElementNS(svgNS, "line");
-              line.setAttribute("x1", startX); line.setAttribute("y1", startY);
-              line.setAttribute("x2", endX); line.setAttribute("y2", endY);
-              
-              if (minDist <= 5) line.setAttribute("stroke", "#22c55e");
-              else if (minDist <= 10) line.setAttribute("stroke", "#eab308");
-              else line.setAttribute("stroke", "#ef4444");
+              // Membuat jalur siku aktual (Manhattan path: Horizontal lalu Vertikal)
+              let midX = endX;
+              let midY = startY;
+              let pathData = `M ${startX} ${startY} L ${midX} ${midY} L ${endX} ${endY}`;
 
-              line.setAttribute("stroke-width", "3");
-              line.setAttribute("stroke-dasharray", "8,5");
-              svg.appendChild(line);
+              let path = document.createElementNS(svgNS, "path");
+              path.setAttribute("d", pathData);
+              path.setAttribute("fill", "none");
+              
+              if (minDist <= 5) path.setAttribute("stroke", "#22c55e");
+              else if (minDist <= 10) path.setAttribute("stroke", "#eab308");
+              else path.setAttribute("stroke", "#ef4444");
+
+              path.setAttribute("stroke-width", "3");
+              path.setAttribute("stroke-dasharray", "8,5");
+              svg.appendChild(path);
             }
           }
         });
@@ -571,20 +577,17 @@
       updateStatsAndButtons();
     }
 
-    function applyZoom() {
+    function applyZoom(isInitial = false) {
       const viewport = document.getElementById('mapViewport');
       const minZoomX = viewport.clientWidth / GRID_WIDTH;
       const minZoomY = viewport.clientHeight / GRID_HEIGHT;
       const minZoom = Math.max(minZoomX, minZoomY);
 
-      // Logika scrollbar dan auto max-zoom-out
-      if (currentZoom <= minZoom) {
-        currentZoom = minZoom;
-        viewport.style.overflow = 'hidden'; // Menghilangkan bar saat zoom mentok out
-      } else {
-        viewport.style.overflow = 'auto';   // Memunculkan bar saat di-zoom in
+      if (isInitial || currentZoom === null) {
+        currentZoom = minZoom; // Set pas di awal agar langsung bisa digeser/scroll interaktif
       }
 
+      if (currentZoom < minZoom) currentZoom = minZoom;
       if (currentZoom > 3) currentZoom = 3;
 
       document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
@@ -594,9 +597,9 @@
       wrapper.style.height = `${GRID_HEIGHT * currentZoom}px`;
     }
 
-    function zoomIn() { currentZoom += 0.1; applyZoom(); }
-    function zoomOut() { currentZoom -= 0.1; applyZoom(); }
-    window.addEventListener('resize', applyZoom);
+    function zoomIn() { currentZoom += 0.1; applyZoom(false); }
+    function zoomOut() { currentZoom -= 0.1; applyZoom(false); }
+    window.addEventListener('resize', () => applyZoom(false));
 
     function initResizeLine(e, line) {
       let startX = e.clientX, startY = e.clientY;
@@ -636,12 +639,6 @@
         if(el) el.className = `node node-${type} ${node.status}`;
         updateStatsAndButtons();
       }
-    }
-
-    function getMinCqiDistance(machine) {
-      let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
-      if (readyCqis.length === 0) return Infinity;
-      return Math.min(...readyCqis.map(c => Math.sqrt(Math.pow(machine.row - c.row, 2) + Math.pow(machine.col - c.col, 2))));
     }
 
     function handleDragStart(e, node, type) { draggedNode = { node, type }; e.dataTransfer.setData('text/plain', node.id); }
@@ -713,7 +710,6 @@
       if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
       if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
 
-      // Simpan status On/Off mesin dan CQI ke Internal Storage (localStorage) sebelum berpindah halaman
       const currentStateToSave = {
         machines: mapData.machines.map(m => ({ id: m.id, name: m.name, status: m.status })),
         cqis: mapData.cqis.map(c => ({ id: c.id, name: c.name, status: c.status }))
