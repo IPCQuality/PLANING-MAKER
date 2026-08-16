@@ -58,10 +58,10 @@
   .group-header h3 { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-main); }
   .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
   
-  .icon-btn { width: 28px; height: 28px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+  .icon-btn { width: 24px; height: 24px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
   .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
   
-  .list-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
+  .list-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
   .list-item:hover { border-color: #94a3b8; }
   .list-item.locked { border-color: var(--success); background: var(--success-bg); }
   .list-item .num { width: 20px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-subtle); flex-shrink: 0; }
@@ -83,17 +83,6 @@
   .fields input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
   .fields input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-  /* Alert Cards */
-  .alert-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); animation: fadeIn 0.3s ease; }
-  .alert-card.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-  .alert-card.success { background: var(--success-bg); border-color: #bbf7d0; color: #166534; }
-  .alert-card.warning { background: #fef3c7; border-color: #fde68a; color: #92400e; }
-  .alert-card.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
-  .alert-card .alert-icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
-  .alert-card .alert-body { flex: 1; line-height: 1.4; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
   /* Right Panel (Output & Dashboard) */
   .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
   
@@ -110,7 +99,7 @@
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
   .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; }
   
-  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; min-height: 250px; }
+  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; }
   #textOutput:focus { border-color: var(--accent); background: var(--surface); }
   
   .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
@@ -132,43 +121,17 @@
   .mode-card .mode-desc { margin-top:5px; font-size:10px; line-height:1.45; color:var(--text-muted); }
   .mode-status { margin-top:8px; font-size:10px; font-weight:700; color:var(--accent); }
 
-  /* RESPONSIVE DESIGN UNTUK MODE MOBILE (Rapi, Touch-friendly, Terstruktur) */
   @media (max-width: 1024px) {
-    html, body { overflow: auto; height: auto; }
-    body { overflow-y: auto; }
-    .app-container { flex-direction: column; overflow: visible; height: auto; }
-    .config-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow-y: visible; }
-    .main-content { overflow: visible; padding: 16px; gap: 16px; }
-    #dashboard { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .stat-box { padding: 12px; }
-    .stat-box span { font-size: 18px; }
-    .card { min-height: 400px; }
+    .app-container { flex-direction: column; overflow-y: auto; }
+    .config-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .main-content { overflow: visible; }
+    #dashboard { grid-template-columns: repeat(3, 1fr); }
+    .card { min-height: 500px; }
   }
-
   @media (max-width: 640px) {
-    .topbar { padding: 0 12px; height: 56px; }
-    .topbar h1 { font-size: 14px; padding-left: 10px; }
-    .back-btn { padding: 4px 8px; font-size: 12px; }
-    
-    #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat-box { padding: 10px; border-radius: 8px; }
-    .stat-box p { font-size: 10px; }
-    .stat-box span { font-size: 16px; margin-top: 4px; }
-    
-    .main-content { padding: 12px; gap: 12px; }
-    .card { padding: 14px; border-radius: 8px; }
-    .card-head { flex-direction: column; gap: 6px; align-items: flex-start; }
-    .card-head .meta { align-self: flex-start; }
-    
-    /* Tombol Aksi Full Width / Nyaman di Jari pada Layar Kecil */
-    .actions { flex-direction: column; gap: 8px; }
-    .actions .btn { width: 100%; padding: 10px 16px; justify-content: center; }
-    
-    .config-section { padding: 12px 14px; }
-    .list-item { padding: 8px 10px; }
-    .list-item input { font-size: 14px; } /* Mencegah zoom otomatis di iOS */
-    .icon-btn { width: 32px; height: 32px; font-size: 14px; } /* Target sentuh lebih besar di HP */
-    .add-btn { padding: 10px; font-size: 13px; }
+    #dashboard { grid-template-columns: repeat(2, 1fr); }
+    .topbar { padding: 0 16px; }
+    .btn-primary { padding: 6px 12px; font-size: 13px; }
   }
 </style>
 </head>
@@ -176,12 +139,12 @@
   <!-- HEADER UTAMA -->
   <header class="topbar">
     <div class="topbar-left">
-      <a class="back-btn" href="index.html">← Map</a>
+      <a class="back-btn" href="index.html">← Map Editor</a>
       <h1>Planning Liquid 3</h1>
       <span class="badge" id="statusBadge">Draft</span>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn btn-primary" onclick="executePlan(planningMode)">🚀 Generate</button>
+      <button class="btn btn-primary" onclick="executePlan(planningMode)">🚀 Generate Plan</button>
     </div>
   </header>
 
@@ -258,9 +221,6 @@
 
     <!-- KONTEN KANAN (OUTPUT) -->
     <main class="main-content">
-      <!-- KOTAK ALERT / PERINGATAN DINAMIS -->
-      <div id="alertContainer" class="alert-container"></div>
-
       <section id="dashboard">
         <div class="stat-box"><p>Target Mesin</p><span id="db-run">0</span></div>
         <div class="stat-box"><p>Ter-cover</p><span id="db-cov">0</span></div>
@@ -278,7 +238,7 @@
           </div>
           <span class="meta" id="lineMeta">kosong</span>
         </div>
-        <textarea id="textOutput" spellcheck="false" placeholder="Klik 'Generate Plan' untuk melihat hasil..." oninput="updateMeta()"></textarea>
+        <textarea id="textOutput" spellcheck="false" placeholder="Klik 'Generate Plan' di pojok kanan atas untuk melihat hasil..." oninput="updateMeta()"></textarea>
         <div class="actions">
           <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
           <button class="btn" onclick="shareWA()">💬 Kirim WA</button>
@@ -367,10 +327,12 @@
   let planningMode = sessionStorage.getItem('planning_mode') || 'ai';
 
   window.onload = async () => {
+    // Render list yang ada di storage
     renderList('coreList', storageKeys.core);
     renderList('nonCoreList', storageKeys.nonCore);
     renderList('qcPassedList', storageKeys.qcPassed);
     
+    // Auto-fetch data manpower default jika list kosong
     await loadDefaultManpower();
 
     document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
@@ -453,32 +415,6 @@
     if (b) b.innerText = planningMode.toUpperCase();
   }
 
-  function renderAlerts(infos = [], violations = []) {
-    const container = document.getElementById('alertContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    infos.forEach(msg => {
-      let type = 'info';
-      let icon = '💡';
-      if (msg.includes('SUCCESS')) { type = 'success'; icon = '✅'; }
-      else if (msg.includes('PERINGATAN KRITIS')) { type = 'warning'; icon = '🚨'; }
-      else if (msg.includes('WARNING')) { type = 'warning'; icon = '⚠️'; }
-
-      const card = document.createElement('div');
-      card.className = `alert-card ${type}`;
-      card.innerHTML = `<span class="alert-icon">${icon}</span><div class="alert-body">${msg}</div>`;
-      container.appendChild(card);
-    });
-
-    violations.forEach(err => {
-      const card = document.createElement('div');
-      card.className = 'alert-card danger';
-      card.innerHTML = `<span class="alert-icon">❌</span><div class="alert-body"><strong>Pelanggaran Aturan:</strong> ${err}</div>`;
-      container.appendChild(card);
-    });
-  }
-
   function executePlan(mode = planningMode){
     if(!state) return;
     selectPlanningMode(mode);
@@ -501,10 +437,8 @@
       planMode: planningMode
     };
 
+    // BrainAI tetap menjadi sumber kebenaran pembagian.
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-    
-    let validationReport = BrainAI.validate(currentPlan, state.machines.length);
-    renderAlerts(validationReport.info, validationReport.violations);
 
     const planPayload = {
       version: 1,
@@ -549,14 +483,8 @@
 
   function validateAndExport(){
     if(currentPlan.length === 0) return alert("Generate planning dulu!");
-    let report = BrainAI.validate(currentPlan, state.machines.length);
-    renderAlerts(report.info, report.violations);
-
-    if(!report.valid){ 
-      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran."); 
-      return; 
-    }
-    
+    let errors = BrainAI.validate(currentPlan, state.machines.length);
+    if(errors.length > 0){ alert("VALIDASI GAGAL! Perbaiki rule berikut:\n- " + errors.join("\n- ")); return; }
     currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
     const validatedPayload = {
       version: 1,
