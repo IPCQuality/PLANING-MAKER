@@ -1,5 +1,5 @@
 /**
- * PLANNER CQI LIQUID 3 - BRAIN AI (UPDATED WORKFLOW & MANPOWER)
+ * PLANNER CQI LIQUID 3 - BRAIN AI (UPDATED WORKFLOW & STRICT LIMIT)
  * --------------------------------------------------
  * Sesuai dengan Alur:
  * 1. Identifikasi Mesin
@@ -8,7 +8,7 @@
  * 4. Buat Slot CQI & Alokasi Prioritas CORE (C2/C4)
  * 5. Masukkan Mesin
  * 6. Pembagian Prioritas
- * 6.5 Paksa & Geser (Bulldozer Logic - Jarak Aktual)
+ * 6.5 Paksa & Geser (Bulldozer Logic - Jarak Aktual & 100% Coverage, Max 8)
  * 7. Optimasi
  * 8. Validasi Akhir
  */
@@ -228,15 +228,11 @@ const BrainAI = {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
 
-    // ==========================================
-    // PERSIAPAN MANPOWER (Support Parsing Object)
-    // ==========================================
     let availableCores = [];
     let rawCores = config.coreData || config.coreNames || [];
     
     for (let i = 0; i < coreLimit; i++) {
         if (rawCores[i]) {
-            // Jika format di json adalah object {name, cqi_priority}, kita bisa baca keduanya
             if (typeof rawCores[i] === 'object') {
                 availableCores.push({
                     name: rawCores[i].name || `CORE ${i+1}`,
@@ -318,23 +314,20 @@ const BrainAI = {
       return {
         slotId: 'SLOT-' + i, 
         cqi: cqi, 
-        core: null, // Dialokasikan berdasarkan prioritas di bawah
+        core: null,
         nonCore: [], 
         machines: [],
         isExclusive: false
       };
     });
 
-    // -- LOGIKA PENGISIAN NAMA CORE (Support C2/C4 & cqi_priority) --
     const assignCoreToCQI = (cqiStr) => {
         if (availableCores.length === 0) return "UNKNOWN CORE";
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        // 1. Cari yang cqi_priority-nya di manpower.json cocok dengan target CQI
         let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi);
 
-        // Aturan Khusus CQI 19: Prioritaskan nama yang mengandung "C2", lalu "C4"
         if (targetCqi === '19') {
             let c2 = candidates.find(c => c.name.toUpperCase().includes('C2'));
             if (c2) { availableCores.splice(availableCores.indexOf(c2), 1); return c2.name; }
@@ -343,14 +336,12 @@ const BrainAI = {
             if (c4) { availableCores.splice(availableCores.indexOf(c4), 1); return c4.name; }
         }
 
-        // Jika ada prioritas tapi bukan aturan khusus 19
         if (candidates.length > 0) {
             let selected = candidates[0];
             availableCores.splice(availableCores.indexOf(selected), 1);
             return selected.name;
         }
 
-        // Fallback: Jika tidak diset cqi_priority-nya (null), tapi nama core adalah C2 / C4 dan target adalah 19
         if (targetCqi === '19') {
             let c2 = availableCores.find(c => c.name.toUpperCase().includes('C2'));
             if (c2) { availableCores.splice(availableCores.indexOf(c2), 1); return c2.name; }
@@ -359,18 +350,15 @@ const BrainAI = {
             if (c4) { availableCores.splice(availableCores.indexOf(c4), 1); return c4.name; }
         }
 
-        // Fallback terakhir: Ambil Core berurutan dari atas
         let fallback = availableCores.shift();
         return fallback.name;
     };
 
-    // Eksekusi pengisian Core: Amankan Slot 19 lebih dulu
     let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     if (slot19) {
         slot19.core = assignCoreToCQI('19');
     }
 
-    // Eksekusi pengisian Core: Untuk Slot CQI lainnya
     slots.forEach(slot => {
         if (!slot.core) {
             slot.core = assignCoreToCQI(slot.cqi.name || slot.cqi.id);
@@ -386,7 +374,6 @@ const BrainAI = {
       }
     };
 
-    // Eksekusi pengisian mesin ke Slot 19 (M2/M3)
     let m2m3Machines = unassigned.filter(m => m.isM2M3);
     if (slot19 && m2m3Machines.length > 0) {
       slot19.machines.push(...m2m3Machines);
@@ -401,11 +388,10 @@ const BrainAI = {
       slot24.machines.push(...c1c2Machines);
       unassigned = unassigned.filter(m => !m.isC1C2);
       
-      slot24.isExclusive = true; // Gembok agar mesin biasa tidak masuk sini di Step 5
+      slot24.isExclusive = true; 
       applyNonCoreIfNeeded(slot24);
     }
 
-    // SEEDING
     slots.forEach(slot => {
       if (slot.machines.length === 0 && unassigned.length > 0) {
         unassigned.sort((a, b) => this.getDistance(a.row, a.col, slot.cqi.row, slot.cqi.col) - this.getDistance(b.row, b.col, slot.cqi.row, slot.cqi.col));
@@ -447,6 +433,7 @@ const BrainAI = {
         slot24Fallback.isExclusive = false;
     }
     
+    // FASE 1: Geser & Tukar Normal
     if (remainingUnassigned.length > 0) {
       let iterations = remainingUnassigned.length * 5; 
       
@@ -507,6 +494,48 @@ const BrainAI = {
         if (!placed) remainingUnassigned.push(u); 
         iterations--;
       }
+    }
+
+    // FASE 2: "DESPERATE FORCE" (PRIORITAS UTAMA: 100% COVERAGE, MAKSIMAL 8 MESIN/CQI)
+    // Memaksa masuk dengan menjaga batas mutlak <= 8 per CQI, mengabaikan syarat Non-Core jika perlu.
+    if (remainingUnassigned.length > 0) {
+        console.warn("BULLDOZER FASE 2 AKTIF: Memaksa sisa mesin masuk demi 100% Coverage (Max 8/CQI)!");
+        
+        let tempUnassigned = [...remainingUnassigned];
+        remainingUnassigned = [];
+        
+        while(tempUnassigned.length > 0) {
+            let u = tempUnassigned.shift();
+            
+            let possibleSlots = slots.filter(s => {
+                let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
+                let is19 = match && match[0] === '19';
+                let is24 = match && match[0] === '24';
+                
+                if (is19 && !u.isM2M3) return false;
+                if (!is19 && u.isM2M3) return false;
+                
+                let hasC1C2 = s.machines.some(m => m.isC1C2) || u.isC1C2;
+                
+                // BATAS MUTLAK: CQI 24 max 4 jika ada C1/C2, sisanya HARGA MATI maksimal 8.
+                let hardLimit = (is24 && hasC1C2) ? 4 : 8; 
+
+                let hasAst = s.machines.some(sm => sm.isAst);
+                let hasApk = s.machines.some(sm => sm.isApk || sm.isC1C2);
+                if (hasAst && (u.isApk || u.isC1C2)) return false;
+                if (hasApk && u.isAst) return false;
+
+                return s.machines.length < hardLimit;
+            });
+            
+            if(possibleSlots.length > 0) {
+                let forcedTarget = possibleSlots.sort((a, b) => this.getDistance(u.row, u.col, a.cqi.row, a.cqi.col) - this.getDistance(u.row, u.col, b.cqi.row, b.cqi.col))[0];
+                forcedTarget.machines.push(u);
+                applyNonCoreIfNeeded(forcedTarget);
+            } else {
+                remainingUnassigned.push(u); // Gagal: Semua CQI yang sesuai tipe sudah mentok di 8 mesin
+            }
+        }
     }
 
     slots.forEach(slot => {
@@ -604,6 +633,7 @@ const BrainAI = {
 
     let coveredIds = new Set();
     let machineDistances = [];
+    let isNonCoreShortageDetected = false;
 
     plan.forEach(slot => {
       if (slot.machines.length === 0) {
@@ -623,7 +653,6 @@ const BrainAI = {
       }
 
       let reqNC = this._getRequiredNonCore(slot, astCount, apkCount);
-      let isAstDominant = astCount > 0;
 
       let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
       let is24 = match && match[0] === '24';
@@ -634,28 +663,25 @@ const BrainAI = {
           report.info.push(`💡 [INFO] CQI 24 diaktifkan sebagai cadangan pelarian: Menyerap ${slot.nonCore.length} mesin Non-Core untuk menampung APK yang tumpah dari slot lain.`);
       }
 
-      let absoluteMax;
-      if (is24 && hasC1C2) {
-         absoluteMax = 4;
-      } else if (isAstDominant) {
-         absoluteMax = (reqNC === 0 ? 4 : reqNC === 1 ? 6 : 8);
-      } else {
-         absoluteMax = (reqNC === 0 ? 5 : reqNC === 1 ? 7 : 8);
-      }
+      // Aturan Maksimal Mutlak
+      let hardLimit = (is24 && hasC1C2) ? 4 : 8; 
 
       if (slot.nonCore.length > 2) {
         report.violations.push(`[FATAL] CQI ${slot.cqi.name} memiliki ${slot.nonCore.length} NON CORE (Maks 2).`);
         report.valid = false;
       }
       
+      // PERINGATAN KEKURANGAN NON CORE (Efek dari Force Fase 2 Bulldozer)
       if (slot.nonCore.length < reqNC && slot.machines.length > 0) {
-        report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} butuh ${reqNC} NC, stok dipasangkan ${slot.nonCore.length}.`);
+        report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} menampung ${slot.machines.length} mesin, butuh ${reqNC} NC tapi hanya ada ${slot.nonCore.length}.`);
         report.score -= 20;
+        isNonCoreShortageDetected = true; // Tandai untuk notifikasi kritikal di akhir
       }
 
-      if (slot.machines.length > absoluteMax) {
-        report.violations.push(`[OVERLOAD] CQI ${slot.cqi.name} melampaui batas formasi absolute (${slot.machines.length}/${absoluteMax}).`);
-        report.score -= 20;
+      // VALIDASI HARD LIMIT MAKSIMAL 8
+      if (slot.machines.length > hardLimit) {
+        report.violations.push(`[FATAL OVERLOAD] CQI ${slot.cqi.name} melampaui BATAS MAKSIMAL MUTLAK (${slot.machines.length}/${hardLimit}).`);
+        report.valid = false;
       }
       
       let hasM2M3 = slot.machines.some(m => ['M2', 'M3'].includes((m.name||m.id).toUpperCase()));
@@ -684,6 +710,11 @@ const BrainAI = {
     report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
+    // INJEKSI PERINGATAN KRITIKAL JIKA NON CORE KURANG
+    if (isNonCoreShortageDetected) {
+        report.info.push(`🚨 [PERINGATAN KRITIS] KEKURANGAN MANPOWER NON-CORE! Demi memenuhi aturan prioritas 100% mesin tercover (hingga maks 8 mesin/CQI), sistem terpaksa mengalokasikan beberapa CQI untuk beroperasi tanpa jumlah Non-Core yang standar.`);
+    }
+
     if (report.coveragePercent < 100) {
       report.valid = false;
       report.violations.push(`[COVERAGE] Peringatan! Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing). Mohon cek alokasi jumlah mesin dengan kapasitas Slot CQI.`);
@@ -691,13 +722,13 @@ const BrainAI = {
     }
 
     if (report.violations.length > 0) {
-        report.valid = false;
+        report.valid = false; // Valid akan menjadi false jika ada fatal error atau kekurangan NC ekstrim
     }
 
     if (report.valid && report.coveragePercent === 100) {
-        report.info.push(`✅ [SUCCESS] Planning sukses dibuat dengan coverage 100%. Semua mesin berhasil teralokasi pada slot terbaiknya!`);
+        report.info.push(`✅ [SUCCESS] Planning sukses dibuat dengan coverage 100%. Semua mesin berhasil teralokasi pada slot terbaiknya dengan resource memadai!`);
     } else if (!report.valid) {
-        report.info.push(`⚠️ [WARNING] Planning selesai dengan beberapa catatan pelanggaran atau kapasitas yang kurang. Mohon operator meninjau kembali report di bawah.`);
+        report.info.push(`⚠️ [WARNING] Planning selesai dengan beberapa catatan pelanggaran atau kapasitas Non-Core yang kurang. Mohon operator meninjau kembali report di bawah.`);
     }
     
     return report;
