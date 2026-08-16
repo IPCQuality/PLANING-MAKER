@@ -325,16 +325,10 @@ const BrainAI = {
       slot24.machines.push(...c1c2Machines);
       unassigned = unassigned.filter(m => !m.isC1C2);
       
-      let apks = unassigned.filter(m => m.isApk)
-        .sort((a, b) => this.getDistance(a.row, a.col, slot24.cqi.row, slot24.cqi.col) - this.getDistance(b.row, b.col, slot24.cqi.row, slot24.cqi.col));
+      // PERUBAHAN: Penarikan paksa APK ke CQI 24 Dihapus. 
+      // Biarkan APK mencari slotnya sendiri saat Step 5.
       
-      let toFill = Math.min(apks.length, 2);
-      if (nonCorePool.length >= 1 && toFill > 0) {
-          let selectedApks = apks.slice(0, toFill);
-          slot24.machines.push(...selectedApks);
-          unassigned = unassigned.filter(m => !selectedApks.map(s => s.id).includes(m.id));
-      }
-      slot24.isExclusive = true; 
+      slot24.isExclusive = true; // Gembok agar mesin biasa tidak masuk sini di Step 5
       applyNonCoreIfNeeded(slot24);
     }
 
@@ -376,6 +370,13 @@ const BrainAI = {
     // Paksakan mesin yang tersisa ke CQI terdekat (Jalur Aktual/Manhattan).
     // Jika penuh, geser penghuni lama ke CQI terdekat lainnya.
     // ==========================================
+    
+    // PERUBAHAN: Buka kunci CQI 24 HANYA sebagai pelarian terakhir untuk sisa APK (Fallback)
+    let slot24Fallback = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
+    if (slot24Fallback && slot24Fallback.machines.some(m => m.isC1C2)) {
+        slot24Fallback.isExclusive = false;
+    }
+    
     if (remainingUnassigned.length > 0) {
       // Loop ditingkatkan untuk memastikan proses cascading geser selesai
       let iterations = remainingUnassigned.length * 5; 
@@ -523,7 +524,7 @@ const BrainAI = {
   },
 
   // ==========================================
-  // STEP 8: VALIDASI AKHIR
+  // STEP 8: VALIDASI AKHIR (UPDATED DENGAN INFO/NOTIFIKASI)
   // ==========================================
   validate(plan, totalMachinesCount) {
     let report = {
@@ -534,6 +535,7 @@ const BrainAI = {
       unassignedMachines: [],
       duplicateMachines: [],
       violations: [],
+      info: [], // PERUBAHAN: Menampung notifikasi sukses & catatan informasi
       totalDistance: 0,
       avgDistance: 0,
       score: 100
@@ -567,6 +569,11 @@ const BrainAI = {
 
       let hasC1C2 = slot.machines.some(sm => ['C1','C2'].includes((sm.name||sm.id).toUpperCase()));
       
+      // PERUBAHAN: Cek jika CQI 24 dipaksa menjadi penampung sisa APK dan memakan resource Non-Core
+      if (is24 && hasC1C2 && slot.machines.length > 2 && slot.nonCore.length > 0) {
+          report.info.push(`💡 [INFO] CQI 24 diaktifkan sebagai cadangan pelarian: Menyerap ${slot.nonCore.length} mesin Non-Core untuk menampung APK yang tumpah dari slot lain.`);
+      }
+
       let absoluteMax;
       if (is24 && hasC1C2) {
          absoluteMax = 4;
@@ -617,13 +624,23 @@ const BrainAI = {
     report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
+    // PERUBAHAN: Notifikasi tambahan berdasarkan Coverage dan validasi
     if (report.coveragePercent < 100) {
       report.valid = false;
-      report.violations.push(`[COVERAGE] Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing).`);
+      report.violations.push(`[COVERAGE] Peringatan! Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing). Mohon cek alokasi jumlah mesin dengan kapasitas Slot CQI.`);
       report.score -= (100 - report.coveragePercent); 
     }
 
-    if (report.violations.length > 0) report.valid = false;
+    if (report.violations.length > 0) {
+        report.valid = false;
+    }
+
+    // Penambahan pesan Status Final Planning
+    if (report.valid && report.coveragePercent === 100) {
+        report.info.push(`✅ [SUCCESS] Planning sukses dibuat dengan coverage 100%. Semua mesin berhasil teralokasi pada slot terbaiknya!`);
+    } else if (!report.valid) {
+        report.info.push(`⚠️ [WARNING] Planning selesai dengan beberapa catatan pelanggaran atau kapasitas yang kurang. Mohon operator meninjau kembali report di bawah.`);
+    }
     
     return report;
   },
