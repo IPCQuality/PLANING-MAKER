@@ -328,7 +328,7 @@ const BrainAI = {
 
         let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi);
 
-        if (targetCqi === '19') {
+        if (targetCqi === '24') {
             let c2 = candidates.find(c => c.name.toUpperCase().includes('C2'));
             if (c2) { availableCores.splice(availableCores.indexOf(c2), 1); return c2.name; }
             
@@ -342,7 +342,7 @@ const BrainAI = {
             return selected.name;
         }
 
-        if (targetCqi === '19') {
+        if (targetCqi === '24') {
             let c2 = availableCores.find(c => c.name.toUpperCase().includes('C2'));
             if (c2) { availableCores.splice(availableCores.indexOf(c2), 1); return c2.name; }
             
