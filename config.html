@@ -123,7 +123,7 @@
   .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
   .btn-ok:hover { background: #bbf7d0; }
 
-  /* RESPONSIVE DESIGN UNTUK MODE MOBILE (Rapi, Touch-friendly, Terstruktur) */
+  /* RESPONSIVE DESIGN UNTUK MODE MOBILE */
   @media (max-width: 1024px) {
     html, body { overflow: auto; height: auto; }
     body { overflow-y: auto; }
@@ -208,17 +208,12 @@
         <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
       </div>
       
-      <!-- BARU: NC LONGSHIFT -->
-      <div class="config-section">
-        <div class="group-header">
-          <div class="t"><h3>NC Longshift</h3><span class="count" id="cnt-ncls">0</span></div>
-          <div>
-            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.ncLongshift,'ncLongshiftList')">▲</button>
-            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.ncLongshift,'ncLongshiftList')">▼</button>
-          </div>
+      <!-- BARU: NC LONGSHIFT HANYA 1 KOLOM INPUT ANGKA -->
+      <div class="config-section fields">
+        <div class="group-header" style="margin-bottom: 8px;">
+          <div class="t"><h3>Jumlah NC Longshift</h3></div>
         </div>
-        <div id="ncLongshiftList"></div>
-        <button class="add-btn" onclick="addNewItem(storageKeys.ncLongshift, getSavedData(storageKeys.ncLongshift).length, 'ncLongshiftList')">+ Tambah NC Longshift</button>
+        <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateCounters();">
       </div>
 
       <div class="config-section">
@@ -238,7 +233,6 @@
         <div><label>Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)"></div>
         <div><label>Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)"></div>
       </div>
-
     </aside>
 
     <!-- KONTEN KANAN (OUTPUT) -->
@@ -247,7 +241,7 @@
       <div id="alertContainer" class="alert-container"></div>
 
       <section id="dashboard">
-        <!-- BARU: Tambahan 3 Stat Boxes Core, NC, dan NC LS -->
+        <!-- 3 Stat Boxes Tambahan -->
         <div class="stat-box"><p>Total Core</p><span id="db-core">0</span></div>
         <div class="stat-box"><p>Total NC</p><span id="db-nc">0</span></div>
         <div class="stat-box"><p>Total NC LS</p><span id="db-ls">0</span></div>
@@ -280,8 +274,8 @@
 
 <script src="brain.js"></script>
 <script>
-  // KEY untuk NC LONGSHIFT ditambahkan
-  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names', ncLongshift:'ncls_names' };
+  // KEY untuk penyimpanan
+  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
 
   function getSavedData(key){ let raw = JSON.parse(localStorage.getItem(key)) || ['']; return raw.map(i => typeof i === 'string' ? { name:i, locked:false } : i); }
   function saveData(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
@@ -325,12 +319,11 @@
   function updateCounters(){
     const c = getListData(storageKeys.core).length;
     const n = getListData(storageKeys.nonCore).length;
-    const ls = getListData(storageKeys.ncLongshift).length;
+    const ls = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     const q = getListData(storageKeys.qcPassed).length;
     
     document.getElementById('cnt-core').innerText = c;
     document.getElementById('cnt-noncore').innerText = n;
-    document.getElementById('cnt-ncls').innerText = ls;
     document.getElementById('cnt-qc').innerText = q;
     document.getElementById('mpCount').innerText = c + n + ls;
     document.getElementById('mpBar').style.width = Math.min(100, (c+n+ls)*8) + '%';
@@ -358,15 +351,18 @@
   function getListData(key){ return getSavedData(key).map(i=>i.name.trim()).filter(n=>n!==''); }
 
   let state = null, currentPlan = [], finalConfig = {};
-  const planningMode = 'history'; // Planning History aktif secara default tanpa pilihan UI lagi
+  const planningMode = 'history';
 
   window.onload = async () => {
     renderList('coreList', storageKeys.core);
     renderList('nonCoreList', storageKeys.nonCore);
-    renderList('ncLongshiftList', storageKeys.ncLongshift);
     renderList('qcPassedList', storageKeys.qcPassed);
     
+    // Set value LS dari local storage
+    document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
+    
     await loadDefaultManpower();
+    updateCounters();
 
     document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
     document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
@@ -465,13 +461,15 @@
 
     let coreData = getListData(storageKeys.core);
     let nonCoreData = getListData(storageKeys.nonCore);
-    let ncLongshiftData = getListData(storageKeys.ncLongshift);
+    let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     let qcData = getListData(storageKeys.qcPassed);
 
-    // Gabungkan NC dengan NC LS dan beri marker khusus (___LS)
+    // Gabungkan NC dengan dummy name untuk NC LS (beri marker khusus ___LS)
     // BrainAI akan otomatis memakai mereka saat alokasi jika NC murni habis
     let mergedNonCore = [...nonCoreData];
-    ncLongshiftData.forEach(name => mergedNonCore.push(name + '___LS'));
+    for (let i = 1; i <= lsCount; i++) {
+        mergedNonCore.push(`LS ${i}___LS`);
+    }
 
     let qcPassedFormatted = "";
     if(qcData.length === 1) qcPassedFormatted = qcData[0];
@@ -485,22 +483,22 @@
       standbyOt: document.getElementById('standbyOt').value,
       supportFg: document.getElementById('supportFg').value,
       planMode: planningMode,
-      // Metadata tambahan untuk dashboard update
       rawCoreCount: coreData.length,
       rawNonCoreCount: nonCoreData.length,
-      rawLsCount: ncLongshiftData.length
+      rawLsCount: lsCount
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
     
-    // Post-Process: Hapus marker (___LS) pada output dan tambahkan tanda '(LS)' untuk membedakan
+    // Post-Process: Hapus marker (___LS) pada output dan ganti dengan (LS)
     currentPlan.forEach(slot => {
         if(slot.nonCore) {
             slot.nonCore = slot.nonCore.map(n => n.endsWith('___LS') ? n.replace('___LS', ' (LS)') : n);
         }
     });
 
-    let validationReport = BrainAI.validate(currentPlan, state.machines.length);
+    // Validasi kini mengirim 'state.machines' full array, bukan hanya length
+    let validationReport = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(validationReport.info, validationReport.violations);
 
     const planPayload = {
@@ -532,7 +530,6 @@
       });
     });
 
-    // Update 3 KPI Tambahan
     document.getElementById('db-core').innerText = finalConfig.rawCoreCount || 0;
     document.getElementById('db-nc').innerText = finalConfig.rawNonCoreCount || 0;
     document.getElementById('db-ls').innerText = finalConfig.rawLsCount || 0;
@@ -552,7 +549,7 @@
 
   function validateAndExport(){
     if(currentPlan.length === 0) return alert("Generate planning dulu!");
-    let report = BrainAI.validate(currentPlan, state.machines.length);
+    let report = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(report.info, report.violations);
 
     if(!report.valid){ 
@@ -681,7 +678,6 @@
         const v = cell.value == null ? "" : String(cell.value);
         v.split("\n").forEach(line=>{ if(line.length > max) max = line.length; });
       });
-      // Indeks MESIN sekarang 5 (Karena LS disisipkan)
       col.width = Math.min(idx === 5 ? 70 : 34, Math.max(idx === 0 ? 6 : 12, max + 3));
     });
 

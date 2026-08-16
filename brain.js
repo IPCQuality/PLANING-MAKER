@@ -8,9 +8,10 @@
  * 4. Buat Slot CQI & Alokasi Prioritas CORE (C2/C4)
  * 5. Masukkan Mesin
  * 6. Pembagian Prioritas
- * 6.5 Paksa & Geser (Bulldozer Logic - Jarak Aktual & 100% Coverage, Max 8)
+ * 6.5 Paksa & Geser (Bulldozer Logic - Jarak Aktual & 100% Coverage)
+ *     -> Ditambahkan Prioritas untuk melanggar aturan WS dan mengisi CQI (maks 8 dengan NC)
  * 7. Optimasi
- * 8. Validasi Akhir
+ * 8. Validasi Akhir (Tampilkan list mesin terlewat)
  */
 
 const WORKSTATIONS = {
@@ -54,7 +55,6 @@ const WORKSTATIONS = {
   "OT": ["M2", "M3"]
 };
 
-// ACUAN PRIORITAS BERDASARKAN PLANNING LIQUID 3
 const CQI_PRIORITY_MAP = {
   "1": ["0A", "1A"],
   "2": ["2A", "2B"],
@@ -165,7 +165,6 @@ const BrainAI = {
     let apkCount = slot.machines.filter(sm => sm.isApk || sm.isC1C2).length + (m.isApk || m.isC1C2 ? 1 : 0);
     
     let reqNC = this._getRequiredNonCore(slot, astCount, apkCount);
-    // [MODIFIED] - Kalkulasi NC sekarang menggabungkan NonCore (Normal) & Longshift (LS)
     let currentNC = slot.nonCore.length + (slot.longshift ? slot.longshift.length : 0);
     let neededNC = reqNC - currentNC;
     
@@ -225,7 +224,6 @@ const BrainAI = {
     return distScore + histScore + wsBonus + priorityBonus + capScore + ncPenalty - workloadPenalty;
   },
 
-  // INPUT DATA & PROSES UTAMA
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
@@ -262,7 +260,6 @@ const BrainAI = {
         }
     }
 
-    // [MODIFIED] - Memuat data LS / Longshift
     let lsPool = [];
     let rawLS = config.longshiftData || config.longshiftNames || [];
     let lsCount = parseInt(config.longshift) || rawLS.length || 0;
@@ -278,9 +275,6 @@ const BrainAI = {
         }
     }
 
-    // ==========================================
-    // STEP 1: IDENTIFIKASI MESIN
-    // ==========================================
     let unassigned = machines.map(m => {
       let nm = { ...m };
       let upName = (nm.name || nm.id).toUpperCase();
@@ -294,9 +288,6 @@ const BrainAI = {
       return nm;
     });
 
-    // ==========================================
-    // STEP 2 & 3: PILIH CQI TERBAIK
-    // ==========================================
     let cqiScores = cqis.map(cqi => {
         let score = 0;
         let match = String(cqi.name || cqi.id).match(/\d+/);
@@ -325,16 +316,13 @@ const BrainAI = {
     cqiScores.sort((a, b) => b.score - a.score);
     let activeCQIs = cqiScores.slice(0, coreLimit).map(cs => cs.cqi);
 
-    // ==========================================
-    // STEP 4: BUAT SLOT CQI & ALOKASI CORE
-    // ==========================================
     let slots = activeCQIs.map((cqi, i) => {
       return {
         slotId: 'SLOT-' + i, 
         cqi: cqi, 
         core: null,
         nonCore: [], 
-        longshift: [], // [MODIFIED] Array terpisah untuk Excel
+        longshift: [], 
         machines: [],
         isExclusive: false
       };
@@ -384,7 +372,6 @@ const BrainAI = {
         }
     });
 
-    // [MODIFIED] - Memungkinkan penggunaan cadangan Longshift
     const applyNonCoreIfNeeded = (slot) => {
       let astCount = slot.machines.filter(sm => sm.isAst).length;
       let apkCount = slot.machines.filter(sm => sm.isApk || sm.isC1C2).length;
@@ -433,9 +420,7 @@ const BrainAI = {
 
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
     
-    // ==========================================
-    // STEP 5: MASUKKAN MESIN (Skenario Normal)
-    // ==========================================
+    // FASE 1: MASUKKAN MESIN (Skenario Normal - Penalti Workstation & NC Berlaku)
     let remainingUnassigned = [];
     unassigned.forEach(m => {
       let bestSlot = null;
@@ -454,16 +439,13 @@ const BrainAI = {
       }
     });
 
-    // ==========================================
-    // STEP 6.5: PAKSA & GESER (BULLDOZER LOGIC)
-    // ==========================================
     
     let slot24Fallback = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
     if (slot24Fallback && slot24Fallback.machines.some(m => m.isC1C2)) {
         slot24Fallback.isExclusive = false;
     }
     
-    // FASE 1: Geser & Tukar Normal
+    // FASE 2: Geser & Tukar Normal Jika Terkendala Kapasitas Standar
     if (remainingUnassigned.length > 0) {
       let iterations = remainingUnassigned.length * 5; 
       
@@ -487,11 +469,9 @@ const BrainAI = {
             
             for (let i = 0; i < target.machines.length; i++) {
               let occupant = target.machines[i];
-              
               target.machines.splice(i, 1); 
 
               let acceptU = this._canAcceptMachine(target, u, nonCorePool.length + lsPool.length);
-              
               if (acceptU.can) {
                 let newHomes = [...slots].filter(s => s !== target && !s.isExclusive)
                   .sort((a, b) => this.getDistance(occupant.row, occupant.col, a.cqi.row, a.cqi.col) - this.getDistance(occupant.row, occupant.col, b.cqi.row, b.cqi.col));
@@ -527,9 +507,45 @@ const BrainAI = {
       }
     }
 
-    // FASE 2: "DESPERATE FORCE" (PRIORITAS UTAMA: 100% COVERAGE, MAKSIMAL 8 MESIN/CQI)
+    // FASE 3: Bypassing Workstation Priority & CQI yang 'cek 4 mesin' (Force Add via NC/LS)
+    // Mesin dimasukkan murni berdasarkan jarak, menggunakan NONCORE yang tersisa.
     if (remainingUnassigned.length > 0) {
-        console.warn("BULLDOZER FASE 2 AKTIF: Memaksa sisa mesin masuk demi 100% Coverage (Max 8/CQI)!");
+        let tempUnassigned = [...remainingUnassigned];
+        remainingUnassigned = [];
+        
+        while(tempUnassigned.length > 0) {
+            let u = tempUnassigned.shift();
+            
+            let possibleSlots = slots.filter(s => {
+                let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
+                let is19 = match && match[0] === '19';
+                if (is19 && !u.isM2M3) return false;
+                if (!is19 && u.isM2M3) return false;
+                
+                let hasAst = s.machines.some(sm => sm.isAst);
+                let hasApk = s.machines.some(sm => sm.isApk || sm.isC1C2);
+                if (hasAst && (u.isApk || u.isC1C2)) return false;
+                if (hasApk && u.isAst) return false;
+
+                // Memaksa masuk jika NC masih tersedia tanpa memperhitungkan penalti nilai
+                let accept = this._canAcceptMachine(s, u, nonCorePool.length + lsPool.length);
+                return accept.can;
+            });
+            
+            if (possibleSlots.length > 0) {
+                // Pilih yang murni jaraknya paling dekat tanpa peduli WS
+                let closestTarget = possibleSlots.sort((a, b) => this.getDistance(u.row, u.col, a.cqi.row, a.cqi.col) - this.getDistance(u.row, u.col, b.cqi.row, b.cqi.col))[0];
+                closestTarget.machines.push(u);
+                applyNonCoreIfNeeded(closestTarget);
+            } else {
+                remainingUnassigned.push(u);
+            }
+        }
+    }
+
+    // FASE 4: "DESPERATE FORCE" (Jika kehabisan NC sama sekali tapi 100% Coverage masih dipaksa, limit mentok 8)
+    if (remainingUnassigned.length > 0) {
+        console.warn("BULLDOZER FASE AKHIR AKTIF: Memaksa sisa mesin masuk demi 100% Coverage (Max 8/CQI)!");
         
         let tempUnassigned = [...remainingUnassigned];
         remainingUnassigned = [];
@@ -559,13 +575,14 @@ const BrainAI = {
             if(possibleSlots.length > 0) {
                 let forcedTarget = possibleSlots.sort((a, b) => this.getDistance(u.row, u.col, a.cqi.row, a.cqi.col) - this.getDistance(u.row, u.col, b.cqi.row, b.cqi.col))[0];
                 forcedTarget.machines.push(u);
-                applyNonCoreIfNeeded(forcedTarget);
+                applyNonCoreIfNeeded(forcedTarget); // Apply kalau-kalau aja ada NC nyangkut
             } else {
-                remainingUnassigned.push(u); // Gagal: Semua CQI yang sesuai tipe sudah mentok di 8 mesin
+                remainingUnassigned.push(u); // Gagal murni: semua slot sudah over 8
             }
         }
     }
 
+    // Ensure minimal 2 NC untuk selain 19 jika mesin banyak 
     slots.forEach(slot => {
       let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
       let is19 = match && match[0] === '19';
@@ -585,9 +602,7 @@ const BrainAI = {
       }
     });
 
-    // ==========================================
-    // STEP 7: OPTIMASI
-    // ==========================================
+    // OPTIMASI SWAPPING JARAK
     let optIter = 0;
     let improved = true;
     while(improved && optIter < 10) {
@@ -638,10 +653,6 @@ const BrainAI = {
       optIter++;
     }
 
-    if (remainingUnassigned.length > 0) {
-      console.warn("WARNING: Kekurangan kapasitas mutlak. Mesin terlewat:", remainingUnassigned.map(m=>m.name));
-    }
-
     slots.leftoverNonCores = nonCorePool;
     slots.leftoverLongshifts = lsPool;
 
@@ -654,10 +665,11 @@ const BrainAI = {
     return slots;
   },
 
-  // ==========================================
-  // STEP 8: VALIDASI AKHIR 
-  // ==========================================
-  validate(plan, totalMachinesCount) {
+  // VALIDASI AKHIR (DIKIRIM array machines lengkap)
+  validate(plan, machinesData) {
+    let isMachinesArray = Array.isArray(machinesData);
+    let totalMachinesCount = isMachinesArray ? machinesData.length : machinesData;
+
     let report = {
       valid: true,
       coveragePercent: 0,
@@ -749,13 +761,26 @@ const BrainAI = {
     report.coveragePercent = Math.round((report.assignedCount / report.totalMachines) * 100) || 0;
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
+    if (isMachinesArray) {
+        report.unassignedMachines = machinesData.filter(m => !coveredIds.has(m.id));
+    }
+
     if (isNonCoreShortageDetected) {
         report.info.push(`🚨 [PERINGATAN KRITIS] KEKURANGAN MANPOWER NON-CORE/LONGSHIFT! Demi memenuhi aturan prioritas 100% mesin tercover, sistem terpaksa mengalokasikan beberapa CQI untuk beroperasi tanpa jumlah pekerja yang standar.`);
     }
 
     if (report.coveragePercent < 100) {
       report.valid = false;
-      report.violations.push(`[COVERAGE] Peringatan! Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing). Mohon cek alokasi jumlah mesin dengan kapasitas Slot CQI.`);
+      let missingMsg = `[COVERAGE] Peringatan! Ada ${report.totalMachines - report.assignedCount} mesin yang gagal masuk planning (Missing).`;
+      
+      if (report.unassignedMachines && report.unassignedMachines.length > 0) {
+          let missingNames = report.unassignedMachines.map(m => m.name || m.id).join(', ');
+          missingMsg += ` Mesin terlewat: ${missingNames}`;
+      } else {
+          missingMsg += ` Mohon cek alokasi jumlah mesin dengan kapasitas Slot CQI.`;
+      }
+      
+      report.violations.push(missingMsg);
       report.score -= (100 - report.coveragePercent); 
     }
 
@@ -811,7 +836,6 @@ const BrainAI = {
       txt += `${i + 1}.\n`;
       txt += `MESIN : ${this.formatMachineList(slot.machines)}\n`;
       
-      // [MODIFIED] - Gabungkan Non Core dan Longshift (ditandai dengan akhiran LS) untuk tampilan Teks (WA)
       let ncDisplayArr = [];
       if (slot.nonCore && slot.nonCore.length > 0) ncDisplayArr.push(...slot.nonCore);
       if (slot.longshift && slot.longshift.length > 0) ncDisplayArr.push(...slot.longshift.map(ls => `${ls} (LS)`));
