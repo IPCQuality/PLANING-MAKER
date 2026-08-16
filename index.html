@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAP LIQUID 3 - Factory UI</title>
+  <style>
+    :root {
+      --bg-main: #f0f4f8; 
+      --bg-panel: #ffffff; 
+      --border: #cbd5e1; 
+      --grid-line: #e2e8f0; 
+      --text-main: #1e293b; 
+      --text-muted: #64748b;
+      --running: #16a34a; 
+      --setup: #d97706; 
+      --down: #dc2626; 
+      --offplan: #e2e8f0;
+      --offplan-text: #64748b;
+      --cqi-ready: #2563eb; 
+      --cqi-off: #cbd5e1;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    
+    header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 30; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .brand { font-weight: 700; font-size: 1.1rem; color: var(--cqi-ready); display: flex; align-items: center; gap: 8px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { background: #f8fafc; color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .btn-primary { background: var(--cqi-ready); color: white; border: 1px solid transparent; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: var(--running); color: white; border: 1px solid transparent; }
+    .btn-success:hover { background: #15803d; }
+    .btn-warning { background: var(--setup); color: white; border: 1px solid transparent; }
+    .btn-warning:hover { background: #b45309; }
+    .btn-danger { background: var(--down); color: white; border: 1px solid transparent; }
+    
+    /* LAYOUT UTAMA & SLIDING PANEL */
+    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+    
+    .side-panel { width: 280px; flex-shrink: 0; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: margin-left 0.3s ease; z-index: 20; box-shadow: var(--shadow); }
+    .side-panel.closed { margin-left: -280px; }
+    
+    .panel-toggle-btn { position: absolute; left: 280px; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: white; border: 1px solid var(--border); border-left: none; border-radius: 0 8px 8px 0; color: var(--text-muted); cursor: pointer; z-index: 25; display: flex; align-items: center; justify-content: center; transition: left 0.3s ease, background 0.2s; box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
+    .panel-toggle-btn:hover { background: #f8fafc; color: var(--cqi-ready); }
+    .side-panel.closed ~ .panel-toggle-btn { left: 0; }
+
+    .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+    .panel-header h3 { font-size: 0.9rem; color: var(--text-main); margin: 0; font-weight: 600; text-align: center; }
+    
+    .panel-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    
+    /* STATISTIK DI PANEL */
+    .stats-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+    .stat-line { display: flex; justify-content: space-between; align-items: center; }
+    .stat-val { font-weight: 700; color: var(--text-main); background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+
+    /* TOMBOL WORKSTATION */
+    .ws-group { margin-bottom: 8px; }
+    .ws-group-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--grid-line); padding-bottom: 4px; }
+    .ws-group-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ws-btn { background: #ffffff; color: var(--text-main); border: 1px solid var(--border); padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; flex: 1 1 calc(33.333% - 6px); text-align: center; }
+    .ws-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .ws-btn.active-all { background: #dcfce7; color: #166534; border-color: #22c55e; }
+    .ws-btn.active-partial { background: #fef9c3; color: #854d0e; border-color: #eab308; }
+
+    /* VIEWPORT & GRID */
+    .map-viewport { flex: 1; overflow: auto; background: var(--bg-main); position: relative; cursor: grab; }
+    .map-viewport:active { cursor: grabbing; }
+    .grid-wrapper { overflow: hidden; transform-origin: top left; padding: 16px; }
+    .factory-grid { 
+      position: relative; 
+      display: grid; 
+      border: 1px solid var(--border); 
+      background: white; 
+      transform-origin: top left; 
+      box-shadow: var(--shadow); 
+      border-radius: 4px; 
+      width: max-content; 
+      height: max-content; 
+    }
+    
+    .excel-header { background: #f8fafc; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid var(--grid-line); z-index: 5; }
+    .excel-corner { background: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; border-top-left-radius: 4px; }
+    .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+
+    /* Line Box */
+    .line-box { position: relative; border: 2px dashed #93c5fd; background: rgba(239, 246, 255, 0.3); z-index: 1; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start; pointer-events: none; }
+    body.mode-edit .line-box { border-style: dashed; background: rgba(59, 130, 246, 0.05); z-index: 3; }
+    body.mode-edit .line-box-header { cursor: grab; }
+    body.mode-edit .line-box-header:active { cursor: grabbing; }
+    .line-box-header { font-size: 0.75rem; font-weight: 700; color: #1e3a8a; background: #bfdbfe; padding: 4px 8px; width: max-content; pointer-events: auto; border-bottom-right-radius: 6px; border-right: 1px solid #93c5fd; border-bottom: 1px solid #93c5fd; }
+    
+    .resize-handle { width: 12px; height: 12px; background: #2563eb; border: 2px solid white; border-radius: 50%; position: absolute; bottom: -6px; right: -6px; cursor: se-resize; display: none; z-index: 20; pointer-events: auto; }
+    body.mode-edit .resize-handle { display: block; }
+
+    /* Node Style */
+    .node { width: 94%; height: 90%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; text-align: center; cursor: pointer; border-radius: 6px; position: relative; transition: all 0.2s; padding: 2px; z-index: 10; border: 1px solid transparent; }
+    .node-machine.OFF { background: var(--offplan); color: var(--offplan-text); border-color: var(--border); }
+    .node-machine.RUNNING { background: var(--running); color: white; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4); }
+    .node-cqi.OFF { background: var(--cqi-off); color: var(--text-muted); border-color: var(--border); }
+    .node-cqi.READY { background: var(--cqi-ready); color: white; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4); }
+    .node-label { background: transparent; color: var(--text-muted); border: 1px dashed var(--border); font-size: 0.85rem; font-weight: 700; }
+
+    /* PLANNING HEATMAP — mengikuti hasil aktual BrainAI */
+    .heatmap-route { filter: drop-shadow(0 1px 2px rgba(15,23,42,0.25)); }
+    .node-machine.planned { border: 2px solid currentColor; box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 14px rgba(37,99,235,0.55); }
+    .node-cqi.planned-target { border: 3px solid #0f172a; box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 18px rgba(37,99,235,0.45); }
+    .heatmap-badge {
+      position: absolute; right: 5px; top: 5px; z-index: 12;
+      background: rgba(15,23,42,0.88); color: #fff; border-radius: 999px;
+      padding: 2px 6px; font-size: 9px; font-weight: 800; pointer-events: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .heatmap-legend {
+      position: fixed; left: 24px; bottom: 24px; z-index: 1001;
+      background: rgba(255,255,255,0.96); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow);
+      display: none; min-width: 210px;
+    }
+    .heatmap-legend.active { display: block; }
+    .heatmap-legend-title { font-size: 11px; font-weight: 800; color: var(--text-main); margin-bottom: 7px; }
+    .heatmap-legend-row { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--text-muted); margin: 4px 0; }
+    .heatmap-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; border: 1px solid rgba(15,23,42,.15); }
+
+    .del-btn { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: none; line-height: 18px; text-align: center; cursor: pointer; z-index: 15; pointer-events: auto; border: 2px solid white; }
+    body.mode-edit .del-btn { display: block; }
+    body.mode-edit .node { cursor: grab; }
+    body.mode-landing .control-edit { display: none; }
+    body.mode-edit .control-landing { display: none; }
+
+    .zoom-controls { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 8px; z-index: 1000; }
+    .zoom-btn { background: white; border: 1px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: var(--shadow); transition: 0.2s; }
+    .zoom-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-card { background: white; border: 1px solid var(--border); border-radius: 12px; width: 340px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: translateY(-20px); transition: transform 0.2s ease; }
+    .modal-overlay.active .modal-card { transform: translateY(0); }
+    .modal-card h3 { margin-bottom: 16px; font-size: 1.1rem; color: var(--text-main); font-weight: 700; }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .form-control { background: white; border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; outline: none; transition: 0.2s; }
+    .form-control:focus { border-color: var(--cqi-ready); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+  </style>
+</head>
+<body class="mode-landing">
+  <header>
+    <div class="brand">🏭 MAP LIQUID 3</div>
+    <div class="controls">
+      <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
+      <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
+      <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
+
+      <button class="btn btn-primary control-edit" onclick="openNodeModal('machine')">➕ Mesin</button>
+      <button class="btn btn-primary control-edit" onclick="openNodeModal('cqi')">➕ CQI</button>
+      <button class="btn btn-primary control-edit" onclick="openNodeModal('label')">➕ Label</button>
+      <button class="btn btn-primary control-edit" onclick="openNodeModal('line')">➕ Batas Line</button>
+      <button class="btn btn-success control-edit" onclick="exportMapJson()">💾 Save to map.json</button>
+      <button class="btn control-edit" onclick="toggleEditMode()">⬅️ Selesai Edit</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <div class="side-panel control-landing" id="sidePanel">
+      <div class="panel-header">
+        <h3>Filter & Status Mesin</h3>
+      </div>
+      <div class="panel-body">
+        <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+          <button class="btn btn-success" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesRunning()">🏃 Run All Mac</button>
+          <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllMachinesOff()">🛑 Off All Mac</button>
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+          <button class="btn btn-primary" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllCqiReady()">✅ Ready All CQI</button>
+          <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.75rem;" onclick="setAllCqiOff()">🛑 Off All CQI</button>
+        </div>
+
+        <div class="stats-box">
+          <div class="stat-line"><span>Mesin Running:</span> <span class="stat-val" id="statMachine">0 / 0</span></div>
+          <div class="stat-line"><span>CQI Terpakai:</span> <span class="stat-val" id="statCqi">0 / 0</span></div>
+        </div>
+        <div id="wsBtnContainer"></div>
+      </div>
+    </div>
+    
+    <div class="panel-toggle-btn control-landing" onclick="toggleSidePanel()" id="panelToggleBtn">◀</div>
+
+    <div class="map-viewport" id="mapViewport">
+      <div class="grid-wrapper" id="gridWrapper">
+        <div class="factory-grid" id="factoryGrid"></div>
+      </div>
+    </div>
+    
+
+    <div class="heatmap-legend" id="heatmapLegend">
+      <div class="heatmap-legend-title">🔥 PLANNING HEATMAP AKTUAL</div>
+      <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#16a34a"></span><span>Rute mesin → CQI dari hasil planning</span></div>
+      <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#2563eb"></span><span>CQI tujuan / slot aktif</span></div>
+      <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#f59e0b"></span><span>Mesin punya riwayat penggunaan</span></div>
+      <div class="heatmap-legend-row"><span id="heatmapPlanInfo">Belum ada planning aktif</span></div>
+    </div>
+
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomOut()">-</button>
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="nodeModal">
+    <div class="modal-card">
+      <h3 id="modalTitle">Tambah Node</h3>
+      <div id="modalFormContainer"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNodeModal()">Batal</button>
+        <button class="btn btn-primary" onclick="submitNodeModal()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="brain.js"></script>
+  <script>
+    let mapData = { machines: [], cqis: [], labels: [], lines: [] };
+    let currentZoom = null; 
+    let editMode = false;
+    let showHeatmap = false;
+    let draggedNode = null;
+    let activePlanning = null;
+    let activePlanningMode = '';
+    let activeModalType = '';
+
+    const GRID_WIDTH = 4330;
+    const GRID_HEIGHT = 1068;
+
+    const mapViewport = document.getElementById('mapViewport');
+    let isPanning = false;
+    let startX, startY;
+
+    mapViewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.node') || e.target.closest('.line-box') || e.target.tagName === 'BUTTON') return;
+      isPanning = true;
+      startX = e.clientX - mapViewport.scrollLeft;
+      startY = e.clientY - mapViewport.scrollTop;
+    });
+    mapViewport.addEventListener('mouseleave', () => { isPanning = false; });
+    mapViewport.addEventListener('mouseup', () => { isPanning = false; });
+    mapViewport.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      e.preventDefault();
+      mapViewport.scrollLeft = e.clientX - startX;
+      mapViewport.scrollTop = e.clientY - startY;
+    });
+    mapViewport.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) { e.preventDefault(); mapViewport.scrollLeft += e.deltaY; }
+    }, { passive: false });
+
+    function getColLetter(col) {
+      let letter = '';
+      while (col > 0) {
+        let rem = (col - 1) % 26;
+        letter = String.fromCharCode(65 + rem) + letter;
+        col = Math.floor((col - 1) / 26);
+      }
+      return letter;
+    }
+
+    async function loadMap() {
+      const githubUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/map.json';
+      try {
+        const res = await fetch(githubUrl);
+        if (!res.ok) throw new Error("Gagal load dari GitHub");
+        mapData = await res.json();
+      } catch (e) {
+        try {
+          const resLocal = await fetch('map.json');
+          if (resLocal.ok) mapData = await resLocal.json();
+        } catch(err) { mapData = { machines: [], cqis: [], labels: [], lines: [] }; }
+      }
+      initializeStatuses();
+      renderWorkstationButtons();
+      applyZoom(true);
+    }
+
+
+    function loadActivePlanning() {
+      try {
+        const raw = sessionStorage.getItem('active_planning');
+        activePlanning = raw ? JSON.parse(raw) : null;
+        activePlanningMode = sessionStorage.getItem('active_planning_mode') || '';
+      } catch (e) {
+        console.warn('Planning aktif tidak dapat dibaca:', e);
+        activePlanning = null;
+        activePlanningMode = '';
+      }
+      updateHeatmapLegend();
+    }
+
+    function getPlanningAssignments() {
+      const assignments = new Map();
+      if (!activePlanning || !Array.isArray(activePlanning.slots)) return assignments;
+
+      activePlanning.slots.forEach(slot => {
+        if (!slot || !slot.cqi || !Array.isArray(slot.machines)) return;
+        slot.machines.forEach(machine => {
+          const key = String(machine.id ?? machine.name ?? '').trim();
+          if (!key) return;
+          assignments.set(key, {
+            cqi: slot.cqi,
+            slotId: slot.slotId || '',
+            core: slot.core || '',
+            nonCore: Array.isArray(slot.nonCore) ? slot.nonCore : []
+          });
+        });
+      });
+      return assignments;
+    }
+
+    function updateHeatmapLegend() {
+      const legend = document.getElementById('heatmapLegend');
+      const info = document.getElementById('heatmapPlanInfo');
+      if (!legend || !info) return;
+      legend.classList.toggle('active', showHeatmap);
+      if (!activePlanning || !Array.isArray(activePlanning.slots)) {
+        info.textContent = 'Belum ada planning aktif';
+        return;
+      }
+      const count = activePlanning.slots.reduce((n, s) => n + ((s && s.machines) ? s.machines.length : 0), 0);
+      const modeLabel = activePlanningMode === 'history' ? 'HISTORY' : 'AI';
+      info.textContent = `${modeLabel} • ${activePlanning.slots.length} CQI • ${count} mesin`;
+    }
+
+    function saveActivePlanning(plan, mode) {
+      if (!Array.isArray(plan)) return;
+      const payload = {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        mode: mode || 'ai',
+        slots: plan
+      };
+      try {
+        sessionStorage.setItem('active_planning', JSON.stringify(payload));
+        sessionStorage.setItem('active_planning_mode', mode || 'ai');
+        localStorage.setItem('last_active_planning', JSON.stringify(payload));
+      } catch (e) {
+        console.warn('Gagal menyimpan planning aktif:', e);
+      }
+      activePlanning = payload;
+      activePlanningMode = mode || 'ai';
+      updateHeatmapLegend();
+    }
+
+    function initializeStatuses() {
+      if (!mapData.lines || mapData.lines.length === 0) {
+        mapData.lines = [
+          { id: 'line-a', name: 'LINE A', row: 2, col: 4, width: 24, height: 8, borderColor: '#3b82f6', textColor: '#1d4ed8' },
+          { id: 'line-b', name: 'LINE B', row: 11, col: 4, width: 27, height: 6, borderColor: '#3b82f6', textColor: '#1d4ed8' },
+          { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#1d4ed8' }
+        ];
+      }
+
+      loadActivePlanning();
+      const savedState = localStorage.getItem('factory_internal_storage');
+      if (savedState) {
+        try {
+          const parsed = JSON.parse(savedState);
+          if (parsed.machines) parsed.machines.forEach(savedM => { let targetM = mapData.machines.find(m => m.id === savedM.id || m.name === savedM.name); if (targetM) targetM.status = savedM.status; });
+          if (parsed.cqis) parsed.cqis.forEach(savedC => { let targetC = mapData.cqis.find(c => c.id === savedC.id || c.name === savedC.name); if (targetC) targetC.status = savedC.status; });
+        } catch (err) {}
+      } else {
+        mapData.machines.forEach(m => { if (m.status !== 'RUNNING') m.status = 'OFF'; });
+        mapData.cqis.forEach(c => { if (c.status !== 'READY') c.status = 'OFF'; });
+      }
+      renderGrid();
+    }
+
+    function renderWorkstationButtons() {
+      const container = document.getElementById('wsBtnContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      const groups = [
+        { title: "LINE A", keys: ["0A", "1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A"] },
+        { title: "LINE B", keys: ["0B", "1B", "2B", "3B", "4B", "5B", "6B", "7B", "8B", "9B", "10B", "11B"] },
+        { title: "LINE C", keys: ["1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C"] },
+        { title: "OTHERS", keys: ["WW", "OT"] }
+      ];
+      groups.forEach(g => {
+        let groupDiv = document.createElement('div'); groupDiv.className = 'ws-group';
+        let titleDiv = document.createElement('div'); titleDiv.className = 'ws-group-title'; titleDiv.innerText = g.title; groupDiv.appendChild(titleDiv);
+        let btnsDiv = document.createElement('div'); btnsDiv.className = 'ws-group-buttons';
+        g.keys.forEach(key => {
+          let btn = document.createElement('button'); btn.className = 'ws-btn'; btn.innerText = key; btn.id = 'ws-btn-' + key;
+          btn.onclick = () => toggleWorkstation(key); btnsDiv.appendChild(btn);
+        });
+        groupDiv.appendChild(btnsDiv); container.appendChild(groupDiv);
+      });
+      updateStatsAndButtons();
+    }
+
+    function updateStatsAndButtons() {
+      const runMac = mapData.machines.filter(m => m.status === 'RUNNING').length;
+      document.getElementById('statMachine').innerText = `${runMac} / ${mapData.machines.length}`;
+      const readyCqi = mapData.cqis.filter(c => c.status === 'READY').length;
+      document.getElementById('statCqi').innerText = `${readyCqi} / ${mapData.cqis.length}`;
+
+      if (typeof WORKSTATIONS === 'undefined') return;
+      for (let key in WORKSTATIONS) {
+        let btn = document.getElementById('ws-btn-' + key);
+        if (!btn) continue;
+        let wsList = WORKSTATIONS[key];
+        let wsMachines = mapData.machines.filter(m => wsList.some(item => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(item)));
+        if (wsMachines.length === 0) { btn.className = 'ws-btn'; continue; }
+        let runningCount = wsMachines.filter(m => m.status === 'RUNNING').length;
+        if (runningCount === wsMachines.length) btn.className = 'ws-btn active-all';
+        else if (runningCount > 0) btn.className = 'ws-btn active-partial';
+        else btn.className = 'ws-btn';
+      }
+    }
+
+    function toggleWorkstation(wsKey) {
+      if (typeof WORKSTATIONS === 'undefined' || !WORKSTATIONS[wsKey]) return;
+      let wsList = WORKSTATIONS[wsKey];
+      let wsMachines = mapData.machines.filter(m => wsList.some(item => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(item)));
+      if (wsMachines.length === 0) return;
+      let allRunning = wsMachines.every(m => m.status === 'RUNNING');
+      let targetStatus = allRunning ? 'OFF' : 'RUNNING';
+      wsMachines.forEach(m => m.status = targetStatus);
+      renderGrid();
+    }
+
+    function toggleSidePanel() {
+      const panel = document.getElementById('sidePanel');
+      const btn = document.getElementById('panelToggleBtn');
+      panel.classList.toggle('closed');
+      btn.innerText = panel.classList.contains('closed') ? '▶' : '◀';
+      setTimeout(() => applyZoom(false), 300); 
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('factoryGrid');
+      grid.innerHTML = '';
+      let totalCols = 55, totalRows = 20;
+      grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`;
+      grid.style.gridTemplateRows = `28px repeat(${totalRows}, 52px)`;
+
+      let corner = document.createElement('div'); corner.className = 'excel-header excel-corner'; corner.innerText = 'R\\C';
+      corner.style.gridRow = '1'; corner.style.gridColumn = '1'; grid.appendChild(corner);
+
+      for (let c = 1; c <= totalCols; c++) {
+        let colHeader = document.createElement('div'); colHeader.className = 'excel-header'; colHeader.innerText = getColLetter(c);
+        colHeader.style.gridRow = '1'; colHeader.style.gridColumn = `${c + 1}`; grid.appendChild(colHeader);
+      }
+      for (let r = 1; r <= totalRows; r++) {
+        let rowHeader = document.createElement('div'); rowHeader.className = 'excel-header'; rowHeader.innerText = r;
+        rowHeader.style.gridRow = `${r + 1}`; rowHeader.style.gridColumn = '1'; grid.appendChild(rowHeader);
+        for (let c = 1; c <= totalCols; c++) {
+          let cell = document.createElement('div'); cell.className = 'grid-cell'; cell.dataset.row = r; cell.dataset.col = c;
+          cell.style.gridRow = `${r + 1}`; cell.style.gridColumn = `${c + 1}`;
+          cell.ondragover = e => e.preventDefault(); cell.ondrop = e => handleDrop(e, r, c);
+          grid.appendChild(cell);
+        }
+      }
+
+      if (mapData.lines) {
+        mapData.lines.forEach(line => {
+          let lineEl = document.createElement('div'); lineEl.className = 'line-box'; lineEl.id = line.id;
+          lineEl.style.gridRow = `${line.row + 1} / span ${line.height}`; lineEl.style.gridColumn = `${line.col + 1} / span ${line.width}`;
+          lineEl.style.borderColor = line.borderColor || '#93c5fd';
+          let titleEl = document.createElement('div'); titleEl.className = 'line-box-header'; titleEl.innerText = line.name;
+          if (line.textColor) titleEl.style.color = line.textColor;
+          lineEl.appendChild(titleEl);
+
+          if (editMode) {
+            lineEl.draggable = true;
+            lineEl.ondragstart = (e) => {
+              if (e.target.classList.contains('resize-handle') || e.target.classList.contains('del-btn')) return;
+              draggedNode = { node: line, type: 'line' }; e.dataTransfer.setData('text/plain', line.id);
+            };
+            let delBtn = document.createElement('div'); delBtn.className = 'del-btn'; delBtn.innerText = 'X';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteNode(line.id, 'line'); }; lineEl.appendChild(delBtn);
+            let handle = document.createElement('div'); handle.className = 'resize-handle'; handle.style.backgroundColor = line.borderColor || '#3b82f6';
+            handle.onmousedown = (e) => { e.stopPropagation(); e.preventDefault(); initResizeLine(e, line); }; lineEl.appendChild(handle);
+          }
+          grid.appendChild(lineEl);
+        });
+      }
+
+      const appendToGrid = (node, type) => {
+        let cell = document.querySelector(`.grid-cell[data-row="${node.row}"][data-col="${node.col}"]`);
+        if (!cell) return;
+
+        const assignments = getPlanningAssignments();
+        const assignment = type === 'machine'
+          ? assignments.get(String(node.id ?? node.name ?? '').trim())
+          : null;
+
+        let div = document.createElement('div');
+        div.className = `node node-${type} ${node.status || ''}`;
+
+        if (assignment) {
+          div.classList.add('planned');
+          div.style.setProperty('--planning-core', assignment.core || '');
+          if (type === 'cqi') div.classList.add('planned-target');
+        }
+
+        div.innerHTML = `<span>${node.name}</span>`;
+
+        if (assignment && type === 'machine' && showHeatmap) {
+          const badge = document.createElement('span');
+          badge.className = 'heatmap-badge';
+          badge.textContent = assignment.cqi?.name || assignment.cqi?.id || '?';
+          div.appendChild(badge);
+        }
+
+        div.id = node.id;
+
+        if (editMode) {
+          div.draggable = true;
+          div.ondragstart = e => handleDragStart(e, node, type);
+          let delBtn = document.createElement('div');
+          delBtn.className = 'del-btn';
+          delBtn.innerText = 'X';
+          delBtn.onclick = (e) => { e.stopPropagation(); deleteNode(node.id, type); };
+          div.appendChild(delBtn);
+        } else {
+          if (type === 'machine' || type === 'cqi') div.onclick = () => cycleStatus(node, type);
+        }
+
+        cell.appendChild(div);
+      };
+
+      mapData.machines.forEach(m => appendToGrid(m, 'machine'));
+      mapData.cqis.forEach(c => appendToGrid(c, 'cqi'));
+      mapData.labels.forEach(l => appendToGrid(l, 'label'));
+
+      if (showHeatmap) {
+        const assignments = getPlanningAssignments();
+        const svgNS = "http://www.w3.org/2000/svg";
+        let svg = document.createElementNS(svgNS, "svg");
+        svg.style.position = "absolute";
+        svg.style.top = "0";
+        svg.style.left = "0";
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.pointerEvents = "none";
+        svg.style.zIndex = "8";
+
+        const slotColors = [
+          '#16a34a','#2563eb','#f59e0b','#db2777','#7c3aed',
+          '#0891b2','#ea580c','#65a30d','#9333ea','#0f766e'
+        ];
+
+        const cqiColor = new Map();
+        if (activePlanning && Array.isArray(activePlanning.slots)) {
+          activePlanning.slots.forEach((slot, i) => {
+            const key = String(slot?.cqi?.id ?? slot?.cqi?.name ?? '').trim();
+            if (key) cqiColor.set(key, slotColors[i % slotColors.length]);
+          });
+        }
+
+        const getCenter = (node) => ({
+          x: 40 + (Number(node.col) - 1) * 78 + 39,
+          y: 28 + (Number(node.row) - 1) * 52 + 26
+        });
+
+        assignments.forEach((assignment, machineId) => {
+          const machine = mapData.machines.find(m => String(m.id ?? m.name ?? '').trim() === machineId);
+          if (!machine || machine.status !== 'RUNNING' || !assignment.cqi) return;
+
+          // Cari CQI target dari slot planning, bukan CQI READY terdekat.
+          const target = mapData.cqis.find(c =>
+            String(c.id ?? c.name ?? '').trim() === String(assignment.cqi.id ?? assignment.cqi.name ?? '').trim()
+          ) || assignment.cqi;
+
+          if (!target || target.row == null || target.col == null) return;
+
+          const start = getCenter(machine);
+          const end = getCenter(target);
+          const color = cqiColor.get(String(assignment.cqi.id ?? assignment.cqi.name ?? '').trim()) || '#16a34a';
+
+          // Jalur Manhattan sesuai BrainAI: vertikal/horizontal, bukan garis diagonal.
+          const pathData = `M ${start.x} ${start.y} L ${end.x} ${start.y} L ${end.x} ${end.y}`;
+
+          const path = document.createElementNS(svgNS, "path");
+          path.setAttribute("d", pathData);
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke", color);
+          path.setAttribute("stroke-width", "4");
+          path.setAttribute("stroke-linecap", "round");
+          path.setAttribute("stroke-linejoin", "round");
+          path.setAttribute("stroke-dasharray", "10,5");
+          path.setAttribute("opacity", "0.82");
+          path.classList.add('heatmap-route');
+
+          const title = document.createElementNS(svgNS, "title");
+          const dist = (window.BrainAI && typeof BrainAI.getDistance === 'function')
+            ? BrainAI.getDistance(machine.row, machine.col, target.row, target.col)
+            : Math.abs(machine.row - target.row) + Math.abs(machine.col - target.col);
+          title.textContent = `${machine.name} → ${target.name || assignment.cqi.name} | Jarak ${dist} grid`;
+          path.appendChild(title);
+
+          svg.appendChild(path);
+
+          // Tandai target CQI yang benar-benar dipakai slot.
+          const cqiEl = document.getElementById(target.id);
+          if (cqiEl) {
+            cqiEl.classList.add('planned-target');
+            cqiEl.style.boxShadow = `0 0 0 3px rgba(255,255,255,.95), 0 0 18px ${color}`;
+            cqiEl.style.borderColor = color;
+          }
+        });
+
+        grid.appendChild(svg);
+      }
+
+      updateHeatmapLegend();
+      updateStatsAndButtons();
+    }
+
+    function applyZoom(isInitial = false) {
+      const minZoomX = mapViewport.clientWidth / GRID_WIDTH; const minZoomY = mapViewport.clientHeight / GRID_HEIGHT;
+      const minZoom = Math.max(minZoomX, minZoomY);
+      if (isInitial || currentZoom === null) currentZoom = minZoom;
+      if (currentZoom < minZoom) currentZoom = minZoom;
+      if (currentZoom > 3) currentZoom = 3;
+      document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
+      document.getElementById('gridWrapper').style.width = `${GRID_WIDTH * currentZoom}px`;
+      document.getElementById('gridWrapper').style.height = `${GRID_HEIGHT * currentZoom}px`;
+    }
+
+    function zoomIn() { currentZoom += 0.1; applyZoom(false); }
+    function zoomOut() { currentZoom -= 0.1; applyZoom(false); }
+    window.addEventListener('resize', () => applyZoom(false));
+
+    function initResizeLine(e, line) {
+      let startX = e.clientX, startY = e.clientY, startW = line.width, startH = line.height;
+      function onMouseMove(me) {
+        let colDelta = Math.round((me.clientX - startX) / (78 * currentZoom)); let rowDelta = Math.round((me.clientY - startY) / (52 * currentZoom));
+        let newW = Math.max(1, startW + colDelta); let newH = Math.max(1, startH + rowDelta);
+        if (newW !== line.width || newH !== line.height) {
+          line.width = newW; line.height = newH;
+          let el = document.getElementById(line.id);
+          if (el) { el.style.gridColumn = `${line.col + 1} / span ${line.width}`; el.style.gridRow = `${line.row + 1} / span ${line.height}`; }
+        }
+      }
+      function onMouseUp() { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); renderGrid(); }
+      document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function setAllMachinesRunning() { mapData.machines.forEach(m => m.status = 'RUNNING'); renderGrid(); }
+    function setAllMachinesOff() { mapData.machines.forEach(m => m.status = 'OFF'); renderGrid(); }
+    function setAllCqiReady() { mapData.cqis.forEach(c => c.status = 'READY'); renderGrid(); }
+    function setAllCqiOff() { mapData.cqis.forEach(c => c.status = 'OFF'); renderGrid(); }
+
+    function cycleStatus(node, type) {
+      if (type === 'machine') { const s = ['OFF', 'RUNNING']; node.status = s[(s.indexOf(node.status) + 1) % s.length]; } 
+      else if (type === 'cqi') { const s = ['OFF', 'READY']; node.status = s[(s.indexOf(node.status) + 1) % s.length]; }
+      if(showHeatmap) renderGrid(); else { let el = document.getElementById(node.id); if(el) el.className = `node node-${type} ${node.status}`; updateStatsAndButtons(); }
+    }
+
+    function handleDragStart(e, node, type) { draggedNode = { node, type }; e.dataTransfer.setData('text/plain', node.id); }
+    function handleDrop(e, r, c) { if (!editMode || !draggedNode) return; e.preventDefault(); draggedNode.node.row = r; draggedNode.node.col = c; draggedNode = null; renderGrid(); }
+    function deleteNode(id, type) {
+      if (!confirm('Hapus item ini?')) return;
+      if (type === 'machine') mapData.machines = mapData.machines.filter(m => m.id !== id);
+      if (type === 'cqi') mapData.cqis = mapData.cqis.filter(c => c.id !== id);
+      if (type === 'label') mapData.labels = mapData.labels.filter(l => l.id !== id);
+      if (type === 'line') mapData.lines = mapData.lines.filter(l => l.id !== id);
+      renderGrid();
+    }
+
+    function openNodeModal(type) {
+      activeModalType = type; const container = document.getElementById('modalFormContainer'), title = document.getElementById('modalTitle'); container.innerHTML = '';
+      if (type === 'machine') { title.innerText = "Tambah Mesin Baru"; container.innerHTML = `<div class="form-group"><label>Nama Mesin</label><input type="text" id="macName" class="form-control" placeholder="Contoh: AST 33-16L" required></div>`; } 
+      else if (type === 'cqi') { title.innerText = "Tambah CQI Baru"; container.innerHTML = `<div class="form-group"><label>Nama CQI</label><input type="text" id="cqiName" class="form-control" placeholder="Contoh: CQI-01" required></div>`; } 
+      else if (type === 'label') { title.innerText = "Tambah Label Baru"; container.innerHTML = `<div class="form-group"><label>Nama Label</label><input type="text" id="lblName" class="form-control" placeholder="Contoh: 0A" required></div><div class="form-group"><label>Baris (Row)</label><input type="number" id="lblRow" class="form-control" value="5" min="1" required></div><div class="form-group"><label>Kolom (Col)</label><input type="number" id="lblCol" class="form-control" value="5" min="1" required></div>`; } 
+      else if (type === 'line') { title.innerText = "Tambah Batas Line Baru"; container.innerHTML = `<div class="form-group"><label>Nama Batas Line</label><input type="text" id="lineName" class="form-control" placeholder="Contoh: LINE D" required></div><div class="form-group"><label>Lebar (Jumlah Kolom)</label><input type="number" id="lineWidth" class="form-control" value="8" min="1" required></div><div class="form-group"><label>Tinggi (Jumlah Baris)</label><input type="number" id="lineHeight" class="form-control" value="12" min="1" required></div>`; }
+      document.getElementById('nodeModal').classList.add('active');
+    }
+    function closeNodeModal() { document.getElementById('nodeModal').classList.remove('active'); }
+
+    function submitNodeModal() {
+      let id = activeModalType.charAt(0).toUpperCase() + '-' + Date.now();
+      if (activeModalType === 'machine') { const name = document.getElementById('macName').value.trim(); if (!name) return alert('Kosong!'); mapData.machines.push({ id, name, row: 1, col: 1, status: 'OFF' }); } 
+      else if (activeModalType === 'cqi') { const name = document.getElementById('cqiName').value.trim(); if (!name) return alert('Kosong!'); mapData.cqis.push({ id, name, row: 1, col: 1, status: 'OFF' }); } 
+      else if (activeModalType === 'label') { const name = document.getElementById('lblName').value.trim(); const row = parseInt(document.getElementById('lblRow').value)||5, col = parseInt(document.getElementById('lblCol').value)||5; if (!name) return alert('Kosong!'); mapData.labels.push({ id, name, row, col }); } 
+      else if (activeModalType === 'line') {
+        const name = document.getElementById('lineName').value.trim(), width = parseInt(document.getElementById('lineWidth').value)||8, height = parseInt(document.getElementById('lineHeight').value)||12; if (!name) return alert('Kosong!');
+        mapData.lines.push({ id: 'line-' + Date.now(), name, row: 1, col: 1, width, height, borderColor: '#3b82f6', textColor: '#1d4ed8' });
+      }
+      closeNodeModal(); renderGrid();
+    }
+
+    function toggleEditMode() { editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
+    function toggleHeatmap() {
+      if (!activePlanning || !Array.isArray(activePlanning.slots) || activePlanning.slots.length === 0) {
+        alert('Belum ada planning aktif. Generate Planning By AI atau Planning By History di config.html terlebih dahulu.');
+        return;
+      }
+      showHeatmap = !showHeatmap;
+      updateHeatmapLegend();
+      renderGrid();
+    }
+    function exportMapJson() { let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" }); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "map.json"; a.click(); }
+
+    function goToConfig() {
+      let runMachines = mapData.machines.filter(m => m.status === 'RUNNING');
+      let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
+      if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
+      if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
+      const currentStateToSave = { machines: mapData.machines.map(m => ({ id: m.id, name: m.name, status: m.status })), cqis: mapData.cqis.map(c => ({ id: c.id, name: c.name, status: c.status })) };
+      localStorage.setItem('factory_internal_storage', JSON.stringify(currentStateToSave));
+      sessionStorage.setItem('planning_state', JSON.stringify({ machines: runMachines, cqis: readyCqis }));
+      window.location.href = 'config.html';
+    }
+    loadMap();
+  </script>
+</body>
+</html>

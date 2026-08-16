@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor Planning Shift — Konfigurasi & Output</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8; 
+    --surface: #ffffff; 
+    --surface-hover: #f8fafc; 
+    --border: #cbd5e1;
+    --text-main: #1e293b; 
+    --text-muted: #64748b; 
+    --text-subtle: #94a3b8;
+    --accent: #2563eb; 
+    --accent-hover: #1d4ed8; 
+    --success: #16a34a; 
+    --success-bg: #dcfce7;
+    --warning: #d97706; 
+    --danger: #dc2626;
+    --radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden; }
+  
+  /* Topbar */
+  .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .back-btn { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; transition: 0.2s; border: 1px solid transparent; }
+  .back-btn:hover { background: var(--surface-hover); color: var(--text-main); border-color: var(--border); }
+  .topbar h1 { font-size: 16px; font-weight: 600; margin: 0; color: var(--accent); border-left: 2px solid var(--border); padding-left: 16px; }
+  .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; color: var(--text-muted); }
+  .badge.ok { background: var(--success-bg); color: var(--success); }
+
+  /* App Layout (2 Columns) */
+  .app-container { display: flex; flex: 1; overflow: hidden; }
+  
+  /* Left Panel (Config) */
+  .config-panel { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+  .config-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  
+  /* Progress Bar di Panel Config */
+  .meter-box { padding: 16px 20px; background: var(--surface-hover); border-bottom: 1px solid var(--border); }
+  .meter-box p { margin: 0 0 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+  .meter { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+  .meter i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.3s; }
+  .meter-box small { font-size: 12px; color: var(--text-subtle); font-weight: 500; }
+
+  /* Group Headers & Lists */
+  .group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .group-header .t { display: flex; align-items: center; gap: 8px; }
+  .group-header h3 { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-main); }
+  .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  
+  .icon-btn { width: 24px; height: 24px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+  .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
+  
+  .list-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
+  .list-item:hover { border-color: #94a3b8; }
+  .list-item.locked { border-color: var(--success); background: var(--success-bg); }
+  .list-item .num { width: 20px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-subtle); flex-shrink: 0; }
+  .list-item input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; font-family: inherit; font-weight: 500; }
+  .list-item input::placeholder { color: #cbd5e1; font-weight: 400; }
+  .list-item.locked input { color: #166534; font-weight: 600; }
+  
+  .row-actions { display: flex; gap: 2px; opacity: 0; transition: 0.2s; }
+  .list-item:hover .row-actions, .list-item.locked .row-actions, .list-item:focus-within .row-actions { opacity: 1; }
+  .row-actions .lock { color: var(--success); }
+  .list-item.locked .row-actions .lock { color: var(--warning); }
+  .row-actions .del:hover { color: var(--danger); background: #fee2e2; }
+  
+  .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+  
+  .fields { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .fields label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+  .fields input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
+  .fields input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+  /* Right Panel (Output & Dashboard) */
+  .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+  
+  /* Dashboard KPI */
+  #dashboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .stat-box { background: var(--surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .stat-box p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+  .stat-box span { display: block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-main); }
+
+  /* Output Card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; flex: 1; min-height: 400px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
+  .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
+  .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; }
+  
+  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; }
+  #textOutput:focus { border-color: var(--accent); background: var(--surface); }
+  
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+  
+  /* Buttons General */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
+  .btn:hover { background: var(--surface-hover); border-color: #94a3b8; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 8px 24px; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+  .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
+  .btn-ok:hover { background: #bbf7d0; }
+
+    /* Mode Planning */
+    .planning-modes { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+    .mode-card { border:1px solid var(--border); border-radius:10px; background:var(--surface); padding:12px; cursor:pointer; transition:.2s; text-align:left; }
+    .mode-card:hover { border-color:#94a3b8; background:var(--surface-hover); }
+    .mode-card.active { border-color:var(--accent); box-shadow:0 0 0 2px rgba(37,99,235,.12); background:#eff6ff; }
+    .mode-card .mode-title { font-size:13px; font-weight:800; color:var(--text-main); }
+    .mode-card .mode-desc { margin-top:5px; font-size:10px; line-height:1.45; color:var(--text-muted); }
+    .mode-status { margin-top:8px; font-size:10px; font-weight:700; color:var(--accent); }
+
+
+  @media (max-width: 1024px) {
+    .app-container { flex-direction: column; overflow-y: auto; }
+    .config-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .main-content { overflow: visible; }
+    #dashboard { grid-template-columns: repeat(3, 1fr); }
+    .card { min-height: 500px; }
+  }
+  @media (max-width: 640px) {
+    #dashboard { grid-template-columns: repeat(2, 1fr); }
+    .topbar { padding: 0 16px; }
+    .btn-primary { padding: 6px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+  <!-- HEADER UTAMA -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="back-btn" href="index.html">← Map Editor</a>
+      <h1>Planning Liquid 3</h1>
+      <span class="badge" id="statusBadge">Draft</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn" onclick="showPlanningFeatures()">⚙️ Fitur</button>
+      <button class="btn btn-primary" onclick="executePlan('ai')">🧠 Planning By AI</button>
+      <button class="btn" onclick="executePlan('history')">🕘 Planning By History</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- PANEL KIRI (KONFIGURASI) -->
+    <aside class="config-panel">
+      <div class="meter-box">
+        <p>Total Manpower</p>
+        <div class="meter"><i id="mpBar"></i></div>
+        <small><span id="mpCount">0</span> orang terdaftar</small>
+      </div>
+
+      <div class="config-section">
+        <div class="group-header">
+          <div class="t"><h3>Core Manpower</h3><span class="count" id="cnt-core">0</span></div>
+          <div>
+            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.core,'coreList')">▲</button>
+            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.core,'coreList')">▼</button>
+          </div>
+        </div>
+        <div id="coreList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.core, getSavedData(storageKeys.core).length, 'coreList')">+ Tambah Core</button>
+      </div>
+
+      <div class="config-section">
+        <div class="group-header">
+          <div class="t"><h3>Non Core Manpower</h3><span class="count" id="cnt-noncore">0</span></div>
+          <div>
+            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.nonCore,'nonCoreList')">▲</button>
+            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.nonCore,'nonCoreList')">▼</button>
+          </div>
+        </div>
+        <div id="nonCoreList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
+      </div>
+
+      <div class="config-section">
+        <div class="group-header">
+          <div class="t"><h3>QC Passed</h3><span class="count" id="cnt-qc">0</span></div>
+          <div>
+            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.qcPassed,'qcPassedList')">▲</button>
+            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.qcPassed,'qcPassedList')">▼</button>
+          </div>
+        </div>
+        <div id="qcPassedList"></div>
+        <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC</button>
+      </div>
+
+      <div class="config-section fields">
+        <div><label>MIL-STD</label><input type="text" id="milStd" oninput="localStorage.setItem('milStd_val', this.value)"></div>
+        <div><label>Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)"></div>
+        <div><label>Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)"></div>
+      </div>
+
+      <div class="config-section">
+        <div class="group-header">
+          <div class="t"><h3>Mode Planning</h3><span class="count" id="planningModeBadge">AI</span></div>
+        </div>
+        <div class="planning-modes">
+          <button type="button" class="mode-card active" id="modeAiCard" onclick="selectPlanningMode('ai')">
+            <div class="mode-title">🧠 Planning By AI</div>
+            <div class="mode-desc">Gunakan BrainAI lengkap: prioritas CQI, jarak Manhattan, kapasitas, aturan khusus dan optimasi.</div>
+            <div class="mode-status" id="modeAiStatus">AKTIF</div>
+          </button>
+          <button type="button" class="mode-card" id="modeHistoryCard" onclick="selectPlanningMode('history')">
+            <div class="mode-title">🕘 Planning By History</div>
+            <div class="mode-desc">Tetap memakai BrainAI; riwayat machine↔CQI yang tersimpan ikut menjadi faktor penilaian.</div>
+            <div class="mode-status" id="modeHistoryStatus">PILIH</div>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- KONTEN KANAN (OUTPUT) -->
+    <main class="main-content">
+      <section id="dashboard">
+        <div class="stat-box"><p>Target Mesin</p><span id="db-run">0</span></div>
+        <div class="stat-box"><p>Ter-cover</p><span id="db-cov">0</span></div>
+        <div class="stat-box"><p>Coverage</p><span id="db-pct">0%</span></div>
+        <div class="stat-box"><p>CQI Dipakai</p><span id="db-cqi">0</span></div>
+        <div class="stat-box"><p>Rata Jarak</p><span id="db-dist">0 m</span></div>
+        <div class="stat-box"><p>AI Success</p><span id="db-acc">0%</span></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Editor Output Final</h2>
+            <p>Anda bisa memodifikasi hasil planning di sini sebelum dibagikan.</p>
+          </div>
+          <span class="meta" id="lineMeta">kosong</span>
+        </div>
+        <textarea id="textOutput" spellcheck="false" placeholder="Klik 'Generate AI Planning' untuk melihat hasil..." oninput="updateMeta()"></textarea>
+        <div class="actions">
+          <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
+          <button class="btn" onclick="shareWA()">💬 Kirim WA</button>
+          <button class="btn" onclick="exportExcel()">📊 Export Excel</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script src="brain.js"></script>
+<script>
+  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
+
+  function getSavedData(key){ let raw = JSON.parse(localStorage.getItem(key)) || ['']; return raw.map(i => typeof i === 'string' ? { name:i, locked:false } : i); }
+  function saveData(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
+
+  function renderList(containerId, storageKey){
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const data = getSavedData(storageKey);
+
+    data.forEach((item, index) => {
+      const row = document.createElement('div');
+      row.className = 'list-item' + (item.locked ? ' locked' : '');
+
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.innerText = String(index + 1).padStart(2,'0');
+
+      const input = document.createElement('input');
+      input.type = 'text'; input.value = item.name; input.placeholder = 'Ketik nama & tekan Enter…';
+      if (item.locked) input.readOnly = true;
+      input.oninput = e => updateItemName(storageKey, index, e.target.value);
+      input.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); addNewItem(storageKey, index+1, containerId); } };
+
+      const acts = document.createElement('div'); acts.className = 'row-actions';
+
+      const lockBtn = document.createElement('button');
+      lockBtn.className = 'icon-btn lock'; lockBtn.innerHTML = item.locked ? '✎' : '✓'; lockBtn.title = item.locked ? 'Buka kunci' : 'Kunci nama';
+      lockBtn.onclick = () => toggleLock(storageKey, index, containerId);
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'icon-btn del'; delBtn.innerHTML = '✕'; delBtn.title = 'Hapus baris';
+      delBtn.onclick = () => removeItem(storageKey, index, containerId);
+
+      acts.appendChild(lockBtn); acts.appendChild(delBtn);
+      row.appendChild(num); row.appendChild(input); row.appendChild(acts);
+      container.appendChild(row);
+    });
+    updateCounters();
+  }
+
+  function updateCounters(){
+    const c = getListData(storageKeys.core).length;
+    const n = getListData(storageKeys.nonCore).length;
+    const q = getListData(storageKeys.qcPassed).length;
+    document.getElementById('cnt-core').innerText = c;
+    document.getElementById('cnt-noncore').innerText = n;
+    document.getElementById('cnt-qc').innerText = q;
+    document.getElementById('mpCount').innerText = c + n;
+    document.getElementById('mpBar').style.width = Math.min(100, (c+n)*8) + '%';
+  }
+
+  function updateMeta(){
+    const v = document.getElementById('textOutput').value;
+    document.getElementById('lineMeta').innerText = v ? (v.split('\n').length + ' baris') : 'kosong';
+  }
+
+  function updateItemName(key,index,value){ const d=getSavedData(key); d[index].name=value; saveData(key,d); updateCounters(); }
+  function toggleLock(key,index,containerId){ const d=getSavedData(key); d[index].locked=!d[index].locked; saveData(key,d); renderList(containerId,key); }
+  function addNewItem(key,index,containerId){
+    const d=getSavedData(key); if(index>d.length) index=d.length;
+    d.splice(index,0,{name:'',locked:false}); saveData(key,d); renderList(containerId,key);
+    setTimeout(()=>{ const inputs=document.getElementById(containerId).querySelectorAll('input'); if(inputs[index]) inputs[index].focus(); },10);
+  }
+  function removeItem(key,index,containerId){
+    const d=getSavedData(key);
+    if(d.length===1){ d[0]={name:'',locked:false}; } else { d.splice(index,1); }
+    saveData(key,d); renderList(containerId,key);
+  }
+  function shiftListUp(key,containerId){ const d=getSavedData(key); if(d.length<=1) return; d.push(d.shift()); saveData(key,d); renderList(containerId,key); }
+  function shiftListDown(key,containerId){ const d=getSavedData(key); if(d.length<=1) return; d.unshift(d.pop()); saveData(key,d); renderList(containerId,key); }
+  function getListData(key){ return getSavedData(key).map(i=>i.name.trim()).filter(n=>n!==''); }
+
+  let state = null, currentPlan = [], finalConfig = {};
+  let planningMode = sessionStorage.getItem('planning_mode') || 'ai';
+
+  window.onload = () => {
+    renderList('coreList', storageKeys.core);
+    renderList('nonCoreList', storageKeys.nonCore);
+    renderList('qcPassedList', storageKeys.qcPassed);
+    document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
+    document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
+    document.getElementById('supportFg').value = localStorage.getItem('supportFg_val') || '';
+
+    state = JSON.parse(sessionStorage.getItem('planning_state'));
+    if(!state){ alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
+    else {
+      document.getElementById('db-run').innerText = state.machines.length;
+      selectPlanningMode(planningMode);
+    }
+  };
+
+
+  function selectPlanningMode(mode){
+    planningMode = mode === 'history' ? 'history' : 'ai';
+    sessionStorage.setItem('planning_mode', planningMode);
+    document.getElementById('modeAiCard')?.classList.toggle('active', planningMode === 'ai');
+    document.getElementById('modeHistoryCard')?.classList.toggle('active', planningMode === 'history');
+    const a = document.getElementById('modeAiStatus');
+    const h = document.getElementById('modeHistoryStatus');
+    if (a) a.innerText = planningMode === 'ai' ? 'AKTIF' : 'PILIH';
+    if (h) h.innerText = planningMode === 'history' ? 'AKTIF' : 'PILIH';
+    const b = document.getElementById('planningModeBadge');
+    if (b) b.innerText = planningMode.toUpperCase();
+  }
+
+  function showPlanningFeatures(){
+    alert(
+      'FITUR PLANNING LIQUID 3\\n\\n' +
+      '• Planning By AI: menjalankan BrainAI.generatePlan() dengan rule aktif.\\n' +
+      '• Planning By History: memakai engine BrainAI yang sama, tetapi bobot riwayat machine↔CQI dinaikkan saat memilih dan membagi CQI.\\n' +
+      '• Heatmap: index.html menggambar rute aktual machine → CQI dari slot planning.\\n' +
+      '• History tersimpan pada localStorage: planning_history.'
+    );
+  }
+
+  function executePlan(mode = planningMode){
+    if(!state) return;
+    selectPlanningMode(mode);
+
+    let coreData = getListData(storageKeys.core);
+    let nonCoreData = getListData(storageKeys.nonCore);
+    let qcData = getListData(storageKeys.qcPassed);
+
+    let qcPassedFormatted = "";
+    if(qcData.length === 1) qcPassedFormatted = qcData[0];
+    else if(qcData.length > 1) qcPassedFormatted = qcData.map((n,i)=>`${i+1}. ${n}`).join('\n');
+
+    finalConfig = {
+      coreNames: coreData, core: coreData.length > 0 ? coreData.length : 1,
+      nonCoreNames: nonCoreData, nonCore: nonCoreData.length,
+      qcPassedNames: qcData, qcPassed: qcPassedFormatted,
+      milStd: document.getElementById('milStd').value,
+      standbyOt: document.getElementById('standbyOt').value,
+      supportFg: document.getElementById('supportFg').value,
+      planMode: planningMode
+    };
+
+    // BrainAI tetap menjadi sumber kebenaran pembagian.
+    // Mode History menggunakan engine yang sama karena getHistory() sudah menjadi faktor scoring BrainAI.
+    currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
+
+    const planPayload = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      mode: planningMode,
+      slots: JSON.parse(JSON.stringify(currentPlan))
+    };
+    sessionStorage.setItem('active_planning', JSON.stringify(planPayload));
+    sessionStorage.setItem('active_planning_mode', planningMode);
+    localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
+
+    updateDashboard();
+    generateTextOutput();
+
+    const b = document.getElementById('statusBadge');
+    b.innerText = planningMode === 'history' ? 'History Generated' : 'AI Generated';
+    b.classList.add('ok');
+  }
+
+  function updateDashboard(){
+    let covered=0, totalDist=0, totalHist=0, mCount=0;
+    currentPlan.forEach(slot => {
+      covered += slot.machines.length;
+      slot.machines.forEach(m => {
+        totalDist += BrainAI.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
+        totalHist += BrainAI.getHistory(m.id, slot.cqi.id);
+        mCount++;
+      });
+    });
+    document.getElementById('db-cov').innerText = covered;
+    document.getElementById('db-pct').innerText = ((covered / state.machines.length) * 100).toFixed(1) + '%';
+    document.getElementById('db-cqi').innerText = currentPlan.length;
+    document.getElementById('db-dist').innerText = mCount ? (totalDist/mCount).toFixed(2) + ' m' : '0 m';
+    document.getElementById('db-acc').innerText = mCount ? (totalHist/mCount).toFixed(1) + '%' : '0%';
+  }
+
+  function generateTextOutput(){
+    if(currentPlan.length === 0) return;
+    document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, finalConfig);
+    updateMeta();
+  }
+
+  function validateAndExport(){
+    if(currentPlan.length === 0) return alert("Generate planning dulu!");
+    let errors = BrainAI.validate(currentPlan, state.machines.length);
+    if(errors.length > 0){ alert("VALIDASI GAGAL! Perbaiki rule berikut:\n- " + errors.join("\n- ")); return; }
+    currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
+    const validatedPayload = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      mode: planningMode,
+      slots: JSON.parse(JSON.stringify(currentPlan))
+    };
+    sessionStorage.setItem('active_planning', JSON.stringify(validatedPayload));
+    sessionStorage.setItem('active_planning_mode', planningMode);
+    localStorage.setItem('last_active_planning', JSON.stringify(validatedPayload));
+    navigator.clipboard.writeText(document.getElementById('textOutput').value);
+    alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
+  }
+
+  function shareWA(){
+    let text = document.getElementById('textOutput').value;
+    if(!text) return alert("Generate planning dan pastikan text ada isinya!");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  const EXCELJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
+  function loadExcelJS(){
+    if(window.ExcelJS) return Promise.resolve();
+    return new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src=EXCELJS_CDN; s.onload=res; s.onerror=()=>rej(new Error('Gagal memuat library Excel (cek koneksi internet).'));
+      document.head.appendChild(s);
+    });
+  }
+
+  const XL = { accent:'FF2563EB', accentDark:'FF1E3A8A', soft:'FFEFF6FF', zebra:'FFF8FAFC', line:'FFCBD5E1', text:'FF1E293B', white:'FFFFFFFF' };
+  const thin = c => ({ style:'thin', color:{argb:c||XL.line} });
+  const boxBorder = c => ({ top:thin(c), left:thin(c), bottom:thin(c), right:thin(c) });
+
+  async function exportExcel(){
+    if(currentPlan.length === 0) return alert("Generate planning dulu!");
+    try { await loadExcelJS(); } catch(e){ return alert(e.message); }
+
+    const wb = new ExcelJS.Workbook(); wb.creator = 'PLANOS'; wb.created = new Date();
+    const ws = wb.addWorksheet('Planning Liquid 3', {
+      views:[{ state:'frozen', ySplit:0 }],
+      pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2} }
+    });
+    ws.properties.defaultRowHeight = 18;
+
+    const headers = ["NO","CQI","CORE","NON CORE","MESIN (WORKSTATION/KODE)","LINE"];
+    const rows = currentPlan.map((slot,i)=>[ i+1, slot.cqi.name, String(slot.core), slot.nonCore.join(" & ") || "-", BrainAI.formatMachineList(slot.machines), slot.cqi.line || "-" ]);
+
+    const lastCol = headers.length;
+    const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]);
+    ws.mergeCells(title.number, 1, title.number, lastCol);
+    title.height = 28;
+    const tCell = ws.getCell(title.number, 1);
+    tCell.font = { name:'Arial', size:14, bold:true, color:{argb:XL.white} };
+    tCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accentDark} };
+    tCell.alignment = { vertical:'middle', horizontal:'center' };
+
+    const stampText = "Dibuat: " + new Date().toLocaleString('id-ID') + "   |   Total CQI: " + currentPlan.length + "   |   Total Mesin: " + currentPlan.reduce((a,s)=>a+s.machines.length,0);
+    const stamp = ws.addRow([stampText]);
+    ws.mergeCells(stamp.number, 1, stamp.number, lastCol);
+    const sCell = ws.getCell(stamp.number, 1);
+    sCell.font = { name:'Arial', size:9, italic:true, color:{argb:'FF64748B'} };
+    sCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} };
+    sCell.alignment = { vertical:'middle', horizontal:'center' };
+    ws.addRow([]);
+
+    const headRow = ws.addRow(headers);
+    headRow.height = 22;
+    headRow.eachCell(c=>{
+      c.font = { name:'Arial', size:11, bold:true, color:{argb:XL.white} };
+      c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accent} };
+      c.alignment = { vertical:'middle', horizontal:'center', wrapText:true };
+      c.border = boxBorder(XL.accentDark);
+    });
+
+    rows.forEach((r,i)=>{
+      const row = ws.addRow(r);
+      row.eachCell({ includeEmpty:true }, (c,col)=>{
+        c.font = { name:'Arial', size:10, color:{argb:XL.text} };
+        c.alignment = { vertical:'middle', wrapText:true, horizontal:(col===1||col===3||col===6)?'center':'left' };
+        c.border = boxBorder();
+        if(i % 2 === 1) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.zebra} };
+      });
+    });
+    ws.autoFilter = { from:{ row:headRow.number, column:1 }, to:{ row:headRow.number, column:lastCol } };
+    ws.views = [{ state:'frozen', ySplit:headRow.number }];
+
+    ws.addRow([]);
+    const infoHead = ws.addRow(["INFORMASI TAMBAHAN"]);
+    ws.mergeCells(infoHead.number, 1, infoHead.number, lastCol);
+    const ihCell = ws.getCell(infoHead.number, 1);
+    ihCell.font = { name:'Arial', size:11, bold:true, color:{argb:XL.white} };
+    ihCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accent} };
+    ihCell.alignment = { vertical:'middle', horizontal:'left' };
+    ihCell.border = boxBorder(XL.accentDark);
+    infoHead.height = 20;
+
+    const qcList = (finalConfig.qcPassedNames && finalConfig.qcPassedNames.length) ? finalConfig.qcPassedNames.map((n,i)=>`${i+1}. ${n}`).join("\n") : "-";
+    const infoRows = [ ["QC PASSED", qcList], ["MIL-STD", finalConfig.milStd || "-"], ["STANDBY OT", finalConfig.standbyOt || "-"], ["SUPPORT FG", finalConfig.supportFg || "-"] ];
+    infoRows.forEach(([label,value])=>{
+      const r = ws.addRow([label, value]); ws.mergeCells(r.number, 2, r.number, lastCol);
+      const lc = ws.getCell(r.number,1), vc = ws.getCell(r.number,2);
+      lc.font = { name:'Arial', size:10, bold:true, color:{argb:XL.text} }; lc.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} }; lc.alignment = { vertical:'middle', horizontal:'left' }; lc.border = boxBorder();
+      vc.font = { name:'Arial', size:10, color:{argb:XL.text} }; vc.alignment = { vertical:'top', horizontal:'left', wrapText:true }; vc.border = boxBorder();
+      const lines = String(value).split("\n").length; r.height = Math.max(18, lines * 14);
+    });
+
+    ws.columns.forEach((col, idx)=>{
+      let max = 6;
+      col.eachCell({ includeEmpty:false }, cell=>{
+        if(cell.isMerged) return;
+        const v = cell.value == null ? "" : String(cell.value);
+        v.split("\n").forEach(line=>{ if(line.length > max) max = line.length; });
+      });
+      col.width = Math.min(idx === 4 ? 70 : 34, Math.max(idx === 0 ? 6 : 12, max + 3));
+    });
+
+    const buf = await wb.xlsx.writeBuffer();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    a.download = "Planning_Liquid_3.xlsx"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+</script>
+</body>
+</html>
