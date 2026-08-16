@@ -268,7 +268,7 @@
     }
 
     async function loadMap() {
-      const githubUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/map.json';
+      const githubUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/map.json';
       try {
         const res = await fetch(githubUrl);
         if (!res.ok) throw new Error("Gagal load dari GitHub");
@@ -357,7 +357,9 @@
         mapData.lines = [
           { id: 'line-a', name: 'LINE A', row: 2, col: 4, width: 24, height: 8, borderColor: '#3b82f6', textColor: '#1d4ed8' },
           { id: 'line-b', name: 'LINE B', row: 11, col: 4, width: 27, height: 6, borderColor: '#3b82f6', textColor: '#1d4ed8' },
-          { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#1d4ed8' }
+          { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#1d4ed8' },
+          { id: 'line-ww', name: 'LINE WW', row: 7, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#1d4ed8' },
+          { id: 'line-ot', name: 'LINE OT', row: 2, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#1d4ed8' }
         ];
       }
 
@@ -384,7 +386,9 @@
         { title: "LINE A", keys: ["0A", "1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A"] },
         { title: "LINE B", keys: ["0B", "1B", "2B", "3B", "4B", "5B", "6B", "7B", "8B", "9B", "10B", "11B"] },
         { title: "LINE C", keys: ["1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C"] },
-        { title: "OTHERS", keys: ["WW", "OT"] }
+        { title: "WW", keys: ["LINE WW"] },
+        { title: "OT", keys: ["LINE OT"] }
+
       ];
       groups.forEach(g => {
         let groupDiv = document.createElement('div'); groupDiv.className = 'ws-group';
