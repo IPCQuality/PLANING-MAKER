@@ -688,7 +688,7 @@ const BrainAI = {
     return txt;
   },
 
-  async initHistory(githubRawUrl) {
+  async initHistory(githubRawUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/history.json') {
     try {
       const response = await fetch(githubRawUrl);
       if (!response.ok) throw new Error("Gagal mengambil file history dari GitHub");
