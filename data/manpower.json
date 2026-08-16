@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "version": "1.1.0",
+    "exportDate": "2026-08-12",
+    "description": "JSON Pemetaan Lengkap Nama Core dan Non Core"
+
+  },
+  "core": [
+    {
+      "id": "C1",
+      "name": "Jiddan",
+      "line_priority": "WW"
+    },
+    {
+      "id": "C2",
+      "name": "Farhan",
+      "line_priority": "OT"
+    },
+    {
+      "id": "C3",
+      "name": "Allysa",
+      "line_priority": ""
+    },
+    {
+      "id": "C4",
+      "name": "Dini",
+      "line_priority": ""
+    },
+    {
+      "id": "C5",
+      "name": "Thazkia",
+      "line_priority": ""
+    },
+    {
+      "id": "C6",
+      "name": "Ninda",
+      "line_priority": ""
+    }
+  ],
+  "noncore": [
+    {
+      "id": "NC1",
+      "name": "Allen",
+      "line_priority": ""
+    }
+  ],
+  "qcpassed": [
+    {
+        "id": "NCP1",
+        "name": "M. Udin",
+        "line_priority": ""
+    }
+  ],
+    "milstd": [
+        {
+        "id": "M1",
+        "name": "Yadi",
+        "line_priority": ""
+        }
+  ],
+    "standbyot": [
+            {
+            "id": "S1",
+            "name": "Kirana",
+            "line_priority": "OT"
+            }
+    ],
+    "supportfg": [
+            {
+            "id": "S2",
+            "name": "Priyya",
+            "line_priority": ""
+            }
+    ]
+}
