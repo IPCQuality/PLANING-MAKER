@@ -97,8 +97,8 @@
   /* Right Panel (Output & Dashboard) */
   .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
   
-  /* Dashboard KPI */
-  #dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  /* Dashboard KPI (Diubah menjadi 4 kolom atau 7 item dinamis) */
+  #dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .stat-box { background: var(--surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
   .stat-box p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
   .stat-box span { display: block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-main); }
@@ -208,7 +208,7 @@
         <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
       </div>
       
-      <!-- BARU: NC LONGSHIFT HANYA 1 KOLOM INPUT ANGKA -->
+      <!-- HANYA 1 KOLOM INPUT ANGKA UNTUK NC LONGSHIFT -->
       <div class="config-section fields">
         <div class="group-header" style="margin-bottom: 8px;">
           <div class="t"><h3>Jumlah NC Longshift</h3></div>
@@ -241,17 +241,13 @@
       <div id="alertContainer" class="alert-container"></div>
 
       <section id="dashboard">
-        <!-- 3 Stat Boxes Tambahan -->
         <div class="stat-box"><p>Total Core</p><span id="db-core">0</span></div>
         <div class="stat-box"><p>Total NC</p><span id="db-nc">0</span></div>
         <div class="stat-box"><p>Total NC LS</p><span id="db-ls">0</span></div>
-        
         <div class="stat-box"><p>Target Mesin</p><span id="db-run">0</span></div>
         <div class="stat-box"><p>Ter-cover</p><span id="db-cov">0</span></div>
-        <div class="stat-box"><p>Coverage</p><span id="db-pct">0%</span></div>
+        <div class="stat-box" style="border-color: var(--accent);"><p style="color:var(--accent);">Sisa NC LS</p><span id="db-sisa-ls">0</span></div>
         <div class="stat-box"><p>CQI Dipakai</p><span id="db-cqi">0</span></div>
-        <div class="stat-box"><p>Rata Jarak</p><span id="db-dist">0 m</span></div>
-        <div class="stat-box"><p>AI Success</p><span id="db-acc">0%</span></div>
       </section>
 
       <section class="card">
@@ -464,20 +460,14 @@
     let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     let qcData = getListData(storageKeys.qcPassed);
 
-    // Gabungkan NC dengan dummy name untuk NC LS (beri marker khusus ___LS)
-    // BrainAI akan otomatis memakai mereka saat alokasi jika NC murni habis
-    let mergedNonCore = [...nonCoreData];
-    for (let i = 1; i <= lsCount; i++) {
-        mergedNonCore.push(`LS ${i}___LS`);
-    }
-
     let qcPassedFormatted = "";
     if(qcData.length === 1) qcPassedFormatted = qcData[0];
     else if(qcData.length > 1) qcPassedFormatted = qcData.map((n,i)=>`${i+1}. ${n}`).join('\n');
 
     finalConfig = {
       coreNames: coreData, core: coreData.length > 0 ? coreData.length : 1,
-      nonCoreNames: mergedNonCore, nonCore: mergedNonCore.length,
+      nonCoreNames: nonCoreData, nonCore: nonCoreData.length,
+      longshiftNames: Array.from({length: lsCount}, () => "(LS)"), longshift: lsCount, // Langsung mengisi "(LS)" tanpa identifier lain
       qcPassedNames: qcData, qcPassed: qcPassedFormatted,
       milStd: document.getElementById('milStd').value,
       standbyOt: document.getElementById('standbyOt').value,
@@ -490,14 +480,6 @@
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
     
-    // Post-Process: Hapus marker (___LS) pada output dan ganti dengan (LS)
-    currentPlan.forEach(slot => {
-        if(slot.nonCore) {
-            slot.nonCore = slot.nonCore.map(n => n.endsWith('___LS') ? n.replace('___LS', ' (LS)') : n);
-        }
-    });
-
-    // Validasi kini mengirim 'state.machines' full array, bukan hanya length
     let validationReport = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(validationReport.info, validationReport.violations);
 
@@ -520,12 +502,10 @@
   }
 
   function updateDashboard(){
-    let covered=0, totalDist=0, totalHist=0, mCount=0;
+    let covered=0, mCount=0;
     currentPlan.forEach(slot => {
       covered += slot.machines.length;
       slot.machines.forEach(m => {
-        totalDist += BrainAI.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
-        totalHist += BrainAI.getHistory(m.id, slot.cqi.id);
         mCount++;
       });
     });
@@ -534,11 +514,14 @@
     document.getElementById('db-nc').innerText = finalConfig.rawNonCoreCount || 0;
     document.getElementById('db-ls').innerText = finalConfig.rawLsCount || 0;
 
+    document.getElementById('db-run').innerText = state.machines.length;
     document.getElementById('db-cov').innerText = covered;
-    document.getElementById('db-pct').innerText = ((covered / state.machines.length) * 100).toFixed(1) + '%';
+    
+    // Tampilkan sisa pekerja NC Longshift
+    let sisaLs = currentPlan.leftoverLongshifts ? currentPlan.leftoverLongshifts.length : 0;
+    document.getElementById('db-sisa-ls').innerText = sisaLs;
+    
     document.getElementById('db-cqi').innerText = currentPlan.length;
-    document.getElementById('db-dist').innerText = mCount ? (totalDist/mCount).toFixed(2) + ' m' : '0 m';
-    document.getElementById('db-acc').innerText = mCount ? (totalHist/mCount).toFixed(1) + '%' : '0%';
   }
 
   function generateTextOutput(){
@@ -553,7 +536,7 @@
     renderAlerts(report.info, report.violations);
 
     if(!report.valid){ 
-      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran."); 
+      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran (Cek juga jika ada mesin terlewat)."); 
       return; 
     }
     
@@ -602,12 +585,10 @@
     });
     ws.properties.defaultRowHeight = 18;
 
-    // Header dengan Kolom Baru LS
     const headers = ["NO","CQI","CORE","NON CORE","LS","MESIN (WORKSTATION/KODE)","LINE"];
     const rows = currentPlan.map((slot,i)=>{
-      // Memecah kembali antara NC murni dan LS dari tanda yang kita bubuhkan (LS)
-      let nc = slot.nonCore ? slot.nonCore.filter(n => !n.includes('(LS)')).join(" & ") || "-" : "-";
-      let ls = slot.nonCore ? slot.nonCore.filter(n => n.includes('(LS)')).map(n => n.replace(' (LS)', '')).join(" & ") || "-" : "-";
+      let nc = slot.nonCore && slot.nonCore.length > 0 ? slot.nonCore.join(" & ") : "-";
+      let ls = slot.longshift && slot.longshift.length > 0 ? slot.longshift.join(" & ") : "-";
       return [ i+1, slot.cqi.name, String(slot.core), nc, ls, BrainAI.formatMachineList(slot.machines), slot.cqi.line || "-" ];
     });
 
@@ -642,7 +623,6 @@
       const row = ws.addRow(r);
       row.eachCell({ includeEmpty:true }, (c,col)=>{
         c.font = { name:'Arial', size:10, color:{argb:XL.text} };
-        // Index kolom untuk alignment tengah: 1 (NO), 3 (CORE), 7 (LINE)
         c.alignment = { vertical:'middle', wrapText:true, horizontal:(col===1||col===3||col===7)?'center':'left' };
         c.border = boxBorder();
         if(i % 2 === 1) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.zebra} };
