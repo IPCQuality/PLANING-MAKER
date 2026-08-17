@@ -36,6 +36,7 @@
     .btn-warning { background: var(--setup); color: white; border: 1px solid transparent; }
     .btn-warning:hover { background: #b45309; }
     .btn-danger { background: var(--down); color: white; border: 1px solid transparent; }
+    .btn-danger:hover { background: #b91c1c; }
     
     /* LAYOUT UTAMA & SLIDING PANEL */
     .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
@@ -70,17 +71,7 @@
     .map-viewport { flex: 1; overflow: auto; background: var(--bg-main); position: relative; cursor: grab; }
     .map-viewport:active { cursor: grabbing; }
     .grid-wrapper { overflow: hidden; transform-origin: top left; padding: 16px; }
-    .factory-grid { 
-      position: relative; 
-      display: grid; 
-      border: 1px solid var(--border); 
-      background: white; 
-      transform-origin: top left; 
-      box-shadow: var(--shadow); 
-      border-radius: 4px; 
-      width: max-content; 
-      height: max-content; 
-    }
+    .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: white; transform-origin: top left; box-shadow: var(--shadow); border-radius: 4px; width: max-content; height: max-content; }
     
     .excel-header { background: #f8fafc; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid var(--grid-line); z-index: 5; }
     .excel-corner { background: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; border-top-left-radius: 4px; }
@@ -104,22 +95,13 @@
     .node-cqi.READY { background: var(--cqi-ready); color: white; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4); }
     .node-label { background: transparent; color: var(--text-muted); border: 1px dashed var(--border); font-size: 0.85rem; font-weight: 700; }
 
-    /* PLANNING HEATMAP — mengikuti hasil aktual BrainAI */
+    /* PLANNING HEATMAP */
     .heatmap-route { filter: drop-shadow(0 1px 2px rgba(15,23,42,0.25)); }
     .node-machine.planned { border: 2px solid currentColor; box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 14px rgba(37,99,235,0.55); }
     .node-cqi.planned-target { border: 3px solid #0f172a; box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 0 18px rgba(37,99,235,0.45); }
-    .heatmap-badge {
-      position: absolute; right: 5px; top: 5px; z-index: 12;
-      background: rgba(15,23,42,0.88); color: #fff; border-radius: 999px;
-      padding: 2px 6px; font-size: 9px; font-weight: 800; pointer-events: none;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-    .heatmap-legend {
-      position: fixed; left: 24px; bottom: 24px; z-index: 1001;
-      background: rgba(255,255,255,0.96); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow);
-      display: none; min-width: 210px;
-    }
+    .heatmap-badge { position: absolute; right: 5px; top: 5px; z-index: 12; background: rgba(15,23,42,0.88); color: #fff; border-radius: 999px; padding: 2px 6px; font-size: 9px; font-weight: 800; pointer-events: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    
+    .heatmap-legend { position: fixed; left: 24px; bottom: 24px; z-index: 1001; background: rgba(255,255,255,0.96); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow); display: none; min-width: 210px; }
     .heatmap-legend.active { display: block; }
     .heatmap-legend-title { font-size: 11px; font-weight: 800; color: var(--text-main); margin-bottom: 7px; }
     .heatmap-legend-row { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--text-muted); margin: 4px 0; }
@@ -135,6 +117,15 @@
     .zoom-btn { background: white; border: 1px solid var(--border); color: var(--text-main); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: var(--shadow); transition: 0.2s; }
     .zoom-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
 
+    /* TOAST NOTIF UI */
+    .toast-container { position: fixed; top: 70px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: white; color: var(--text-main); border-left: 4px solid var(--cqi-ready); box-shadow: var(--shadow); padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.5s forwards; }
+    .toast.success { border-left-color: var(--running); }
+    .toast.error { border-left-color: var(--down); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut { to { opacity: 0; } }
+
+    /* MODAL */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-card { background: white; border: 1px solid var(--border); border-radius: 12px; width: 340px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: translateY(-20px); transition: transform 0.2s ease; }
@@ -152,6 +143,7 @@
     <div class="brand">🏭 MAP LIQUID 3</div>
     <div class="controls">
       <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
+      <button class="btn btn-danger control-landing" onclick="resetFactoryState()">🔄 Reset Map</button>
       <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
       <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
 
@@ -163,6 +155,8 @@
       <button class="btn control-edit" onclick="toggleEditMode()">⬅️ Selesai Edit</button>
     </div>
   </header>
+
+  <div class="toast-container" id="toastContainer"></div>
 
   <div class="main-layout">
     <div class="side-panel control-landing" id="sidePanel">
@@ -195,7 +189,6 @@
       </div>
     </div>
     
-
     <div class="heatmap-legend" id="heatmapLegend">
       <div class="heatmap-legend-title">🔥 PLANNING HEATMAP AKTUAL</div>
       <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#16a34a"></span><span>Rute mesin → CQI dari hasil planning</span></div>
@@ -239,6 +232,23 @@
     let isPanning = false;
     let startX, startY;
 
+    // TOAST NOTIFICATION FUNCTION
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+    }
+
+    function resetFactoryState() {
+      if(!confirm("Anda yakin ingin mereset state map? Semua status mesin dan CQI akan di-OFF-kan kembali ke standar.")) return;
+      localStorage.removeItem('factory_internal_storage');
+      showToast("Map telah direset", "success");
+      setTimeout(() => location.reload(), 800);
+    }
+
     mapViewport.addEventListener('mousedown', (e) => {
       if (e.target.closest('.node') || e.target.closest('.line-box') || e.target.tagName === 'BUTTON') return;
       isPanning = true;
@@ -277,13 +287,15 @@
         try {
           const resLocal = await fetch('map.json');
           if (resLocal.ok) mapData = await resLocal.json();
-        } catch(err) { mapData = { machines: [], cqis: [], labels: [], lines: [] }; }
+        } catch(err) { 
+          mapData = { machines: [], cqis: [], labels: [], lines: [] }; 
+          showToast("Gagal mengambil map.json", "error");
+        }
       }
       initializeStatuses();
       renderWorkstationButtons();
       applyZoom(true);
     }
-
 
     function loadActivePlanning() {
       try {
@@ -291,7 +303,6 @@
         activePlanning = raw ? JSON.parse(raw) : null;
         activePlanningMode = sessionStorage.getItem('active_planning_mode') || '';
       } catch (e) {
-        console.warn('Planning aktif tidak dapat dibaca:', e);
         activePlanning = null;
         activePlanningMode = '';
       }
@@ -307,12 +318,7 @@
         slot.machines.forEach(machine => {
           const key = String(machine.id ?? machine.name ?? '').trim();
           if (!key) return;
-          assignments.set(key, {
-            cqi: slot.cqi,
-            slotId: slot.slotId || '',
-            core: slot.core || '',
-            nonCore: Array.isArray(slot.nonCore) ? slot.nonCore : []
-          });
+          assignments.set(key, { cqi: slot.cqi, slotId: slot.slotId || '', core: slot.core || '', nonCore: Array.isArray(slot.nonCore) ? slot.nonCore : [] });
         });
       });
       return assignments;
@@ -330,26 +336,6 @@
       const count = activePlanning.slots.reduce((n, s) => n + ((s && s.machines) ? s.machines.length : 0), 0);
       const modeLabel = activePlanningMode === 'history' ? 'HISTORY' : 'AI';
       info.textContent = `${modeLabel} • ${activePlanning.slots.length} CQI • ${count} mesin`;
-    }
-
-    function saveActivePlanning(plan, mode) {
-      if (!Array.isArray(plan)) return;
-      const payload = {
-        version: 1,
-        updatedAt: new Date().toISOString(),
-        mode: mode || 'ai',
-        slots: plan
-      };
-      try {
-        sessionStorage.setItem('active_planning', JSON.stringify(payload));
-        sessionStorage.setItem('active_planning_mode', mode || 'ai');
-        localStorage.setItem('last_active_planning', JSON.stringify(payload));
-      } catch (e) {
-        console.warn('Gagal menyimpan planning aktif:', e);
-      }
-      activePlanning = payload;
-      activePlanningMode = mode || 'ai';
-      updateHeatmapLegend();
     }
 
     function initializeStatuses() {
@@ -388,7 +374,6 @@
         { title: "LINE C", keys: ["1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C"] },
         { title: "WW", keys: ["LINE WW"] },
         { title: "OT", keys: ["LINE OT"] }
-
       ];
       groups.forEach(g => {
         let groupDiv = document.createElement('div'); groupDiv.className = 'ws-group';
@@ -496,16 +481,13 @@
         if (!cell) return;
 
         const assignments = getPlanningAssignments();
-        const assignment = type === 'machine'
-          ? assignments.get(String(node.id ?? node.name ?? '').trim())
-          : null;
+        const assignment = type === 'machine' ? assignments.get(String(node.id ?? node.name ?? '').trim()) : null;
 
         let div = document.createElement('div');
         div.className = `node node-${type} ${node.status || ''}`;
 
         if (assignment) {
           div.classList.add('planned');
-          div.style.setProperty('--planning-core', assignment.core || '');
           if (type === 'cqi') div.classList.add('planned-target');
         }
 
@@ -543,20 +525,13 @@
         const assignments = getPlanningAssignments();
         const svgNS = "http://www.w3.org/2000/svg";
         let svg = document.createElementNS(svgNS, "svg");
-        svg.style.position = "absolute";
-        svg.style.top = "0";
-        svg.style.left = "0";
-        svg.style.width = "100%";
-        svg.style.height = "100%";
-        svg.style.pointerEvents = "none";
-        svg.style.zIndex = "8";
+        svg.style.position = "absolute"; svg.style.top = "0"; svg.style.left = "0";
+        svg.style.width = "100%"; svg.style.height = "100%";
+        svg.style.pointerEvents = "none"; svg.style.zIndex = "8";
 
-        const slotColors = [
-          '#16a34a','#2563eb','#f59e0b','#db2777','#7c3aed',
-          '#0891b2','#ea580c','#65a30d','#9333ea','#0f766e'
-        ];
-
+        const slotColors = ['#16a34a','#2563eb','#f59e0b','#db2777','#7c3aed','#0891b2','#ea580c','#65a30d','#9333ea','#0f766e'];
         const cqiColor = new Map();
+        
         if (activePlanning && Array.isArray(activePlanning.slots)) {
           activePlanning.slots.forEach((slot, i) => {
             const key = String(slot?.cqi?.id ?? slot?.cqi?.name ?? '').trim();
@@ -573,41 +548,40 @@
           const machine = mapData.machines.find(m => String(m.id ?? m.name ?? '').trim() === machineId);
           if (!machine || machine.status !== 'RUNNING' || !assignment.cqi) return;
 
-          // Cari CQI target dari slot planning, bukan CQI READY terdekat.
-          const target = mapData.cqis.find(c =>
-            String(c.id ?? c.name ?? '').trim() === String(assignment.cqi.id ?? assignment.cqi.name ?? '').trim()
-          ) || assignment.cqi;
-
+          const target = mapData.cqis.find(c => String(c.id ?? c.name ?? '').trim() === String(assignment.cqi.id ?? assignment.cqi.name ?? '').trim()) || assignment.cqi;
           if (!target || target.row == null || target.col == null) return;
 
           const start = getCenter(machine);
           const end = getCenter(target);
           const color = cqiColor.get(String(assignment.cqi.id ?? assignment.cqi.name ?? '').trim()) || '#16a34a';
 
-          // Jalur Manhattan sesuai BrainAI: vertikal/horizontal, bukan garis diagonal.
-          const pathData = `M ${start.x} ${start.y} L ${end.x} ${start.y} L ${end.x} ${end.y}`;
+          // PERBAIKAN LOGIKA RUTE MANHATTAN LEWAT DEPAN GERBANG / LABEL WS
+          let pathData = "";
+          const wsKey = (window.BrainAI && typeof BrainAI.getWorkstationKey === 'function') ? BrainAI.getWorkstationKey(machine.name || machine.id) : null;
+          const gateLabel = mapData.labels.find(l => l.name === wsKey);
+
+          if (gateLabel && gateLabel.row && gateLabel.col) {
+            const gateCenter = getCenter(gateLabel);
+            // Route masuk dari mesin -> tarik segaris menuju lorong gate -> lalu menyusuri lorong menuju CQI
+            pathData = `M ${start.x} ${start.y} 
+                        L ${gateCenter.x} ${start.y} 
+                        L ${gateCenter.x} ${gateCenter.y} 
+                        L ${end.x} ${gateCenter.y} 
+                        L ${end.x} ${end.y}`;
+          } else {
+            // Fallback (Straight Manhattan) jika label tidak ditemukan
+            pathData = `M ${start.x} ${start.y} L ${end.x} ${start.y} L ${end.x} ${end.y}`;
+          }
 
           const path = document.createElementNS(svgNS, "path");
           path.setAttribute("d", pathData);
-          path.setAttribute("fill", "none");
-          path.setAttribute("stroke", color);
-          path.setAttribute("stroke-width", "4");
-          path.setAttribute("stroke-linecap", "round");
-          path.setAttribute("stroke-linejoin", "round");
-          path.setAttribute("stroke-dasharray", "10,5");
-          path.setAttribute("opacity", "0.82");
-          path.classList.add('heatmap-route');
-
-          const title = document.createElementNS(svgNS, "title");
-          const dist = (window.BrainAI && typeof BrainAI.getDistance === 'function')
-            ? BrainAI.getDistance(machine.row, machine.col, target.row, target.col)
-            : Math.abs(machine.row - target.row) + Math.abs(machine.col - target.col);
-          title.textContent = `${machine.name} → ${target.name || assignment.cqi.name} | Jarak ${dist} grid`;
-          path.appendChild(title);
-
+          path.setAttribute("fill", "none"); path.setAttribute("stroke", color);
+          path.setAttribute("stroke-width", "4"); path.setAttribute("stroke-linecap", "round");
+          path.setAttribute("stroke-linejoin", "round"); path.setAttribute("stroke-dasharray", "10,5");
+          path.setAttribute("opacity", "0.82"); path.classList.add('heatmap-route');
+          
           svg.appendChild(path);
 
-          // Tandai target CQI yang benar-benar dipakai slot.
           const cqiEl = document.getElementById(target.id);
           if (cqiEl) {
             cqiEl.classList.add('planned-target');
@@ -653,10 +627,10 @@
       document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
     }
 
-    function setAllMachinesRunning() { mapData.machines.forEach(m => m.status = 'RUNNING'); renderGrid(); }
-    function setAllMachinesOff() { mapData.machines.forEach(m => m.status = 'OFF'); renderGrid(); }
-    function setAllCqiReady() { mapData.cqis.forEach(c => c.status = 'READY'); renderGrid(); }
-    function setAllCqiOff() { mapData.cqis.forEach(c => c.status = 'OFF'); renderGrid(); }
+    function setAllMachinesRunning() { mapData.machines.forEach(m => m.status = 'RUNNING'); renderGrid(); showToast("Seluruh mesin running", "success"); }
+    function setAllMachinesOff() { mapData.machines.forEach(m => m.status = 'OFF'); renderGrid(); showToast("Seluruh mesin di-OFF-kan", "info"); }
+    function setAllCqiReady() { mapData.cqis.forEach(c => c.status = 'READY'); renderGrid(); showToast("Seluruh CQI ready", "success"); }
+    function setAllCqiOff() { mapData.cqis.forEach(c => c.status = 'OFF'); renderGrid(); showToast("Seluruh CQI di-OFF-kan", "info"); }
 
     function cycleStatus(node, type) {
       if (type === 'machine') { const s = ['OFF', 'RUNNING']; node.status = s[(s.indexOf(node.status) + 1) % s.length]; } 
@@ -700,20 +674,28 @@
     function toggleEditMode() { editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
     function toggleHeatmap() {
       if (!activePlanning || !Array.isArray(activePlanning.slots) || activePlanning.slots.length === 0) {
-        alert('Belum ada planning aktif. Generate Planning By AI atau Planning By History di config.html terlebih dahulu.');
+        showToast('Belum ada planning aktif. Generate planning terlebih dahulu di Konfigurasi.', 'error');
         return;
       }
       showHeatmap = !showHeatmap;
       updateHeatmapLegend();
       renderGrid();
     }
-    function exportMapJson() { let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" }); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "map.json"; a.click(); }
+    
+    function exportMapJson() { 
+      let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" }); 
+      let a = document.createElement('a'); 
+      a.href = URL.createObjectURL(blob); 
+      a.download = "map.json"; 
+      a.click(); 
+      showToast("Data Map berhasil di-download", "success");
+    }
 
     function goToConfig() {
       let runMachines = mapData.machines.filter(m => m.status === 'RUNNING');
       let readyCqis = mapData.cqis.filter(c => c.status === 'READY');
-      if(runMachines.length === 0) { alert("Pilih minimal 1 mesin RUNNING!"); return; }
-      if(readyCqis.length === 0) { alert("Pilih minimal 1 CQI READY!"); return; }
+      if(runMachines.length === 0) { showToast("Pilih minimal 1 mesin RUNNING!", "error"); return; }
+      if(readyCqis.length === 0) { showToast("Pilih minimal 1 CQI READY!", "error"); return; }
       const currentStateToSave = { machines: mapData.machines.map(m => ({ id: m.id, name: m.name, status: m.status })), cqis: mapData.cqis.map(c => ({ id: c.id, name: c.name, status: c.status })) };
       localStorage.setItem('factory_internal_storage', JSON.stringify(currentStateToSave));
       sessionStorage.setItem('planning_state', JSON.stringify({ machines: runMachines, cqis: readyCqis }));
