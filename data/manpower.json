@@ -7,7 +7,7 @@
   },
   "core": [
     {
-      "id": "C1",
+      "id": "CWW1",
       "name": "Jiddan",
       "cqi_priority": "CQI 24"
     },
@@ -72,9 +72,9 @@
       "cqi_priority": ""
     },
     {
-      "id": "C14",
-      "name": "gaktau8",
-      "cqi_priority": ""
+      "id": "CWW2",
+      "name": "Mia",
+      "cqi_priority": "CQI 24"
     }
   ],
 
