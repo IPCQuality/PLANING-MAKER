@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.1.0
+ Version: 1.1.1
 ================================================================================
 */
 
@@ -447,7 +447,7 @@ const BrainAI = {
       };
     });
 
-    // Helper Alokasi Core dengan Proteksi OT (CQI 19)
+    // Helper Alokasi Core dengan Proteksi OT (CQI 19) Standard Tanpa Aturan Khusus CQI 24
     const assignCoreToCQI = (cqiStr) => {
         if (availableCores.length === 0) return "UNKNOWN CORE";
         let match = String(cqiStr).match(/\d+/);
@@ -460,18 +460,10 @@ const BrainAI = {
                 let otCore = availableCores.splice(otCoreIndex, 1)[0];
                 return otCore.name;
             }
-            // Jika COT1 / COT2 tidak tersedia dalam pool manpower, tidak diizinkan di-assign ke OT
             return "NO VALID OT CORE (COT1/COT2 REQUIRED)";
         }
 
         let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi && c.id !== 'COT1' && c.id !== 'COT2');
-
-        if (targetCqi === '24') {
-            let cot1 = candidates.find(c => c.name.toUpperCase().includes('COT1'));
-            if (cot1) { availableCores.splice(availableCores.indexOf(cot1), 1); return cot1.name; }
-            let cot2 = candidates.find(c => c.name.toUpperCase().includes('COT2'));
-            if (cot2) { availableCores.splice(availableCores.indexOf(cot2), 1); return cot2.name; }
-        }
 
         if (candidates.length > 0) {
             let selected = candidates[0];
@@ -479,14 +471,7 @@ const BrainAI = {
             return selected.name;
         }
 
-        if (targetCqi === '24') {
-            let c2 = availableCores.find(c => c.name.toUpperCase().includes('C2'));
-            if (c2) { availableCores.splice(availableCores.indexOf(c2), 1); return c2.name; }
-            let c4 = availableCores.find(c => c.name.toUpperCase().includes('C4'));
-            if (c4) { availableCores.splice(availableCores.indexOf(c4), 1); return c4.name; }
-        }
-
-        // Ambil fallback dengan mengabaikan COT1 & COT2 untuk slot non-OT
+        // Fallback standar (selain COT1 dan COT2)
         let fallbackIndex = availableCores.findIndex(c => c.id !== 'COT1' && c.id !== 'COT2');
         if (fallbackIndex !== -1) {
             let fallback = availableCores.splice(fallbackIndex, 1)[0];
