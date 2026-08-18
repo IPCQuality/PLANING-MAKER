@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.1.2
+ Version: 1.1.4
 ================================================================================
 */
 
@@ -347,7 +347,6 @@ const BrainAI = {
     let availableCores = [];
     let rawCores = config.coreData || config.coreNames || [];
     
-    // PEMBAGIAN DATA MANPOWER DENGAN PASSTHROUGH PROPERTI LENGKAP (ID, NAME, CQI_PRIORITY)
     for (let i = 0; i < coreLimit; i++) {
         if (rawCores[i]) {
             if (typeof rawCores[i] === 'object') {
@@ -448,18 +447,23 @@ const BrainAI = {
       };
     });
 
-    // MULTI-CHECK HELPER: MENDELEKSI CORE OT (COT1 DAN COT2) DENGAN CERDAS (ID, NAME, ATAU PRIORITY)
-    const isOTPerson = (coreObj) => {
+    // DETEKSI APAKAH CQI 19 AKTIF DAN MESIN M2/M3 HADIR
+    let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
+    let m2m3MachinesExist = unassigned.some(m => m.isM2M3);
+    let isCQI19Active = Boolean(slot19 && m2m3MachinesExist);
+
+    const isCOT1 = (coreObj) => {
         if (!coreObj) return false;
         let idUpper = String(coreObj.id || '').toUpperCase();
         let nameUpper = String(coreObj.name || '').toUpperCase();
-        let prioUpper = String(coreObj.cqi_priority || '').toUpperCase();
+        return idUpper === 'COT1' || idUpper === 'CORE2' || nameUpper.includes('FARHAN');
+    };
 
-        return (
-            idUpper === 'COT1' || idUpper === 'COT2' ||
-            nameUpper.includes('FARHAN') || nameUpper.includes('DINI') ||
-            prioUpper.includes('CQI 19') || prioUpper.includes('19')
-        );
+    const isCOT2 = (coreObj) => {
+        if (!coreObj) return false;
+        let idUpper = String(coreObj.id || '').toUpperCase();
+        let nameUpper = String(coreObj.name || '').toUpperCase();
+        return idUpper === 'COT2' || idUpper === 'CORE4' || nameUpper.includes('DINI');
     };
 
     const assignCoreToCQI = (cqiStr) => {
@@ -467,24 +471,35 @@ const BrainAI = {
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        // VALIDASI OT / CQI 19 STRICT CHECK: HANYA BOLEH COT1/COT2 (FARHAN/DINI)
-        if (targetCqi === '19') {
-            let otCoreIndex = availableCores.findIndex(c => isOTPerson(c));
-            if (otCoreIndex !== -1) {
-                let otCore = availableCores.splice(otCoreIndex, 1)[0];
-                return otCore.name;
+        // JIKA CQI 19 AKTIF & MESIN M2/M3 ADA -> ATURAN OT TERKUNCI
+        if (targetCqi === '19' && isCQI19Active) {
+            // PRIORITAS 1: Farhan (COT1)
+            let cot1Index = availableCores.findIndex(c => isCOT1(c));
+            if (cot1Index !== -1) {
+                let cot1 = availableCores.splice(cot1Index, 1)[0];
+                return cot1.name;
             }
-            return "NO VALID OT CORE (COT1/COT2 REQUIRED)";
+
+            // PRIORITAS 2 (FALLBACK): Dini (COT2) jika COT1 Absen
+            let cot2Index = availableCores.findIndex(c => isCOT2(c));
+            if (cot2Index !== -1) {
+                let cot2 = availableCores.splice(cot2Index, 1)[0];
+                return cot2.name;
+            }
+
+            return "NO VALID OT CORE (FARHAN/DINI REQUIRED)";
         }
 
-        // CARI KANDIDAT NORMAL DENGAN MATCHING CQI_PRIORITY (DAN BUKAN COT1/COT2)
+        // JIKA CQI 19 TIDAK AKTIF ATAU UNTUK CQI LAIN:
+        // CARI KANDIDAT BERDASARKAN MATCHING CQI_PRIORITY
         let candidates = availableCores.filter(c => {
             let prioMatch = false;
             if (c.cqi_priority) {
                 let prioNum = String(c.cqi_priority).match(/\d+/);
                 prioMatch = prioNum && prioNum[0] === targetCqi;
             }
-            return prioMatch && !isOTPerson(c);
+            // Jika CQI 19 aktif, tahan COT1 untuk OT. Jika CQI 19 OFF, COT1 bebas dipasangkan
+            return prioMatch && (isCQI19Active ? !isCOT1(c) : true);
         });
 
         if (candidates.length > 0) {
@@ -493,8 +508,8 @@ const BrainAI = {
             return selected.name;
         }
 
-        // FALLBACK STANDAR: AMBIL CORE APA SAJA SELAIN COT1/COT2 UNTUK CQI NORMAL
-        let fallbackIndex = availableCores.findIndex(c => !isOTPerson(c));
+        // FALLBACK BIASA: Ambil Core apa saja (Termasuk COT1 & COT2 sebagai Core Biasa jika CQI 19 OFF/M2M3 OFF)
+        let fallbackIndex = availableCores.findIndex(c => isCQI19Active ? !isCOT1(c) : true);
         if (fallbackIndex !== -1) {
             let fallback = availableCores.splice(fallbackIndex, 1)[0];
             return fallback.name;
@@ -504,7 +519,6 @@ const BrainAI = {
         return fallback ? fallback.name : "UNKNOWN CORE";
     };
 
-    let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     if (slot19) {
         slot19.core = assignCoreToCQI('19');
     }
