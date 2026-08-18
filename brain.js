@@ -1,19 +1,16 @@
-/**
- * PLANNER CQI LIQUID 3 - BRAIN AI (UPDATED WORKFLOW & STRICT LIMIT & LONGSHIFT SUPPORT)
- * --------------------------------------------------
- * Sesuai dengan Alur:
- * 1. Identifikasi Mesin (Menandai jenis AST, APK murni, K/X, dll.)
- * 2. Cek Rule Khusus (CQI 19 & 24)
- * 3. Pilih CQI Terbaik
- * 4. Buat Slot CQI & Alokasi Prioritas CORE (C2/C4)
- * 5. Masukkan Mesin Secara Normal (Terkunci oleh aturan WS)
- * 6. Pembagian Prioritas & Geser Normal
- * 6.5 Bulldozer Phase 3: Menerobos Prioritas WS bagi CQI (Memanfaatkan Sisa Mesin ke CQI terdekat)
- *     -> CQI 10 diizinkan AST & APK mix (kecuali K & X)
- *     -> Penambahan NC ditiadakan jika isi mesin <= 4 
- * 7. Optimasi
- * 8. Validasi Akhir (Lengkap dengan list mesin missing/terlewat)
- */
+/*
+================================================================================
+ PLANNER CQI LIQUID 3
+ Brain AI Engine
+ Version: 1.1.0
+================================================================================
+*/
+
+/*
+================================================================================
+ MACHINE DATABASE & CONSTANTS
+================================================================================
+*/
 
 const WORKSTATIONS = {
   "0A": ["AST 33-16L", "AST 63-16L", "AST 14-12L"],
@@ -56,7 +53,7 @@ const WORKSTATIONS = {
   "OT": ["M2", "M3"]
 };
 
-// Gate Coordinator: Waypoints Gerbang Lorong untuk Jarak Rute (Menghindari nabrak samping mesin)
+// Gate Coordinator: Waypoints Gerbang Lorong untuk Jarak Rute
 const WORKSTATION_GATES = {
   "0A": { row: 9, col: 6 }, "1A": { row: 9, col: 8 }, "2A": { row: 9, col: 10 }, "3A": { row: 9, col: 12 }, "4A": { row: 9, col: 14 }, "5A": { row: 9, col: 16 }, "6A": { row: 9, col: 18 }, "7A": { row: 9, col: 20 }, "8A": { row: 9, col: 22 }, "9A": { row: 9, col: 24 }, "10A": { row: 9, col: 26 },
   "0B": { row: 11, col: 6 }, "1B": { row: 11, col: 8 }, "2B": { row: 11, col: 10 }, "3B": { row: 11, col: 12 }, "4B": { row: 11, col: 14 }, "5B": { row: 11, col: 16 }, "6B": { row: 11, col: 18 }, "7B": { row: 11, col: 20 }, "8B": { row: 11, col: 22 }, "9B": { row: 11, col: 24 }, "10B": { row: 11, col: 26 }, "11B": { row: 11, col: 28 },
@@ -86,42 +83,36 @@ const CQI_PRIORITY_MAP = {
   "24": ["WW"]
 };
 
-const BrainAI = {
-  WORKSTATIONS: WORKSTATIONS,
+/*
+================================================================================
+ DISTANCE ENGINE
+================================================================================
+*/
 
-  normalizeName(str) {
-    return str ? String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
-  },
-
-  getWorkstationKey(machineName) {
-    if (!machineName) return null;
-    let norm = this.normalizeName(machineName);
-    for (let wsKey in WORKSTATIONS) {
-      if (WORKSTATIONS[wsKey].some(item => this.normalizeName(item) === norm)) {
-        return wsKey;
-      }
-    }
-    return null;
-  },
-
-  // Fallback Jarak Standard (Manhattan Normal)
+const DistanceEngine = {
   getDistance(r1, c1, r2, c2) {
     return Math.abs(r1 - r2) + Math.abs(c1 - c2);
   },
 
-  // Perbaikan: Fungsi Jarak dengan Routing Waypoint (Masuk Lewat Depan Lorong)
-  getRoutedDistance(machine, cqi) {
-    let wsKey = machine.wsKey || this.getWorkstationKey(machine.name || machine.id);
+  getRoutedDistance(machine, cqi, getWsKeyFn) {
+    let wsKey = machine.wsKey || getWsKeyFn(machine.name || machine.id);
     if (wsKey && WORKSTATION_GATES[wsKey]) {
       let gate = WORKSTATION_GATES[wsKey];
       let distMachineToGate = this.getDistance(machine.row, machine.col, gate.row, gate.col);
       let distGateToCQI = this.getDistance(gate.row, gate.col, cqi.row, cqi.col);
       return distMachineToGate + distGateToCQI;
     }
-    // Jika tidak ada label / tidak terdaftar, pakai garis lurus biasa
     return this.getDistance(machine.row, machine.col, cqi.row, cqi.col);
-  },
+  }
+};
 
+/*
+================================================================================
+ HISTORY LEARNING ENGINE
+================================================================================
+*/
+
+const HistoryEngine = {
   getHistory(machineId, cqiId) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (hist[machineId] && hist[machineId][cqiId]) {
@@ -142,6 +133,100 @@ const BrainAI = {
     hist[machineId][cqiId].lastUsed = new Date().toISOString();
     if (meta.dist) hist[machineId][cqiId].lastDistance = meta.dist;
     localStorage.setItem('planning_history', JSON.stringify(hist));
+  },
+
+  async initHistory(githubRawUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/history.json') {
+    try {
+      const response = await fetch(githubRawUrl);
+      if (!response.ok) throw new Error();
+      const githubHistory = await response.json();
+      let localHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
+      for (let machineId in githubHistory) {
+        if (!localHistory[machineId]) localHistory[machineId] = {};
+        for (let cqiId in githubHistory[machineId]) {
+          if (!localHistory[machineId][cqiId]) localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
+          else { 
+            localHistory[machineId][cqiId].count += githubHistory[machineId][cqiId].count; 
+            localHistory[machineId][cqiId].success += githubHistory[machineId][cqiId].success; 
+          }
+        }
+      }
+      localStorage.setItem('planning_history', JSON.stringify(localHistory));
+    } catch (e) { 
+      console.warn("Sync GitHub dilewati."); 
+    }
+  },
+
+  parseAndLearn(planningText) {
+    const lines = planningText.split('\n');
+    let currentHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
+    lines.forEach(line => {
+      let match = line.match(/^\d+\.\s+(.*?)\s+:\s+(.*)$/);
+      if (match) {
+        let machinePart = match[1]; 
+        let cqiPart = match[2].split('->').pop().trim();
+        machinePart.split(/[\+,]/).map(m => m.trim()).forEach(machineStr => {
+          let machineId = machineStr.replace(/\s*\d+\s*mesin/gi, '').trim();
+          if (!machineId) return;
+          if (!currentHistory[machineId]) currentHistory[machineId] = {};
+          if (!currentHistory[machineId][cqiPart]) currentHistory[machineId][cqiPart] = { count: 0, success: 0, lastUsed: null };
+          currentHistory[machineId][cqiPart].count += 1;
+          currentHistory[machineId][cqiPart].success += 1;
+          currentHistory[machineId][cqiPart].lastUsed = new Date().toISOString();
+        });
+      }
+    });
+    localStorage.setItem('planning_history', JSON.stringify(currentHistory));
+    return JSON.stringify(currentHistory, null, 2);
+  }
+};
+
+/*
+================================================================================
+ PLANNING ENGINE & MAIN BRAIN AI
+================================================================================
+*/
+
+const BrainAI = {
+  WORKSTATIONS: WORKSTATIONS,
+
+  normalizeName(str) {
+    return str ? String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
+  },
+
+  getWorkstationKey(machineName) {
+    if (!machineName) return null;
+    let norm = this.normalizeName(machineName);
+    for (let wsKey in WORKSTATIONS) {
+      if (WORKSTATIONS[wsKey].some(item => this.normalizeName(item) === norm)) {
+        return wsKey;
+      }
+    }
+    return null;
+  },
+
+  getDistance(r1, c1, r2, c2) {
+    return DistanceEngine.getDistance(r1, c1, r2, c2);
+  },
+
+  getRoutedDistance(machine, cqi) {
+    return DistanceEngine.getRoutedDistance(machine, cqi, this.getWorkstationKey.bind(this));
+  },
+
+  getHistory(machineId, cqiId) {
+    return HistoryEngine.getHistory(machineId, cqiId);
+  },
+
+  recordHistory(machineId, cqiId, success = true, meta = {}) {
+    return HistoryEngine.recordHistory(machineId, cqiId, success, meta);
+  },
+
+  initHistory(githubRawUrl) {
+    return HistoryEngine.initHistory(githubRawUrl);
+  },
+
+  parseAndLearn(planningText) {
+    return HistoryEngine.parseAndLearn(planningText);
   },
 
   _getRequiredNonCore(slot, astCount, apkCount) {
@@ -225,7 +310,6 @@ const BrainAI = {
     let acceptStatus = this._canAcceptMachine(slot, m, availableTotalNC);
     if (!acceptStatus.can) return -Infinity;
 
-    // Perbaikan: Gunakan Router Distance untuk Scoring Realistis
     let dist = this.getRoutedDistance(m, slot.cqi);
     let distScore = Math.max(0, 100 - (dist * 2)); 
     
@@ -250,7 +334,6 @@ const BrainAI = {
     let capScore = ((acceptStatus.absoluteMax - totalMachines) * 10); 
 
     let slotMachineCount = slot.machines.length;
-    // Perbaikan: Load Workload penalty juga berbasis Router
     let slotDistSum = slot.machines.reduce((sum, sm) => sum + this.getRoutedDistance(sm, slot.cqi), 0);
     let workloadPenalty = (slotMachineCount * 25) + (slotDistSum * 2);
 
@@ -268,14 +351,15 @@ const BrainAI = {
         if (rawCores[i]) {
             if (typeof rawCores[i] === 'object') {
                 availableCores.push({
+                    id: rawCores[i].id || null,
                     name: rawCores[i].name || `CORE ${i+1}`,
                     cqi_priority: rawCores[i].cqi_priority || null
                 });
             } else {
-                availableCores.push({ name: rawCores[i], cqi_priority: null });
+                availableCores.push({ id: null, name: rawCores[i], cqi_priority: null });
             }
         } else {
-            availableCores.push({ name: `CORE ${i+1}`, cqi_priority: null });
+            availableCores.push({ id: null, name: `CORE ${i+1}`, cqi_priority: null });
         }
     }
 
@@ -333,7 +417,6 @@ const BrainAI = {
 
         unassigned.forEach(m => {
             if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) score += 1500;
-            // Evaluasi CQI menggunakan Router
             let dist = this.getRoutedDistance(m, cqi);
             if (dist < 15) score += 200;
             else if (dist < 30) score += 100;
@@ -364,12 +447,24 @@ const BrainAI = {
       };
     });
 
+    // Helper Alokasi Core dengan Proteksi OT (CQI 19)
     const assignCoreToCQI = (cqiStr) => {
         if (availableCores.length === 0) return "UNKNOWN CORE";
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi);
+        // VALIDASI OT / CQI 19 STRICT CHECK
+        if (targetCqi === '19') {
+            let otCoreIndex = availableCores.findIndex(c => c.id === 'COT1' || c.id === 'COT2');
+            if (otCoreIndex !== -1) {
+                let otCore = availableCores.splice(otCoreIndex, 1)[0];
+                return otCore.name;
+            }
+            // Jika COT1 / COT2 tidak tersedia dalam pool manpower, tidak diizinkan di-assign ke OT
+            return "NO VALID OT CORE (COT1/COT2 REQUIRED)";
+        }
+
+        let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi && c.id !== 'COT1' && c.id !== 'COT2');
 
         if (targetCqi === '24') {
             let cot1 = candidates.find(c => c.name.toUpperCase().includes('COT1'));
@@ -391,8 +486,15 @@ const BrainAI = {
             if (c4) { availableCores.splice(availableCores.indexOf(c4), 1); return c4.name; }
         }
 
+        // Ambil fallback dengan mengabaikan COT1 & COT2 untuk slot non-OT
+        let fallbackIndex = availableCores.findIndex(c => c.id !== 'COT1' && c.id !== 'COT2');
+        if (fallbackIndex !== -1) {
+            let fallback = availableCores.splice(fallbackIndex, 1)[0];
+            return fallback.name;
+        }
+
         let fallback = availableCores.shift();
-        return fallback.name;
+        return fallback ? fallback.name : "UNKNOWN CORE";
     };
 
     let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
@@ -454,7 +556,7 @@ const BrainAI = {
 
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
     
-    // FASE 1: MASUKKAN MESIN
+    // FASE 1: MASUKKAN MESIN SECA NORMAL
     let remainingUnassigned = [];
     unassigned.forEach(m => {
       let bestSlot = null;
@@ -478,7 +580,7 @@ const BrainAI = {
         slot24Fallback.isExclusive = false;
     }
     
-    // FASE 2: Geser & Tukar Normal
+    // FASE 2: GESER & TUKAR NORMAL
     if (remainingUnassigned.length > 0) {
       let iterations = remainingUnassigned.length * 5; 
       
@@ -539,7 +641,7 @@ const BrainAI = {
       }
     }
 
-    // FASE 3: Bypassing Workstation Priority
+    // FASE 3: BULLDOZER (BYPASSING WORKSTATION PRIORITY)
     if (remainingUnassigned.length > 0) {
         let tempUnassigned = [...remainingUnassigned];
         remainingUnassigned = [];
@@ -568,7 +670,7 @@ const BrainAI = {
         }
     }
 
-    // FASE 4: DESPERATE FORCE 
+    // FASE 4: DESPERATE FORCE (FORCE ALL MESHIN IN)
     if (remainingUnassigned.length > 0) {
         console.warn("BULLDOZER FASE AKHIR AKTIF: Memaksa sisa mesin masuk demi 100% Coverage (Max 8/CQI)!");
         
@@ -701,6 +803,12 @@ const BrainAI = {
 
     return slots;
   },
+
+/*
+================================================================================
+ VALIDATION ENGINE & OUTPUT FORMATTERS
+================================================================================
+*/
 
   validate(plan, machinesData) {
     let isMachinesArray = Array.isArray(machinesData);
@@ -860,46 +968,6 @@ const BrainAI = {
 
     txt += `\nMIL-STD : ${config.milStd || '-'}\nStandby OT : ${config.standbyOt || '-'}\nSupport FG : ${config.supportFg || '-'}\n`;
     return txt;
-  },
-
-  async initHistory(githubRawUrl = 'https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/history.json') {
-    try {
-      const response = await fetch(githubRawUrl);
-      if (!response.ok) throw new Error();
-      const githubHistory = await response.json();
-      let localHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
-      for (let machineId in githubHistory) {
-        if (!localHistory[machineId]) localHistory[machineId] = {};
-        for (let cqiId in githubHistory[machineId]) {
-          if (!localHistory[machineId][cqiId]) localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
-          else { localHistory[machineId][cqiId].count += githubHistory[machineId][cqiId].count; localHistory[machineId][cqiId].success += githubHistory[machineId][cqiId].success; }
-        }
-      }
-      localStorage.setItem('planning_history', JSON.stringify(localHistory));
-    } catch (e) { console.warn("Sync GitHub dilewati."); }
-  },
-
-  parseAndLearn(planningText) {
-    const lines = planningText.split('\n');
-    let currentHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
-    lines.forEach(line => {
-      let match = line.match(/^\d+\.\s+(.*?)\s+:\s+(.*)$/);
-      if (match) {
-        let machinePart = match[1]; 
-        let cqiPart = match[2].split('->').pop().trim();
-        machinePart.split(/[\+,]/).map(m => m.trim()).forEach(machineStr => {
-          let machineId = machineStr.replace(/\s*\d+\s*mesin/gi, '').trim();
-          if (!machineId) return;
-          if (!currentHistory[machineId]) currentHistory[machineId] = {};
-          if (!currentHistory[machineId][cqiPart]) currentHistory[machineId][cqiPart] = { count: 0, success: 0, lastUsed: null };
-          currentHistory[machineId][cqiPart].count += 1;
-          currentHistory[machineId][cqiPart].success += 1;
-          currentHistory[machineId][cqiPart].lastUsed = new Date().toISOString();
-        });
-      }
-    });
-    localStorage.setItem('planning_history', JSON.stringify(currentHistory));
-    return JSON.stringify(currentHistory, null, 2);
   }
 };
 
