@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.1.1
+ Version: 1.1.2
 ================================================================================
 */
 
@@ -347,6 +347,7 @@ const BrainAI = {
     let availableCores = [];
     let rawCores = config.coreData || config.coreNames || [];
     
+    // PEMBAGIAN DATA MANPOWER DENGAN PASSTHROUGH PROPERTI LENGKAP (ID, NAME, CQI_PRIORITY)
     for (let i = 0; i < coreLimit; i++) {
         if (rawCores[i]) {
             if (typeof rawCores[i] === 'object') {
@@ -447,15 +448,28 @@ const BrainAI = {
       };
     });
 
-    // Helper Alokasi Core dengan Proteksi OT (CQI 19) Standard Tanpa Aturan Khusus CQI 24
+    // MULTI-CHECK HELPER: MENDELEKSI CORE OT (COT1 DAN COT2) DENGAN CERDAS (ID, NAME, ATAU PRIORITY)
+    const isOTPerson = (coreObj) => {
+        if (!coreObj) return false;
+        let idUpper = String(coreObj.id || '').toUpperCase();
+        let nameUpper = String(coreObj.name || '').toUpperCase();
+        let prioUpper = String(coreObj.cqi_priority || '').toUpperCase();
+
+        return (
+            idUpper === 'COT1' || idUpper === 'COT2' ||
+            nameUpper.includes('FARHAN') || nameUpper.includes('DINI') ||
+            prioUpper.includes('CQI 19') || prioUpper.includes('19')
+        );
+    };
+
     const assignCoreToCQI = (cqiStr) => {
         if (availableCores.length === 0) return "UNKNOWN CORE";
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        // VALIDASI OT / CQI 19 STRICT CHECK
+        // VALIDASI OT / CQI 19 STRICT CHECK: HANYA BOLEH COT1/COT2 (FARHAN/DINI)
         if (targetCqi === '19') {
-            let otCoreIndex = availableCores.findIndex(c => c.id === 'COT1' || c.id === 'COT2');
+            let otCoreIndex = availableCores.findIndex(c => isOTPerson(c));
             if (otCoreIndex !== -1) {
                 let otCore = availableCores.splice(otCoreIndex, 1)[0];
                 return otCore.name;
@@ -463,7 +477,15 @@ const BrainAI = {
             return "NO VALID OT CORE (COT1/COT2 REQUIRED)";
         }
 
-        let candidates = availableCores.filter(c => String(c.cqi_priority) === targetCqi && c.id !== 'COT1' && c.id !== 'COT2');
+        // CARI KANDIDAT NORMAL DENGAN MATCHING CQI_PRIORITY (DAN BUKAN COT1/COT2)
+        let candidates = availableCores.filter(c => {
+            let prioMatch = false;
+            if (c.cqi_priority) {
+                let prioNum = String(c.cqi_priority).match(/\d+/);
+                prioMatch = prioNum && prioNum[0] === targetCqi;
+            }
+            return prioMatch && !isOTPerson(c);
+        });
 
         if (candidates.length > 0) {
             let selected = candidates[0];
@@ -471,8 +493,8 @@ const BrainAI = {
             return selected.name;
         }
 
-        // Fallback standar (selain COT1 dan COT2)
-        let fallbackIndex = availableCores.findIndex(c => c.id !== 'COT1' && c.id !== 'COT2');
+        // FALLBACK STANDAR: AMBIL CORE APA SAJA SELAIN COT1/COT2 UNTUK CQI NORMAL
+        let fallbackIndex = availableCores.findIndex(c => !isOTPerson(c));
         if (fallbackIndex !== -1) {
             let fallback = availableCores.splice(fallbackIndex, 1)[0];
             return fallback.name;
