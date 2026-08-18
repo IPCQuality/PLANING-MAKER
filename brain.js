@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.1.4
+ Version: 1.1.5
 ================================================================================
 */
 
@@ -447,11 +447,16 @@ const BrainAI = {
       };
     });
 
-    // DETEKSI APAKAH CQI 19 AKTIF DAN MESIN M2/M3 HADIR
+    // DETEKSI STATUS CQI 19 (OT) & CQI 24 (WW)
     let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     let m2m3MachinesExist = unassigned.some(m => m.isM2M3);
     let isCQI19Active = Boolean(slot19 && m2m3MachinesExist);
 
+    let slot24 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
+    let c1c2MachinesExist = unassigned.some(m => m.isC1C2);
+    let isCQI24Active = Boolean(slot24 && c1c2MachinesExist);
+
+    // HELPER IDENTIFIKASI MANPOWER (OT & WW)
     const isCOT1 = (coreObj) => {
         if (!coreObj) return false;
         let idUpper = String(coreObj.id || '').toUpperCase();
@@ -466,40 +471,59 @@ const BrainAI = {
         return idUpper === 'COT2' || idUpper === 'CORE4' || nameUpper.includes('DINI');
     };
 
+    const isCWW1 = (coreObj) => {
+        if (!coreObj) return false;
+        let idUpper = String(coreObj.id || '').toUpperCase();
+        let nameUpper = String(coreObj.name || '').toUpperCase();
+        return idUpper === 'CWW1' || idUpper === 'C1' || idUpper === 'CORE1' || nameUpper.includes('JIDDAN');
+    };
+
+    const isCWW2 = (coreObj) => {
+        if (!coreObj) return false;
+        let idUpper = String(coreObj.id || '').toUpperCase();
+        let nameUpper = String(coreObj.name || '').toUpperCase();
+        return idUpper === 'CWW2' || nameUpper.includes('MIA');
+    };
+
     const assignCoreToCQI = (cqiStr) => {
         if (availableCores.length === 0) return "UNKNOWN CORE";
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        // JIKA CQI 19 AKTIF & MESIN M2/M3 ADA -> ATURAN OT TERKUNCI
+        // HIARARKI ATURAN CQI 19 / OT
         if (targetCqi === '19' && isCQI19Active) {
-            // PRIORITAS 1: Farhan (COT1)
             let cot1Index = availableCores.findIndex(c => isCOT1(c));
-            if (cot1Index !== -1) {
-                let cot1 = availableCores.splice(cot1Index, 1)[0];
-                return cot1.name;
-            }
+            if (cot1Index !== -1) return availableCores.splice(cot1Index, 1)[0].name;
 
-            // PRIORITAS 2 (FALLBACK): Dini (COT2) jika COT1 Absen
             let cot2Index = availableCores.findIndex(c => isCOT2(c));
-            if (cot2Index !== -1) {
-                let cot2 = availableCores.splice(cot2Index, 1)[0];
-                return cot2.name;
-            }
+            if (cot2Index !== -1) return availableCores.splice(cot2Index, 1)[0].name;
 
             return "NO VALID OT CORE (FARHAN/DINI REQUIRED)";
         }
 
-        // JIKA CQI 19 TIDAK AKTIF ATAU UNTUK CQI LAIN:
-        // CARI KANDIDAT BERDASARKAN MATCHING CQI_PRIORITY
+        // HIARARKI ATURAN CQI 24 / WW
+        if (targetCqi === '24' && isCQI24Active) {
+            // PRIORITAS 1: Jiddan (CWW1)
+            let cww1Index = availableCores.findIndex(c => isCWW1(c));
+            if (cww1Index !== -1) return availableCores.splice(cww1Index, 1)[0].name;
+
+            // PRIORITAS 2 (FALLBACK): Mia (CWW2) jika CWW1 Absen
+            let cww2Index = availableCores.findIndex(c => isCWW2(c));
+            if (cww2Index !== -1) return availableCores.splice(cww2Index, 1)[0].name;
+
+            return "NO VALID WW CORE (JIDDAN/MIA REQUIRED)";
+        }
+
+        // CARI KANDIDAT NORMAL BERDASARKAN PRIORITY
         let candidates = availableCores.filter(c => {
             let prioMatch = false;
             if (c.cqi_priority) {
                 let prioNum = String(c.cqi_priority).match(/\d+/);
                 prioMatch = prioNum && prioNum[0] === targetCqi;
             }
-            // Jika CQI 19 aktif, tahan COT1 untuk OT. Jika CQI 19 OFF, COT1 bebas dipasangkan
-            return prioMatch && (isCQI19Active ? !isCOT1(c) : true);
+            // Tahan CORE spesifik jika CQI-nya aktif
+            let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
+            return prioMatch && !isRestricted;
         });
 
         if (candidates.length > 0) {
@@ -508,11 +532,14 @@ const BrainAI = {
             return selected.name;
         }
 
-        // FALLBACK BIASA: Ambil Core apa saja (Termasuk COT1 & COT2 sebagai Core Biasa jika CQI 19 OFF/M2M3 OFF)
-        let fallbackIndex = availableCores.findIndex(c => isCQI19Active ? !isCOT1(c) : true);
+        // FALLBACK BIASA: Ambil Core apa saja (Sesuai keaktifan CQI)
+        let fallbackIndex = availableCores.findIndex(c => {
+            let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
+            return !isRestricted;
+        });
+
         if (fallbackIndex !== -1) {
-            let fallback = availableCores.splice(fallbackIndex, 1)[0];
-            return fallback.name;
+            return availableCores.splice(fallbackIndex, 1)[0].name;
         }
 
         let fallback = availableCores.shift();
@@ -521,6 +548,10 @@ const BrainAI = {
 
     if (slot19) {
         slot19.core = assignCoreToCQI('19');
+    }
+
+    if (slot24) {
+        slot24.core = assignCoreToCQI('24');
     }
 
     slots.forEach(slot => {
@@ -556,7 +587,6 @@ const BrainAI = {
       applyNonCoreIfNeeded(slot19);
     }
 
-    let slot24 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
     let c1c2Machines = unassigned.filter(m => m.isC1C2);
     if (slot24 && c1c2Machines.length > 0) {
       slot24.machines.push(...c1c2Machines);
