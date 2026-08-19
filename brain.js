@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.2.0 (Smart Clustering & CQI Detection Optimized)
+ Version: 1.2.1 (Score Reordered & 70% CQI Priority Impact)
 ================================================================================
 */
 
@@ -136,7 +136,6 @@ const DistanceEngine = {
 /*
 ================================================================================
  CQI OPTIMIZER ENGINE (SMART DETECTOR)
- Dieksekusi pertama untuk mendeteksi posisi CQI paling optimal dan terdekat
 ================================================================================
 */
 
@@ -149,7 +148,6 @@ const CQIOptimizer = {
     let available = [...cqis];
     const historyWeight = planMode === 'history' ? 2.0 : 0.1;
     
-    // Normalisasi dataset mesin untuk analisis clustering
     let machineNodes = machines.map(m => {
       let nm = { ...m };
       nm.wsKey = getWsKeyFn(nm.name || nm.id) || nm.ws || null;
@@ -159,7 +157,6 @@ const CQIOptimizer = {
       return nm;
     });
 
-    // 1. Mandatory Assignment (Filter wajib untuk WW dan OT)
     let hasM2M3 = machineNodes.some(m => m.isM2M3);
     let hasC1C2 = machineNodes.some(m => m.isC1C2);
 
@@ -173,7 +170,6 @@ const CQIOptimizer = {
         selected.push(available.splice(cqi24Idx, 1)[0]);
     }
 
-    // 2. K-Center Greedy Clustering (Pemerataan CQI berdasarkan jarak ke semua mesin)
     while (selected.length < coreLimit && available.length > 0) {
         let bestCandidateIndex = -1;
         let bestScore = -Infinity;
@@ -184,41 +180,33 @@ const CQIOptimizer = {
             candCqiIdStr = candCqiIdStr ? candCqiIdStr[0] : String(candCqi.id);
 
             machineNodes.forEach(m => {
-                // Lewati penilaian menyimpang untuk mesin eksklusif jika CQI tidak cocok
                 if (m.isM2M3 && candCqiIdStr !== '19') return; 
                 if (m.isC1C2 && candCqiIdStr !== '24') return; 
 
                 let distToCand = getDistanceFn(m, candCqi);
-
-                // Cari jarak mesin ini ke CQI terdekat yang SUDAH terpilih sebelumnya
                 let distToSelected = Infinity;
                 selected.forEach(selCqi => {
                     let d = getDistanceFn(m, selCqi);
                     if (d < distToSelected) distToSelected = d;
                 });
 
-                // Jika memilih kandidat CQI ini MEMPERBAIKI (memperpendek) jarak rute
                 if (distToCand < distToSelected) {
                     let improvement = distToSelected === Infinity ? (150 - distToCand) : (distToSelected - distToCand);
-                    
-                    // Kalikan bobot jika mesin ini berada sangat jauh dari CQI yang sudah ada (mencegah mesin tidak ter-cover)
                     if (distToSelected > 50 && distToSelected !== Infinity) improvement *= 1.5;
-                    score += improvement * 3;
+                    
+                    // ==========================================
+                    // PENILAIAN SKOR OPTIMIZER (Besar ke Kecil)
+                    // ==========================================
+                    let priorityBonus = (m.wsKey && priorityMap[candCqiIdStr] && priorityMap[candCqiIdStr].includes(m.wsKey)) ? 10000 : 0; //SCORE (70% Impact)
+                    let improvementScore = improvement * 3; //SCORE
+                    let distScore = (distToCand < 15) ? 300 : (distToCand < 30) ? 150 : (distToCand < 50) ? 50 : 0; //SCORE
+                    let histScore = getHistoryFn(m.id, candCqi.id) * historyWeight; //SCORE
 
-                    // Tambahkan skor mapping WS Priority
-                    if (m.wsKey && priorityMap[candCqiIdStr] && priorityMap[candCqiIdStr].includes(m.wsKey)) {
-                        score += 1500;
-                    }
-
-                    // Tambahkan skor threshold kedekatan absolut
-                    if (distToCand < 15) score += 300;
-                    else if (distToCand < 30) score += 150;
-                    else if (distToCand < 50) score += 50;
+                    score += priorityBonus + improvementScore + distScore + histScore;
+                } else {
+                    let histScore = getHistoryFn(m.id, candCqi.id) * historyWeight; //SCORE
+                    score += histScore;
                 }
-                
-                // Integrasi pembelajaran Histori
-                let histScore = getHistoryFn(m.id, candCqi.id) * historyWeight;
-                score += histScore;
             });
 
             if (score > bestScore) {
@@ -227,7 +215,6 @@ const CQIOptimizer = {
             }
         });
 
-        // Simpan kandidat CQI terbaik pada iterasi ini
         if (bestCandidateIndex !== -1 && bestScore > -Infinity) {
             selected.push(available.splice(bestCandidateIndex, 1)[0]);
         } else {
@@ -400,7 +387,6 @@ const BrainAI = {
     let is24 = cqiIdStr === '24';
     let is10 = cqiIdStr === '10';
 
-    // ATURAN WW (C1/C2): Eksklusif CQI 24 (WW), tidak diizinkan campur APK/AST
     if (m.isC1C2 && !is24) return { can: false, reason: "ww_exclusive_cqi24" };
     if (!m.isC1C2 && is24) return { can: false, reason: "cqi24_only_ww" };
 
@@ -447,37 +433,41 @@ const BrainAI = {
     let acceptStatus = this._canAcceptMachine(slot, m, availableTotalNC);
     if (!acceptStatus.can) return -Infinity;
 
-    let dist = this.getRoutedDistance(m, slot.cqi);
-    let distScore = Math.max(0, 100 - (dist * 2)); 
-    
-    const historyWeight = planMode === 'history' ? 2.0 : 0.3;
-    let histScore = this.getHistory(m.id, slot.cqi.id) * historyWeight;
-    let priorityBonus = 0;
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
-
-    if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) {
-        priorityBonus = 2000; 
-    }
-
-    // CLUSTERING WORKSTATION
-    let wsBonus = 0;
-    if (m.wsKey) {
-      let sameWsCount = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
-      if (sameWsCount > 0) {
-        wsBonus = 1500 + (sameWsCount * 500); 
-      }
-    }
-
-    let ncPenalty = acceptStatus.neededNC > 0 ? -1000 : 0; 
+    let sameWsCount = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
+    let dist = this.getRoutedDistance(m, slot.cqi);
     let totalMachines = slot.machines.length + 1;
-    let capScore = ((acceptStatus.absoluteMax - totalMachines) * 10); 
-
-    let slotMachineCount = slot.machines.length;
     let slotDistSum = slot.machines.reduce((sum, sm) => sum + this.getRoutedDistance(sm, slot.cqi), 0);
-    let workloadPenalty = (slotMachineCount * 25) + (slotDistSum * 2);
+    const historyWeight = planMode === 'history' ? 2.0 : 0.3;
 
-    return distScore + histScore + wsBonus + priorityBonus + capScore + ncPenalty - workloadPenalty;
+    // ==========================================
+    // PENILAIAN SKOR AI (Diurutkan dari Besar ke Kecil)
+    // ==========================================
+
+    // 1. PRIORITAS CQI (70% Impact, Nilai tertinggi mendominasi keputusan)
+    let priorityBonus = (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) ? 10000 : 0; //SCORE
+    
+    // 2. CLUSTERING WORKSTATION (Mengelompokkan mesin di satu WS yang sama)
+    let wsBonus = (m.wsKey && sameWsCount > 0) ? (1500 + (sameWsCount * 500)) : 0; //SCORE
+    
+    // 3. JARAK MESIN KE CQI (Semakin dekat, poin semakin besar)
+    let distScore = Math.max(0, 100 - (dist * 2)); //SCORE
+    
+    // 4. HISTORI PLANNING (Pengalaman masa lalu)
+    let histScore = this.getHistory(m.id, slot.cqi.id) * historyWeight; //SCORE
+    
+    // 5. SKOR KAPASITAS (Mengutamakan pembagian merata)
+    let capScore = ((acceptStatus.absoluteMax - totalMachines) * 10); //SCORE
+
+    // 6. PENALTI BEBAN KERJA & JARAK TOTAL SLOT (Minus)
+    let workloadPenalty = -((slot.machines.length * 25) + (slotDistSum * 2)); //SCORE
+    
+    // 7. PENALTI KEKURANGAN NON-CORE (Minus Terbesar, mencegah slot cacat)
+    let ncPenalty = acceptStatus.neededNC > 0 ? -2000 : 0; //SCORE
+
+    // Kalkulasi Skor Total
+    return priorityBonus + wsBonus + distScore + histScore + capScore + workloadPenalty + ncPenalty;
   },
 
   generatePlan(machines, cqis, config) {
@@ -549,10 +539,6 @@ const BrainAI = {
 
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || '') || (a.name || '').localeCompare(b.name || ''));
 
-    // ========================================================================
-    // EKSEKUSI CQI OPTIMIZER
-    // Mendeteksi dan memilih CQI paling optimal berdasarkan clustering jarak mesin
-    // ========================================================================
     let activeCQIs = CQIOptimizer.detectBestCQIs(
         unassigned, 
         cqis, 
@@ -563,7 +549,6 @@ const BrainAI = {
         this.getHistory.bind(this),
         config.planMode
     );
-    // ========================================================================
 
     let slots = activeCQIs.map((cqi, i) => {
       return {
