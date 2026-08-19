@@ -9,18 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f0f4f8; 
-    --surface: #ffffff; 
-    --surface-hover: #f8fafc; 
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface-hover: #f8fafc;
     --border: #cbd5e1;
-    --text-main: #1e293b; 
-    --text-muted: #64748b; 
+    --text-main: #1e293b;
+    --text-muted: #64748b;
     --text-subtle: #94a3b8;
-    --accent: #2563eb; 
-    --accent-hover: #1d4ed8; 
-    --success: #16a34a; 
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --success: #16a34a;
     --success-bg: #dcfce7;
-    --warning: #d97706; 
+    --warning: #d97706;
     --danger: #dc2626;
     --radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
@@ -28,7 +28,7 @@
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden; }
-  
+
   /* Topbar */
   .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); z-index: 10; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
@@ -40,11 +40,11 @@
 
   /* App Layout (2 Columns) */
   .app-container { display: flex; flex: 1; overflow: hidden; }
-  
+
   /* Left Panel (Config) */
   .config-panel { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
   .config-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
-  
+
   /* Progress Bar di Panel Config */
   .meter-box { padding: 16px 20px; background: var(--surface-hover); border-bottom: 1px solid var(--border); }
   .meter-box p { margin: 0 0 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
@@ -57,10 +57,10 @@
   .group-header .t { display: flex; align-items: center; gap: 8px; }
   .group-header h3 { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-main); }
   .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-  
+
   .icon-btn { width: 28px; height: 28px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
   .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
-  
+
   .list-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
   .list-item:hover { border-color: #94a3b8; }
   .list-item.locked { border-color: var(--success); background: var(--success-bg); }
@@ -68,16 +68,16 @@
   .list-item input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; font-family: inherit; font-weight: 500; }
   .list-item input::placeholder { color: #cbd5e1; font-weight: 400; }
   .list-item.locked input { color: #166534; font-weight: 600; }
-  
+
   .row-actions { display: flex; gap: 2px; opacity: 0; transition: 0.2s; }
   .list-item:hover .row-actions, .list-item.locked .row-actions, .list-item:focus-within .row-actions { opacity: 1; }
   .row-actions .lock { color: var(--success); }
   .list-item.locked .row-actions .lock { color: var(--warning); }
   .row-actions .del:hover { color: var(--danger); background: #fee2e2; }
-  
+
   .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; }
   .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
-  
+
   .fields { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .fields label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
   .fields input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
@@ -96,7 +96,7 @@
 
   /* Right Panel (Output & Dashboard) */
   .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
-  
+
   /* Dashboard KPI (Diubah menjadi 4 kolom atau 7 item dinamis) */
   #dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .stat-box { background: var(--surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
@@ -109,12 +109,12 @@
   .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
   .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; }
-  
+
   #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; min-height: 250px; }
   #textOutput:focus { border-color: var(--accent); background: var(--surface); }
-  
+
   .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-  
+
   /* Buttons General */
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
   .btn:hover { background: var(--surface-hover); border-color: #94a3b8; }
@@ -140,20 +140,20 @@
     .topbar { padding: 0 12px; height: 56px; }
     .topbar h1 { font-size: 14px; padding-left: 10px; }
     .back-btn { padding: 4px 8px; font-size: 12px; }
-    
+
     #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .stat-box { padding: 10px; border-radius: 8px; }
     .stat-box p { font-size: 10px; }
     .stat-box span { font-size: 16px; margin-top: 4px; }
-    
+
     .main-content { padding: 12px; gap: 12px; }
     .card { padding: 14px; border-radius: 8px; }
     .card-head { flex-direction: column; gap: 6px; align-items: flex-start; }
     .card-head .meta { align-self: flex-start; }
-    
+
     .actions { flex-direction: column; gap: 8px; }
     .actions .btn { width: 100%; padding: 10px 16px; justify-content: center; }
-    
+
     .config-section { padding: 12px 14px; }
     .list-item { padding: 8px 10px; }
     .list-item input { font-size: 14px; }
@@ -207,7 +207,7 @@
         <div id="nonCoreList"></div>
         <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
       </div>
-      
+
       <!-- HANYA 1 KOLOM INPUT ANGKA UNTUK NC LONGSHIFT -->
       <div class="config-section fields">
         <div class="group-header" style="margin-bottom: 8px;">
@@ -317,7 +317,7 @@
     const n = getListData(storageKeys.nonCore).length;
     const ls = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     const q = getListData(storageKeys.qcPassed).length;
-    
+
     document.getElementById('cnt-core').innerText = c;
     document.getElementById('cnt-noncore').innerText = n;
     document.getElementById('cnt-qc').innerText = q;
@@ -353,10 +353,10 @@
     renderList('coreList', storageKeys.core);
     renderList('nonCoreList', storageKeys.nonCore);
     renderList('qcPassedList', storageKeys.qcPassed);
-    
+
     // Set value LS dari local storage
     document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
-    
+
     await loadDefaultManpower();
     updateCounters();
 
@@ -386,7 +386,7 @@
 
         const response = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
         if (!response.ok) return;
-        
+
         const data = await response.json();
         let needsUpdate = false;
 
@@ -399,21 +399,21 @@
             });
         };
 
-        if (data.core && checkEmpty(storageKeys.core)) { 
-            saveData(storageKeys.core, formatData(data.core)); 
-            needsUpdate = true; 
+        if (data.core && checkEmpty(storageKeys.core)) {
+            saveData(storageKeys.core, formatData(data.core));
+            needsUpdate = true;
         }
-        
+
         const nonCoreData = data.nonCore || data.noncore;
-        if (nonCoreData && checkEmpty(storageKeys.nonCore)) { 
-            saveData(storageKeys.nonCore, formatData(nonCoreData)); 
-            needsUpdate = true; 
+        if (nonCoreData && checkEmpty(storageKeys.nonCore)) {
+            saveData(storageKeys.nonCore, formatData(nonCoreData));
+            needsUpdate = true;
         }
-        
+
         const qcData = data.qcPassed || data.qc;
-        if (qcData && checkEmpty(storageKeys.qcPassed)) { 
-            saveData(storageKeys.qcPassed, formatData(qcData)); 
-            needsUpdate = true; 
+        if (qcData && checkEmpty(storageKeys.qcPassed)) {
+            saveData(storageKeys.qcPassed, formatData(qcData));
+            needsUpdate = true;
         }
 
         if (needsUpdate) {
@@ -479,7 +479,7 @@
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-    
+
     let validationReport = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(validationReport.info, validationReport.violations);
 
@@ -516,11 +516,11 @@
 
     document.getElementById('db-run').innerText = state.machines.length;
     document.getElementById('db-cov').innerText = covered;
-    
+
     // Tampilkan sisa pekerja NC Longshift
     let sisaLs = currentPlan.leftoverLongshifts ? currentPlan.leftoverLongshifts.length : 0;
     document.getElementById('db-sisa-ls').innerText = sisaLs;
-    
+
     document.getElementById('db-cqi').innerText = currentPlan.length;
   }
 
@@ -535,11 +535,11 @@
     let report = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(report.info, report.violations);
 
-    if(!report.valid){ 
-      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran (Cek juga jika ada mesin terlewat)."); 
-      return; 
+    if(!report.valid){
+      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran (Cek juga jika ada mesin terlewat).");
+      return;
     }
-    
+
     currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
     const validatedPayload = {
       version: 1,

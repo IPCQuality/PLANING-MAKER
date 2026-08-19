@@ -17,15 +17,16 @@
     .brand{font-weight:700;font-size:1.1rem;color:var(--cqi-ready);display:flex;align-items:center;gap:8px}
     .controls{display:flex;gap:8px;align-items:center}
 
-    /* Hamburger & header menu (positioned right beside konfigurasi) */
+    /* Hamburger & header menu */
     .hamburger{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer}
     .hamburger:hover{background:#f8fafc}
-    .header-menu{position:absolute;top:64px;right:16px;left:auto;width:320px;max-width:calc(100vw - 32px);background:white;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:12px;display:none;z-index:60}
+    .header-menu{position:absolute;top:64px;right:16px;left:auto;width:260px;max-width:calc(100vw - 32px);background:white;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:14px;display:none;z-index:60}
     .header-menu.active{display:block}
-    .header-menu .menu-section{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-    .header-menu .menu-note{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+    .header-menu .menu-section{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    .header-menu .menu-section:last-child{margin-bottom:0}
+    .header-menu .menu-note{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px}
 
-    .btn{background:#f8fafc;color:var(--text-main);border:1px solid var(--border);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+    .btn{background:#f8fafc;color:var(--text-main);border:1px solid var(--border);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:500;display:inline-flex;align-items:center;gap:8px;width:100%;justify-content:flex-start}
     .btn:hover{background:#f1f5f9;border-color:#94a3b8}
     .btn-primary{background:var(--cqi-ready);color:white;border:1px solid transparent}
     .btn-primary:hover{background:#1d4ed8}
@@ -64,10 +65,8 @@
     .excel-corner{background:#f1f5f9}
     .grid-cell{border:1px solid var(--grid-line);min-width:78px;min-height:52px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
 
-    .line-box{position:relative;border:2px dashed #2563eb;background:rgba(239,246,255,0.25);z-index:1;display:flex;flex-direction:column}
-    .line-box .line-box-header{font-size:.75rem;font-weight:700;color:#1e3a8a;background:#bfdbfe;padding:4px 8px;width:max-content}
-    .resize-handle{width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;position:absolute;bottom:-6px;right:-6px;cursor:se-resize;display:none;z-index:12}
-    body.mode-edit .resize-handle{display:block}
+    .line-box{position:relative;border:2px dashed #3b82f6;background:rgba(239,246,255,0.25);z-index:1;display:flex;flex-direction:column}
+    .line-box .line-box-header{font-size:.75rem;font-weight:700;color:#60a5fa;background:#bfdbfe;padding:4px 8px;width:max-content}
 
     .node{width:94%;height:90%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;text-align:center;cursor:pointer;border-radius:6px;position:relative}
     .node-machine.OFF{background:var(--offplan);color:var(--offplan-text);border:1px solid var(--border)}
@@ -89,11 +88,14 @@
     .del-btn{position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;display:none;line-height:18px;text-align:center;cursor:pointer}
     body.mode-edit .del-btn{display:block}
     body.mode-edit .node{cursor:grab}
-    body.mode-landing .control-edit{display:none}
-    body.mode-edit .control-landing{display:none}
+
+    /* Mode visibility controls */
+    body.mode-landing .control-edit{display:none !important}
+    body.mode-edit .control-landing{display:none !important}
+    body.mode-edit .menu-section.control-edit{display:flex !important}
 
     .zoom-controls{position:fixed;bottom:30px;right:30px;display:flex;gap:8px;z-index:1000}
-    .zoom-btn{background:white;border:1px solid var(--border);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem;font-weight:bold;box-shadow:var(--shadow)}
+    .zoom-btn{background:white;border:1px solid var(--border);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem;font-weight:bold;box-shadow:var(--shadow);display:inline-flex;align-items:center;justify-content:center}
 
     .toast-container{position:fixed;top:70px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
     .toast{background:white;border-left:4px solid var(--cqi-ready);box-shadow:var(--shadow);padding:12px 16px;border-radius:6px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px}
@@ -115,31 +117,30 @@
     </div>
 
     <div class="controls">
-      <!-- Lanjut Konfigurasi tetap visible -->
-      <button id="goConfigBtn" class="btn btn-primary control-landing">Lanjut Konfigurasi ➔</button>
+      <button id="goConfigBtn" class="btn btn-primary control-landing" style="width:auto">Lanjut Konfigurasi ➔</button>
 
-      <!-- Hamburger -->
+      <!-- Hamburger Menu -->
       <button id="hamburgerBtn" class="hamburger" aria-label="Menu">☰</button>
 
       <div id="headerMenu" class="header-menu" role="menu" aria-hidden="true">
-        <div class="menu-note">Menu Utama — fitur dan penambahan node</div>
-
+        <div class="menu-note">Mode & Fitur</div>
         <div class="menu-section">
           <button id="menuEditBtn" class="btn">✏️ Edit MAP</button>
-          <button id="menuResetBtn" class="btn btn-danger">🔄 Reset Map</button>
           <button id="menuHeatmapBtn" class="btn">🔥 Heatmap</button>
         </div>
 
-        <div class="menu-note">Tambah Node</div>
-        <div class="menu-section">
+        <!-- Section Tambah Node: Hanya tampil saat di Edit Mode -->
+        <div class="menu-note control-edit">Tambah Node</div>
+        <div class="menu-section control-edit">
           <button id="menuAddMachine" class="btn btn-primary">➕ Mesin</button>
           <button id="menuAddCqi" class="btn btn-primary">➕ CQI</button>
           <button id="menuAddLabel" class="btn btn-primary">➕ Label</button>
-          <button id="menuAddLine" class="btn btn-primary">➕ Batas Line</button>
         </div>
 
+        <div class="menu-note">Aksi Map</div>
         <div class="menu-section">
           <button id="menuSaveMap" class="btn btn-success">💾 Save map.json</button>
+          <button id="menuResetBtn" class="btn btn-danger">🔄 Reset Map</button>
           <button id="menuDone" class="btn">⬅️ Selesai</button>
         </div>
       </div>
@@ -153,12 +154,12 @@
       <div class="panel-header"><h3>Filter & Status</h3></div>
       <div class="panel-body">
         <div style="display:flex;gap:8px">
-          <button class="btn btn-success" style="flex:1;font-size:.75rem" onclick="setAllMachinesRunning()">Run All</button>
-          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="setAllMachinesOff()">All Off</button>
+          <button class="btn btn-success" style="flex:1;font-size:.75rem;justify-content:center" onclick="setAllMachinesRunning()">Run All</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem;justify-content:center" onclick="setAllMachinesOff()">All Off</button>
         </div>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <button class="btn btn-primary" style="flex:1;font-size:.75rem" onclick="setAllCqiReady()">Ready All</button>
-          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="setAllCqiOff()">All Off</button>
+          <button class="btn btn-primary" style="flex:1;font-size:.75rem;justify-content:center" onclick="setAllCqiReady()">Ready All</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem;justify-content:center" onclick="setAllCqiOff()">All Off</button>
         </div>
 
         <div class="stats-box">
@@ -179,11 +180,15 @@
 
     <div class="heatmap-legend" id="heatmapLegend">
       <div class="heatmap-legend-title">🔥 MANHATTAN ROUTE (WORKSTATION ENTRY)</div>
-      <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#16a34a"></span><span>Garis ditarik dari Mesin ➔ Label WS ➔ CQI</span></div>
+      <div class="heatmap-legend-row"><span class="heatmap-dot" style="background: conic-gradient(#ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7, #ef4444);"></span><span>Setiap CQI memiliki warna unik (Mesin, Garis & CQI)</span></div>
+      <div class="heatmap-legend-row"><span>Rute: Mesin ➔ (Label WS) ➔ (Checkpoint Lintas A/B/C) ➔ CQI</span></div>
       <div class="heatmap-legend-row"><span id="heatmapPlanInfo">Belum ada planning aktif</span></div>
     </div>
 
-    <div class="zoom-controls"><button class="zoom-btn" onclick="zoomOut()">-</button><button class="zoom-btn" onclick="zoomIn()">+</button></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()" style="display:none">-</button>
+      <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+    </div>
   </div>
 
   <div class="modal-overlay" id="nodeModal">
@@ -191,16 +196,24 @@
       <h3 id="modalTitle">Tambah Node</h3>
       <div id="modalFormContainer"></div>
       <div class="modal-actions">
-        <button class="btn" onclick="closeNodeModal()">Batal</button>
-        <button id="modalSaveBtn" class="btn btn-primary" type="button">Simpan</button>
+        <button class="btn" style="width:auto" onclick="closeNodeModal()">Batal</button>
+        <button id="modalSaveBtn" class="btn btn-primary" style="width:auto" type="button">Simpan</button>
       </div>
     </div>
   </div>
 
   <script src="brain.js"></script>
   <script>
-    let mapData = { machines: [], cqis: [], labels: [], lines: [] };
-    let currentZoom = null, editMode = false, showHeatmap = false, draggedNode = null, activePlanning = null;
+    const DEFAULT_LINES = [
+      { id: 'line-a', name: 'LINE A', row: 2, col: 4, width: 24, height: 8, borderColor: '#3b82f6', textColor: '#60a5fa' },
+      { id: 'line-b', name: 'LINE B', row: 11, col: 4, width: 27, height: 6, borderColor: '#3b82f6', textColor: '#60a5fa' },
+      { id: 'line-c', name: 'LINE C', row: 13, col: 32, width: 22, height: 5, borderColor: '#3b82f6', textColor: '#60a5fa' },
+      { id: 'line-ww', name: 'WW', row: 7, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#60a5fa' },
+      { id: 'line-ot', name: 'OT', row: 2, col: 32, width: 4, height: 4, borderColor: '#3b82f6', textColor: '#60a5fa' }
+    ];
+
+    let mapData = { machines: [], cqis: [], labels: [], lines: [...DEFAULT_LINES] };
+    let currentZoom = null, initialFitZoom = null, editMode = false, showHeatmap = false, draggedNode = null, activePlanning = null;
     let activeModalType = null;
 
     const GRID_WIDTH = 4330, GRID_HEIGHT = 1068;
@@ -215,7 +228,6 @@
 
     function resetFactoryState(){ if(!confirm("Reset map state?")) return; localStorage.removeItem('factory_internal_storage'); showToast("Map direset","success"); setTimeout(()=>location.reload(),600); }
 
-    // Optimization: requestAnimationFrame for wheel event
     let isWheelTicking = false;
     mapViewport.addEventListener('wheel', function(e){
       if (e.deltaY === 0) return;
@@ -254,7 +266,6 @@
     document.getElementById('menuAddMachine').addEventListener('click', ()=>{ openNodeModal('machine'); headerMenu.classList.remove('active'); });
     document.getElementById('menuAddCqi').addEventListener('click', ()=>{ openNodeModal('cqi'); headerMenu.classList.remove('active'); });
     document.getElementById('menuAddLabel').addEventListener('click', ()=>{ openNodeModal('label'); headerMenu.classList.remove('active'); });
-    document.getElementById('menuAddLine').addEventListener('click', ()=>{ openNodeModal('line'); headerMenu.classList.remove('active'); });
 
     document.getElementById('menuSaveMap').addEventListener('click', ()=>{ exportMapJson(); headerMenu.classList.remove('active'); });
     document.getElementById('menuDone').addEventListener('click', ()=>{ if(editMode) toggleEditMode(); headerMenu.classList.remove('active'); });
@@ -271,7 +282,7 @@
       mapData.machines = mapData.machines || [];
       mapData.cqis = mapData.cqis || [];
       mapData.labels = mapData.labels || [];
-      mapData.lines = mapData.lines || [];
+      mapData.lines = (mapData.lines && mapData.lines.length > 0) ? mapData.lines : [...DEFAULT_LINES];
 
       initializeStatuses(); renderWorkstationButtons(); applyZoom(true);
     }
@@ -335,18 +346,17 @@
 
     function toggleSidePanel(){ const p = document.getElementById('sidePanel'); p.classList.toggle('closed'); document.getElementById('panelToggleBtn').innerText = p.classList.contains('closed') ? '▶' : '◀'; setTimeout(()=>applyZoom(false),310); }
 
-    // Optimization: DocumentFragment to prevent Layout Thrashing
     function renderGrid(){
       const grid = document.getElementById('factoryGrid');
       grid.innerHTML = '';
-      
+
       const fragment = document.createDocumentFragment();
       let totalCols = 55, totalRows = 20;
-      
-      grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`; 
+
+      grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`;
       grid.style.gridTemplateRows = `28px repeat(${totalRows}, 52px)`;
 
-      const cellMap = {}; // Membantu pencarian node ke cell
+      const cellMap = {};
 
       let corner = document.createElement('div'); corner.className = 'excel-header excel-corner'; corner.innerText = 'R\\C';
       corner.style.gridRow = '1'; corner.style.gridColumn = '1'; fragment.appendChild(corner);
@@ -362,7 +372,7 @@
           let cell = document.createElement('div'); cell.className = 'grid-cell'; cell.dataset.row = r; cell.dataset.col = c;
           cell.style.gridRow = `${r+1}`; cell.style.gridColumn = `${c+1}`;
           cell.ondragover = e => e.preventDefault(); cell.ondrop = e => handleDrop(e,r,c);
-          
+
           cellMap[`${r}-${c}`] = cell;
           fragment.appendChild(cell);
         }
@@ -376,40 +386,37 @@
           const col = Math.max(1, Math.min(1000, (line.col||1)));
           const width = Math.max(1, Math.min(1000, (line.width||1)));
           const height = Math.max(1, Math.min(1000, (line.height||1)));
-          
+
           lEl.style.gridRow = `${row + 1} / span ${height}`; lEl.style.gridColumn = `${col + 1} / span ${width}`;
-          lEl.innerHTML = `<div class="line-box-header">${line.name}</div>`;
-          
-          if (editMode){
-            lEl.draggable = true; 
-            lEl.ondragstart = e => { 
-              draggedNode = { node: line, type: 'line' }; 
-              // Bebaskan pointer events sementara agar drop target pada cell bisa terbaca
-              setTimeout(() => { lEl.style.pointerEvents = 'none'; }, 0); 
-            };
-            lEl.ondragend = () => { if(editMode) lEl.style.pointerEvents = 'auto'; };
-            
-            let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; 
-            d.onclick = e => { e.stopPropagation(); deleteNode(line.id,'line'); }; 
-            lEl.appendChild(d);
-            
-            let h = document.createElement('div'); h.className = 'resize-handle'; 
-            h.onmousedown = e => { e.preventDefault(); e.stopPropagation(); initResizeLine(e,line); }; 
-            lEl.appendChild(h);
-            
-            lEl.style.pointerEvents = 'auto';
-            const hdr = lEl.querySelector('.line-box-header'); if (hdr) hdr.style.pointerEvents = 'auto';
-          } else {
-            lEl.style.pointerEvents = 'none';
-          }
+          if (line.borderColor) lEl.style.borderColor = line.borderColor;
+
+          let headerStyle = line.textColor ? `style="color:${line.textColor}"` : '';
+          lEl.innerHTML = `<div class="line-box-header" ${headerStyle}>${line.name}</div>`;
+          lEl.style.pointerEvents = 'none';
+
           fragment.appendChild(lEl);
         });
       }
 
       const assignments = new Map();
+      const plannedCqiIds = new Set();
+
+      // Dynamic Heatmap Colors - 20 Palet Cerah yang Kuat
+      const cqiColors = [
+        '#e11d48', '#d97706', '#65a30d', '#059669', '#0891b2', '#0284c7',
+        '#4f46e5', '#7c3aed', '#c026d3', '#be123c', '#b45309', '#4d7c0f',
+        '#047857', '#0f766e', '#0369a1', '#4338ca', '#6d28d9', '#a21caf',
+        '#9f1239', '#ea580c'
+      ];
+      let cqiColorMap = {};
+
       if (activePlanning && Array.isArray(activePlanning.slots)){
-        activePlanning.slots.forEach(s=>{
-          if (s && s.cqi && s.machines) s.machines.forEach(m => assignments.set(String(m.id || m.name).trim(), s.cqi));
+        activePlanning.slots.forEach((s, idx) => {
+          if (s && s.cqi && s.machines) {
+            cqiColorMap[s.cqi.id] = cqiColors[idx % cqiColors.length];
+            s.machines.forEach(m => assignments.set(String(m.id || m.name).trim(), s.cqi));
+            if (s.machines.length > 0) plannedCqiIds.add(s.cqi.id);
+          }
         });
       }
 
@@ -418,24 +425,44 @@
         if (!cell) return;
         let div = document.createElement('div'); div.className = `node node-${type} ${node.status || ''}`;
         div.id = node.id; div.innerHTML = `<span>${node.name}</span>`;
-        let planCqi = assignments.get(String(node.id || node.name).trim());
-        
-        if (planCqi){
-          div.classList.add('planned');
-          if (type === 'machine' && showHeatmap) div.innerHTML += `<span class="heatmap-badge">${planCqi.name}</span>`;
+
+        // Logic Styling Saat Heatmap (Warna Mesin & Target Target)
+        if (type === 'machine') {
+            let planCqi = assignments.get(String(node.id || node.name).trim());
+            if (planCqi) {
+                div.classList.add('planned');
+                let nodeColor = cqiColorMap[planCqi.id] || '#16a34a';
+                if (showHeatmap) {
+                    div.style.backgroundColor = nodeColor;
+                    div.style.borderColor = nodeColor;
+                    div.style.color = '#ffffff';
+                    div.style.boxShadow = `0 2px 8px ${nodeColor}80`;
+                    div.innerHTML += `<span class="heatmap-badge" style="background:#ffffff; color:${nodeColor};">${planCqi.name}</span>`;
+                }
+            }
+        } else if (type === 'cqi') {
+            if (plannedCqiIds.has(node.id)) {
+                div.classList.add('planned-target');
+                let nodeColor = cqiColorMap[node.id] || '#16a34a';
+                if (showHeatmap) {
+                    div.style.backgroundColor = nodeColor;
+                    div.style.borderColor = nodeColor;
+                    div.style.color = '#ffffff';
+                    div.style.boxShadow = `0 0 0 3px white, 0 0 18px ${nodeColor}`;
+                }
+            }
         }
-        
+
         if (editMode){
-          div.draggable = true; 
-          div.ondragstart = () => { 
-            draggedNode = { node, type }; 
-            // Bebaskan target drop di background agar ondrop bisa terpanggil
+          div.draggable = true;
+          div.ondragstart = () => {
+            draggedNode = { node, type };
             setTimeout(() => { div.style.pointerEvents = 'none'; }, 0);
           };
           div.ondragend = () => { if(editMode) div.style.pointerEvents = 'auto'; };
-          
-          let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; 
-          d.onclick = e => { e.stopPropagation(); deleteNode(node.id, type); }; 
+
+          let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X';
+          d.onclick = e => { e.stopPropagation(); deleteNode(node.id, type); };
           div.appendChild(d);
         } else {
           if (type === 'machine' || type === 'cqi') div.onclick = () => cycleStatus(node,type);
@@ -451,71 +478,99 @@
         const svgNS = "http://www.w3.org/2000/svg"; let svg = document.createElementNS(svgNS,"svg");
         svg.style.position = "absolute"; svg.style.top = "0"; svg.style.left = "0"; svg.style.width = "100%"; svg.style.height = "100%"; svg.style.pointerEvents = "none"; svg.style.zIndex = "8";
         const getCenter = (n) => ({ x: 40 + (n.col - 1) * 78 + 39, y: 28 + (n.row - 1) * 52 + 26 });
-        
+
         assignments.forEach((cqiTarget, mId)=>{
           let mac = mapData.machines.find(x => String(x.id || x.name).trim() === mId);
           if (!mac || mac.status !== 'RUNNING') return;
           let tgt = mapData.cqis.find(x => String(x.id || x.name).trim() === String(cqiTarget.id || cqiTarget.name).trim());
           if (!tgt) return;
-          
+
           let wsKey = BrainAI.getWorkstationKey(mac.name || mac.id);
           let wl = mapData.labels.find(l => BrainAI.normalizeName(l.name) === BrainAI.normalizeName(wsKey));
+          let pathColor = cqiColorMap[tgt.id] || '#16a34a';
+
+          // Deteksi Pengecualian WW & OT
+          let cqiMatch = String(tgt.name || tgt.id).match(/\d+/);
+          let cqiNum = cqiMatch ? cqiMatch[0] : null;
+          let isWWorOT = (cqiNum === '24' || cqiNum === '19' || wsKey === 'WW' || wsKey === 'OT');
+
+          // Zone Check
+          let mZone = (mac.col >= 32 || (wsKey && wsKey.endsWith('C'))) ? 'C' : 'AB';
+          let cZone = (tgt.col >= 32) ? 'C' : 'AB';
+
           let p1 = getCenter(mac);
           let pEnd = getCenter(tgt);
-          let dPath = "";
-          
-          if (wl){
-            let pLabel = getCenter(wl);
-            dPath = `M ${p1.x} ${p1.y} L ${pLabel.x} ${p1.y} L ${pLabel.x} ${pLabel.y} L ${pEnd.x} ${pLabel.y} L ${pEnd.x} ${pEnd.y}`;
-          } else {
-            dPath = `M ${p1.x} ${p1.y} L ${pEnd.x} ${p1.y} L ${pEnd.x} ${pEnd.y}`;
+          let pLabel = wl ? getCenter(wl) : null;
+
+          let pCP1 = getCenter({row: 10, col: 31});
+          let pCP2 = getCenter({row: 12, col: 31});
+
+          let routePoints = [p1];
+          if (pLabel) routePoints.push(pLabel);
+
+          // Routing Menyesuaikan Checkpoint Lintas Batas (Terkecuali WW & OT)
+          if (!isWWorOT && mZone === 'AB' && cZone === 'C') {
+              routePoints.push(pCP1, pCP2);
+          } else if (!isWWorOT && mZone === 'C' && cZone === 'AB') {
+              routePoints.push(pCP2, pCP1);
           }
-          
+
+          routePoints.push(pEnd);
+
+          // Builder Manhattan Path (90 Derajat / Siku-Siku)
+          let dPath = `M ${routePoints[0].x} ${routePoints[0].y}`;
+          for (let i = 1; i < routePoints.length; i++) {
+              let prev = routePoints[i - 1];
+              let curr = routePoints[i];
+              dPath += ` L ${curr.x} ${prev.y} L ${curr.x} ${curr.y}`;
+          }
+
           let path = document.createElementNS(svgNS, "path");
-          path.setAttribute("d", dPath); path.setAttribute("fill","none"); path.setAttribute("stroke","#16a34a");
+          path.setAttribute("d", dPath); path.setAttribute("fill","none"); path.setAttribute("stroke", pathColor);
           path.setAttribute("stroke-width","4"); path.setAttribute("stroke-dasharray","8,5"); path.setAttribute("stroke-linejoin","round");
           svg.appendChild(path);
-          
-          let cEl = fragment.querySelector(`[id="${tgt.id}"]`);
-          if (cEl) cEl.classList.add('planned-target');
         });
         fragment.appendChild(svg);
       }
 
-      grid.appendChild(fragment); // Masukkan semua dari fragment ke DOM (1 kali re-paint)
+      grid.appendChild(fragment);
       updateStatsAndButtons();
     }
 
     function applyZoom(init=false){
       let mx = mapViewport.clientWidth / GRID_WIDTH, my = mapViewport.clientHeight / GRID_HEIGHT;
-      // Berubah dari Math.min menjadi Math.max (Fill screen default)
-      let fitZoom = Math.max(mx, my); 
-      
+      let fitZoom = Math.max(mx, my);
+
       if (!isFinite(fitZoom) || fitZoom <= 0) fitZoom = 0.1;
-      if (init || currentZoom === null) currentZoom = fitZoom;
-      currentZoom = Math.max(0.1, Math.min(3, currentZoom)); // Memberi batas rasional minimal .1x
-      
+      if (init || currentZoom === null) {
+        currentZoom = fitZoom;
+        initialFitZoom = fitZoom;
+      }
+      currentZoom = Math.max(0.1, Math.min(3, currentZoom));
+
       document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
       document.getElementById('gridWrapper').style.width = `${GRID_WIDTH * currentZoom}px`;
       document.getElementById('gridWrapper').style.height = `${GRID_HEIGHT * currentZoom}px`;
+
+      updateZoomButtons();
     }
+
+    function updateZoomButtons(){
+      const outBtn = document.getElementById('zoomOutBtn');
+      if (!outBtn) return;
+      if (initialFitZoom !== null && currentZoom > initialFitZoom + 0.01) {
+        outBtn.style.display = 'inline-flex';
+      } else {
+        outBtn.style.display = 'none';
+      }
+    }
+
     function zoomIn(){ currentZoom = (currentZoom || 1) + 0.1; applyZoom(); }
     function zoomOut(){ currentZoom = (currentZoom || 1) - 0.1; applyZoom(); }
 
     function cycleStatus(node,type){ const arr = type === 'machine' ? ['OFF','RUNNING'] : ['OFF','READY']; node.status = arr[(arr.indexOf(node.status)+1)%arr.length]; renderGrid(); }
     function handleDrop(e,r,c){ if(!editMode || !draggedNode) return; e.preventDefault(); draggedNode.node.row = r; draggedNode.node.col = c; draggedNode = null; renderGrid(); }
     function deleteNode(id,type){ if(!confirm('Hapus?')) return; mapData[type+'s'] = mapData[type+'s'].filter(x => x.id !== id); renderGrid(); }
-
-    function initResizeLine(e,line){
-      let sx = e.clientX, sy = e.clientY, sw = line.width, sh = line.height;
-      function move(me){
-        line.width = Math.max(1, sw + Math.round((me.clientX - sx) / (78 * currentZoom)));
-        line.height = Math.max(1, sh + Math.round((me.clientY - sy) / (52 * currentZoom)));
-        renderGrid();
-      }
-      function up(){ document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); }
-      document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
-    }
 
     function setAllMachinesRunning(){ mapData.machines.forEach(m=>m.status='RUNNING'); renderGrid(); }
     function setAllMachinesOff(){ mapData.machines.forEach(m=>m.status='OFF'); renderGrid(); }
@@ -526,33 +581,20 @@
       activeModalType = t;
       const c = document.getElementById('modalFormContainer');
       document.getElementById('modalTitle').innerText = `Tambah ${t.toUpperCase()}`;
-      const saveBtn = document.getElementById('modalSaveBtn');
 
-      // Hitung posisi center viewport untuk dijadikan default Row / Col Node
       let centerRow = Math.max(1, Math.floor((mapViewport.scrollTop + mapViewport.clientHeight / 2) / (52 * (currentZoom || 1))));
       let centerCol = Math.max(1, Math.floor((mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (78 * (currentZoom || 1))));
-      
-      // Amankan maksimum (gridnya total kolom 55 dan total baris 20)
+
       centerRow = Math.min(20, centerRow);
       centerCol = Math.min(55, centerCol);
 
-      if (t === 'line'){
-        saveBtn.innerText = 'Simpan Line';
-        c.innerHTML = `
-          <div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama line..." required></div>
-          <div class="form-group"><label>Row (angka)</label><input type="number" id="nRow" class="form-control" value="${centerRow}" min="1"></div>
-          <div class="form-group"><label>Column (angka)</label><input type="number" id="nCol" class="form-control" value="${centerCol}" min="1"></div>
-          <div class="form-group"><label>Width (span kolom)</label><input type="number" id="nWidth" class="form-control" value="5" min="1"></div>
-          <div class="form-group"><label>Height (span baris)</label><input type="number" id="nHeight" class="form-control" value="5" min="1"></div>
-        `;
-      } else {
-        saveBtn.innerText = 'Simpan';
-        c.innerHTML = `
-          <div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama..." required></div>
-          <input type="hidden" id="nRow" value="${centerRow}">
-          <input type="hidden" id="nCol" value="${centerCol}">
-        `;
-      }
+      document.getElementById('modalSaveBtn').innerText = 'Simpan';
+      c.innerHTML = `
+        <div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama..." required></div>
+        <input type="hidden" id="nRow" value="${centerRow}">
+        <input type="hidden" id="nCol" value="${centerCol}">
+      `;
+
       document.getElementById('nodeModal').classList.add('active');
       setTimeout(()=>{ const ni = document.getElementById('nName'); if(ni) ni.focus(); },50);
     }
@@ -564,33 +606,20 @@
       let name = nameEl.value.trim(); if(!name){ alert('Nama wajib diisi'); nameEl.focus(); return; }
       let id = activeModalType.charAt(0).toUpperCase() + '-' + Date.now();
 
-      // Membaca Value dinamis Center
       let rVal = document.getElementById('nRow') ? parseInt(document.getElementById('nRow').value,10) : 1;
       let cVal = document.getElementById('nCol') ? parseInt(document.getElementById('nCol').value,10) : 1;
 
       let row = Math.max(1, rVal || 1);
       let col = Math.max(1, cVal || 1);
 
-      if (activeModalType === 'line'){
-        let width = parseInt(document.getElementById('nWidth').value,10) || 5;
-        let height = parseInt(document.getElementById('nHeight').value,10) || 5;
-        width = Math.max(1,width); height = Math.max(1,height);
-        
-        const newLine = { id, name, row, col, width, height };
-        mapData.lines.push(newLine);
-        closeNodeModal(); renderGrid();
-        showToast('Batas line ditambahkan', 'success');
-        // Fitur auto-save dihapus (exportMapJson)
-        return;
-      } else {
-        if (activeModalType === 'machine') mapData.machines.push({ id, name, row, col, status:'OFF' });
-        else if (activeModalType === 'cqi') mapData.cqis.push({ id, name, row, col, status:'OFF' });
-        else if (activeModalType === 'label') mapData.labels.push({ id, name, row, col });
-        else {
-          if (!mapData[activeModalType+'s']) mapData[activeModalType+'s'] = [];
-          mapData[activeModalType+'s'].push({ id, name, row, col });
-        }
+      if (activeModalType === 'machine') mapData.machines.push({ id, name, row, col, status:'OFF' });
+      else if (activeModalType === 'cqi') mapData.cqis.push({ id, name, row, col, status:'OFF' });
+      else if (activeModalType === 'label') mapData.labels.push({ id, name, row, col });
+      else {
+        if (!mapData[activeModalType+'s']) mapData[activeModalType+'s'] = [];
+        mapData[activeModalType+'s'].push({ id, name, row, col });
       }
+
       closeNodeModal(); renderGrid();
     }
 
@@ -598,7 +627,7 @@
 
     function toggleEditMode(){ editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
     function toggleHeatmap(){ if(!activePlanning){ showToast("Tidak ada plan aktif!", "error"); return; } showHeatmap = !showHeatmap; renderGrid(); }
-    
+
     function exportMapJson(){
       let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" });
       let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "map.json"; a.click();
@@ -613,16 +642,14 @@
       window.location.href = 'config.html';
     }
 
-    // Optimization: Resize dengan debounce
     let resizeTimeout;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => applyZoom(), 150);
     });
-    
+
     loadMap();
 
-    // helpers
     function getColLetter(col){
       let letter = '';
       while (col > 0){ let rem = (col - 1) % 26; letter = String.fromCharCode(65 + rem) + letter; col = Math.floor((col - 1) / 26); }

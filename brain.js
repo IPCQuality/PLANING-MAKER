@@ -2,7 +2,7 @@
 ================================================================================
  PLANNER CQI LIQUID 3
  Brain AI Engine
- Version: 1.1.5
+ Version: 1.1.8 (Workstation Clustering & WW/APK Strict Rules)
 ================================================================================
 */
 
@@ -14,7 +14,7 @@
 
 const WORKSTATIONS = {
   "0A": ["AST 33-16L", "AST 63-16L", "AST 14-12L"],
-  "1A": ["AST 64-16L", "AST 36-16L", "AST 44-16L", "AST 61-16L"],
+  "1A": ["AST 36-16L", "AST 44-16L", "AST 61-16L"],
   "2A": ["AST 70-16L", "AST 69-16L", "AST 67-16L", "AST 68-16L"],
   "3A": ["AST 54-16L", "AST 55-16L", "AST 22-16L"],
   "4A": ["AST 26-16L", "AST 27-16L", "AST 28-16L", "AST 65-16L"],
@@ -96,13 +96,40 @@ const DistanceEngine = {
 
   getRoutedDistance(machine, cqi, getWsKeyFn) {
     let wsKey = machine.wsKey || getWsKeyFn(machine.name || machine.id);
+    let cqiMatch = String(cqi.name || cqi.id).match(/\d+/);
+    let cqiNum = cqiMatch ? cqiMatch[0] : null;
+    let isWWorOT = (cqiNum === '24' || cqiNum === '19' || wsKey === 'WW' || wsKey === 'OT');
+
+    let mZone = (wsKey && wsKey.endsWith('C')) ? 'C' : 'AB';
+    if (!wsKey && machine.col >= 32) mZone = 'C'; 
+    let cZone = (cqi.col >= 32) ? 'C' : 'AB';
+
+    let currentStartRow = machine.row;
+    let currentStartCol = machine.col;
+    let currentEndRow = cqi.row;
+    let currentEndCol = cqi.col;
+    let distTotal = 0;
+
     if (wsKey && WORKSTATION_GATES[wsKey]) {
       let gate = WORKSTATION_GATES[wsKey];
-      let distMachineToGate = this.getDistance(machine.row, machine.col, gate.row, gate.col);
-      let distGateToCQI = this.getDistance(gate.row, gate.col, cqi.row, cqi.col);
-      return distMachineToGate + distGateToCQI;
+      distTotal += this.getDistance(currentStartRow, currentStartCol, gate.row, gate.col);
+      currentStartRow = gate.row;
+      currentStartCol = gate.col;
     }
-    return this.getDistance(machine.row, machine.col, cqi.row, cqi.col);
+
+    if (!isWWorOT && mZone === 'AB' && cZone === 'C') {
+      distTotal += this.getDistance(currentStartRow, currentStartCol, 10, 31);
+      distTotal += this.getDistance(10, 31, 12, 31);
+      distTotal += this.getDistance(12, 31, currentEndRow, currentEndCol);
+    } else if (!isWWorOT && mZone === 'C' && cZone === 'AB') {
+      distTotal += this.getDistance(currentStartRow, currentStartCol, 12, 31);
+      distTotal += this.getDistance(12, 31, 10, 31);
+      distTotal += this.getDistance(10, 31, currentEndRow, currentEndCol);
+    } else {
+      distTotal += this.getDistance(currentStartRow, currentStartCol, currentEndRow, currentEndCol);
+    }
+
+    return distTotal;
   }
 };
 
@@ -262,17 +289,21 @@ const BrainAI = {
   _canAcceptMachine(slot, m, availableTotalNC) {
     if (slot.isExclusive) return { can: false };
 
+    let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
+    let cqiIdStr = match ? match[0] : String(slot.cqi.id);
+    let is24 = cqiIdStr === '24';
+    let is10 = cqiIdStr === '10';
+
+    // ATURAN WW (C1/C2): Eksklusif CQI 24 (WW), tidak diizinkan campur APK/AST
+    if (m.isC1C2 && !is24) return { can: false, reason: "ww_exclusive_cqi24" };
+    if (!m.isC1C2 && is24) return { can: false, reason: "cqi24_only_ww" };
+
     let hasAst = slot.machines.some(sm => sm.isAst);
     let hasApk = slot.machines.some(sm => sm.isApk);
     let hasKX = slot.machines.some(sm => sm.isKX);
     let hasC1C2 = slot.machines.some(sm => sm.isC1C2);
     let hasAnyApk = hasApk || hasKX || hasC1C2;
     let mIsAnyApk = m.isApk || m.isKX || m.isC1C2;
-
-    let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
-    let cqiIdStr = match ? match[0] : String(slot.cqi.id);
-    let is24 = cqiIdStr === '24';
-    let is10 = cqiIdStr === '10';
 
     if (is10) {
         if ((hasAst && m.isKX) || (hasKX && m.isAst)) return { can: false, reason: "strict_mix_cqi10" };
@@ -323,10 +354,14 @@ const BrainAI = {
         priorityBonus = 2000; 
     }
 
+    // CLUSTERING WORKSTATION (PRIORITASKAN 1 WORKSTATION DALAM 1 CQI & DERETKAN MESIN)
     let wsBonus = 0;
     if (m.wsKey) {
-      let sameWs = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
-      if (sameWs > 0) wsBonus = 500 + (sameWs * 200); 
+      let sameWsCount = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
+      if (sameWsCount > 0) {
+        // Bonus eksponensial kuat agar mesin dari workstation yang sama mengelompok (tidak selang-seling)
+        wsBonus = 1500 + (sameWsCount * 500); 
+      }
     }
 
     let ncPenalty = acceptStatus.neededNC > 0 ? -1000 : 0; 
@@ -407,6 +442,9 @@ const BrainAI = {
       return nm;
     });
 
+    // Urutkan unassigned berdasarkan wsKey secara ketat agar mesin dalam satu workstation terderet berurutan
+    unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || '') || (a.name || '').localeCompare(b.name || ''));
+
     let cqiScores = cqis.map(cqi => {
         let score = 0;
         let match = String(cqi.name || cqi.id).match(/\d+/);
@@ -447,7 +485,6 @@ const BrainAI = {
       };
     });
 
-    // DETEKSI STATUS CQI 19 (OT) & CQI 24 (WW)
     let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
     let m2m3MachinesExist = unassigned.some(m => m.isM2M3);
     let isCQI19Active = Boolean(slot19 && m2m3MachinesExist);
@@ -456,7 +493,6 @@ const BrainAI = {
     let c1c2MachinesExist = unassigned.some(m => m.isC1C2);
     let isCQI24Active = Boolean(slot24 && c1c2MachinesExist);
 
-    // HELPER IDENTIFIKASI MANPOWER (OT & WW)
     const isCOT1 = (coreObj) => {
         if (!coreObj) return false;
         let idUpper = String(coreObj.id || '').toUpperCase();
@@ -490,38 +526,28 @@ const BrainAI = {
         let match = String(cqiStr).match(/\d+/);
         let targetCqi = match ? match[0] : null;
 
-        // HIARARKI ATURAN CQI 19 / OT
         if (targetCqi === '19' && isCQI19Active) {
             let cot1Index = availableCores.findIndex(c => isCOT1(c));
             if (cot1Index !== -1) return availableCores.splice(cot1Index, 1)[0].name;
-
             let cot2Index = availableCores.findIndex(c => isCOT2(c));
             if (cot2Index !== -1) return availableCores.splice(cot2Index, 1)[0].name;
-
             return "NO VALID OT CORE (FARHAN/DINI REQUIRED)";
         }
 
-        // HIARARKI ATURAN CQI 24 / WW
         if (targetCqi === '24' && isCQI24Active) {
-            // PRIORITAS 1: Jiddan (CWW1)
             let cww1Index = availableCores.findIndex(c => isCWW1(c));
             if (cww1Index !== -1) return availableCores.splice(cww1Index, 1)[0].name;
-
-            // PRIORITAS 2 (FALLBACK): Mia (CWW2) jika CWW1 Absen
             let cww2Index = availableCores.findIndex(c => isCWW2(c));
             if (cww2Index !== -1) return availableCores.splice(cww2Index, 1)[0].name;
-
             return "NO VALID WW CORE (JIDDAN/MIA REQUIRED)";
         }
 
-        // CARI KANDIDAT NORMAL BERDASARKAN PRIORITY
         let candidates = availableCores.filter(c => {
             let prioMatch = false;
             if (c.cqi_priority) {
                 let prioNum = String(c.cqi_priority).match(/\d+/);
                 prioMatch = prioNum && prioNum[0] === targetCqi;
             }
-            // Tahan CORE spesifik jika CQI-nya aktif
             let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
             return prioMatch && !isRestricted;
         });
@@ -532,7 +558,6 @@ const BrainAI = {
             return selected.name;
         }
 
-        // FALLBACK BIASA: Ambil Core apa saja (Sesuai keaktifan CQI)
         let fallbackIndex = availableCores.findIndex(c => {
             let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
             return !isRestricted;
@@ -546,18 +571,11 @@ const BrainAI = {
         return fallback ? fallback.name : "UNKNOWN CORE";
     };
 
-    if (slot19) {
-        slot19.core = assignCoreToCQI('19');
-    }
-
-    if (slot24) {
-        slot24.core = assignCoreToCQI('24');
-    }
+    if (slot19) slot19.core = assignCoreToCQI('19');
+    if (slot24) slot24.core = assignCoreToCQI('24');
 
     slots.forEach(slot => {
-        if (!slot.core) {
-            slot.core = assignCoreToCQI(slot.cqi.name || slot.cqi.id);
-        }
+        if (!slot.core) slot.core = assignCoreToCQI(slot.cqi.name || slot.cqi.id);
     });
 
     const applyNonCoreIfNeeded = (slot) => {
@@ -591,7 +609,6 @@ const BrainAI = {
     if (slot24 && c1c2Machines.length > 0) {
       slot24.machines.push(...c1c2Machines);
       unassigned = unassigned.filter(m => !m.isC1C2);
-      
       slot24.isExclusive = true; 
       applyNonCoreIfNeeded(slot24);
     }
@@ -605,9 +622,7 @@ const BrainAI = {
       }
     });
 
-    unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || ''));
-    
-    // FASE 1: MASUKKAN MESIN SECA NORMAL
+    // FASE 1: MASUKKAN MESIN DENGAN CLUSTERING WORKSTATION
     let remainingUnassigned = [];
     unassigned.forEach(m => {
       let bestSlot = null;
@@ -631,10 +646,9 @@ const BrainAI = {
         slot24Fallback.isExclusive = false;
     }
     
-    // FASE 2: GESER & TUKAR NORMAL
+    // FASE 2: GESER & TUKAR (SWAP)
     if (remainingUnassigned.length > 0) {
       let iterations = remainingUnassigned.length * 5; 
-      
       while (remainingUnassigned.length > 0 && iterations > 0) {
         let u = remainingUnassigned.shift();
         let placed = false;
@@ -644,7 +658,6 @@ const BrainAI = {
 
         for (let target of fallbackSlots) {
           let accept = this._canAcceptMachine(target, u, nonCorePool.length + lsPool.length);
-          
           if (accept.can) {
             target.machines.push(u); 
             applyNonCoreIfNeeded(target);
@@ -670,10 +683,8 @@ const BrainAI = {
                   if(acceptOcc.can) {
                      target.machines.push(u); 
                      applyNonCoreIfNeeded(target);
-                     
                      home.machines.push(occupant); 
                      applyNonCoreIfNeeded(home);
-                     
                      placed = true; 
                      foundHome = true;
                      break;
@@ -686,31 +697,25 @@ const BrainAI = {
           }
           if (placed) break;
         }
-        
         if (!placed) remainingUnassigned.push(u); 
         iterations--;
       }
     }
 
-    // FASE 3: BULLDOZER (BYPASSING WORKSTATION PRIORITY)
+    // FASE 3: BULLDOZER
     if (remainingUnassigned.length > 0) {
         let tempUnassigned = [...remainingUnassigned];
         remainingUnassigned = [];
-        
         while(tempUnassigned.length > 0) {
             let u = tempUnassigned.shift();
-            
             let possibleSlots = slots.filter(s => {
                 let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
                 let is19 = match && match[0] === '19';
-                
                 if (is19 && !u.isM2M3) return false;
                 if (!is19 && u.isM2M3) return false;
-                
                 let accept = this._canAcceptMachine(s, u, nonCorePool.length + lsPool.length);
                 return accept.can;
             });
-            
             if (possibleSlots.length > 0) {
                 let closestTarget = possibleSlots.sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi))[0];
                 closestTarget.machines.push(u);
@@ -721,16 +726,12 @@ const BrainAI = {
         }
     }
 
-    // FASE 4: DESPERATE FORCE (FORCE ALL MESHIN IN)
+    // FASE 4: DESPERATE FORCE
     if (remainingUnassigned.length > 0) {
-        console.warn("BULLDOZER FASE AKHIR AKTIF: Memaksa sisa mesin masuk demi 100% Coverage (Max 8/CQI)!");
-        
         let tempUnassigned = [...remainingUnassigned];
         remainingUnassigned = [];
-        
         while(tempUnassigned.length > 0) {
             let u = tempUnassigned.shift();
-            
             let possibleSlots = slots.filter(s => {
                 let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
                 let is19 = match && match[0] === '19';
@@ -739,14 +740,15 @@ const BrainAI = {
                 
                 if (is19 && !u.isM2M3) return false;
                 if (!is19 && u.isM2M3) return false;
+                if (u.isC1C2 && !is24) return false;
+                if (!u.isC1C2 && is24) return false;
                 
                 let hasC1C2 = s.machines.some(m => m.isC1C2) || u.isC1C2;
                 let hardLimit = (is24 && hasC1C2) ? 4 : 8; 
 
                 let hasAst = s.machines.some(sm => sm.isAst);
-                let hasApk = s.machines.some(sm => sm.isApk);
-                let hasKX = s.machines.some(sm => sm.isKX);
                 let hasAnyApk = s.machines.some(sm => sm.isAnyApk);
+                let hasKX = s.machines.some(sm => sm.isKX);
 
                 if (is10) {
                     if ((hasKX && u.isAst) || (hasAst && u.isKX)) return false;
@@ -766,82 +768,6 @@ const BrainAI = {
                 remainingUnassigned.push(u); 
             }
         }
-    }
-
-    slots.forEach(slot => {
-        let astCount = slot.machines.filter(sm => sm.isAst).length;
-        let apkCount = slot.machines.filter(sm => sm.isAnyApk).length;
-        let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
-        let is19 = match && match[0] === '19';
-        
-        if (!is19 && slot.machines.length > 4) {
-            let reqNC = this._getRequiredNonCore(slot, astCount, apkCount);
-            let currentTotalNC = slot.nonCore.length + slot.longshift.length;
-            while (currentTotalNC < reqNC) {
-                if (nonCorePool.length > 0) {
-                    slot.nonCore.push(nonCorePool.shift());
-                    currentTotalNC++;
-                } else if (lsPool.length > 0) {
-                    slot.longshift.push(lsPool.shift());
-                    currentTotalNC++;
-                } else {
-                    break;
-                }
-            }
-        }
-    });
-
-    // OPTIMASI SWAPPING JARAK
-    let optIter = 0;
-    let improved = true;
-    while(improved && optIter < 10) {
-      improved = false;
-      for (let i = 0; i < slots.length; i++) {
-        for (let j = i + 1; j < slots.length; j++) {
-          let sA = slots[i]; let sB = slots[j];
-          if (sA.isExclusive || sB.isExclusive) continue;
-
-          for (let m = 0; m < sA.machines.length; m++) {
-            for (let n = 0; n < sB.machines.length; n++) {
-              let mA = sA.machines[m]; let mB = sB.machines[n];
-
-              let distBefore = this.getRoutedDistance(mA, sA.cqi) + this.getRoutedDistance(mB, sB.cqi);
-              let distAfter = this.getRoutedDistance(mA, sB.cqi) + this.getRoutedDistance(mB, sA.cqi);
-              
-              if (distAfter < distBefore - 3) {
-                sA.machines.splice(m, 1); sA.machines.push(mB);
-                sB.machines.splice(n, 1); sB.machines.push(mA);
-                
-                let cqiA = String(sA.cqi.name || sA.cqi.id).match(/\d+/); let is10A = cqiA && cqiA[0] === '10';
-                let cqiB = String(sB.cqi.name || sB.cqi.id).match(/\d+/); let is10B = cqiB && cqiB[0] === '10';
-
-                let astA = sA.machines.filter(sm => sm.isAst).length; let kxA = sA.machines.filter(sm => sm.isKX).length; let anyApkA = sA.machines.filter(sm => sm.isAnyApk).length;
-                let astB = sB.machines.filter(sm => sm.isAst).length; let kxB = sB.machines.filter(sm => sm.isKX).length; let anyApkB = sB.machines.filter(sm => sm.isAnyApk).length;
-
-                let validA = true;
-                if (is10A) { if(astA > 0 && kxA > 0) validA = false; } else { if(astA > 0 && anyApkA > 0) validA = false; }
-                
-                let validB = true;
-                if (is10B) { if(astB > 0 && kxB > 0) validB = false; } else { if(astB > 0 && anyApkB > 0) validB = false; }
-                
-                let reqA = this._getRequiredNonCore(sA, astA, anyApkA);
-                let reqB = this._getRequiredNonCore(sB, astB, anyApkB);
-                
-                let totalNCA = sA.nonCore.length + sA.longshift.length;
-                let totalNCB = sB.nonCore.length + sB.longshift.length;
-
-                if (!validA || !validB || reqA > totalNCA || reqB > totalNCB) {
-                   sA.machines.splice(sA.machines.length-1, 1); sA.machines.splice(m, 0, mA);
-                   sB.machines.splice(sB.machines.length-1, 1); sB.machines.splice(n, 0, mB);
-                } else {
-                   improved = true;
-                }
-              }
-            }
-          }
-        }
-      }
-      optIter++;
     }
 
     slots.leftoverNonCores = nonCorePool;
