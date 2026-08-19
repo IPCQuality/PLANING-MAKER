@@ -1,118 +1,148 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MAP LIQUID 3 - Factory UI</title>
   <style>
-    :root {
-      --bg-main: #f0f4f8; --bg-panel: #ffffff; --border: #cbd5e1; --grid-line: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b;
-      --running: #16a34a; --setup: #d97706; --down: #dc2626; --offplan: #e2e8f0; --offplan-text: #64748b; --cqi-ready: #2563eb; --cqi-off: #cbd5e1;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    :root{
+      --bg-main:#f0f4f8; --bg-panel:#ffffff; --border:#cbd5e1; --grid-line:#e2e8f0; --text-main:#1e293b; --text-muted:#64748b;
+      --running:#16a34a; --setup:#d97706; --down:#dc2626; --offplan:#e2e8f0; --offplan-text:#64748b; --cqi-ready:#2563eb; --cqi-off:#cbd5e1;
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    
-    header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 30; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .brand { font-weight: 700; font-size: 1.1rem; color: var(--cqi-ready); display: flex; align-items: center; gap: 8px; }
-    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn { background: #f8fafc; color: var(--text-main); border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
-    .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
-    .btn-primary { background: var(--cqi-ready); color: white; border: 1px solid transparent; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-success { background: var(--running); color: white; border: 1px solid transparent; }
-    .btn-success:hover { background: #15803d; }
-    .btn-danger { background: var(--down); color: white; border: 1px solid transparent; }
-    .btn-danger:hover { background: #b91c1c; }
-    
-    .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
-    .side-panel { width: 280px; flex-shrink: 0; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: margin-left 0.3s ease; z-index: 20; box-shadow: var(--shadow); }
-    .side-panel.closed { margin-left: -280px; }
-    
-    .panel-toggle-btn { position: absolute; left: 280px; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: white; border: 1px solid var(--border); border-left: none; border-radius: 0 8px 8px 0; color: var(--text-muted); cursor: pointer; z-index: 25; display: flex; align-items: center; justify-content: center; transition: left 0.3s ease; box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
-    .side-panel.closed ~ .panel-toggle-btn { left: 0; }
-    .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: #f8fafc; }
-    .panel-header h3 { font-size: 0.9rem; color: var(--text-main); margin: 0; font-weight: 600; text-align: center; }
-    .panel-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-    
-    .stats-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 0.8rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
-    .stat-line { display: flex; justify-content: space-between; align-items: center; }
-    .stat-val { font-weight: 700; color: var(--text-main); background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+    *{box-sizing:border-box;margin:0;padding:0;user-select:none}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-main);color:var(--text-main);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-    .ws-group { margin-bottom: 8px; }
-    .ws-group-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--grid-line); padding-bottom: 4px; }
-    .ws-group-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-    .ws-btn { background: #ffffff; color: var(--text-main); border: 1px solid var(--border); padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; flex: 1 1 calc(33.333% - 6px); text-align: center; }
-    .ws-btn.active-all { background: #dcfce7; color: #166534; border-color: #22c55e; }
-    .ws-btn.active-partial { background: #fef9c3; color: #854d0e; border-color: #eab308; }
+    header{background:var(--bg-panel);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:30;position:relative}
+    .brand{font-weight:700;font-size:1.1rem;color:var(--cqi-ready);display:flex;align-items:center;gap:8px}
+    .controls{display:flex;gap:8px;align-items:center}
 
-    .map-viewport { flex: 1; overflow: auto; background: var(--bg-main); position: relative; cursor: grab; }
-    .grid-wrapper { overflow: hidden; transform-origin: top left; padding: 16px; }
-    .factory-grid { position: relative; display: grid; border: 1px solid var(--border); background: white; transform-origin: top left; box-shadow: var(--shadow); width: max-content; height: max-content; }
-    
-    .excel-header { background: #f8fafc; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid var(--grid-line); z-index: 5; }
-    .excel-corner { background: #f1f5f9; }
-    .grid-cell { border: 1px solid var(--grid-line); min-width: 78px; min-height: 52px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+    /* Hamburger & header menu (positioned right beside konfigurasi) */
+    .hamburger{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer}
+    .hamburger:hover{background:#f8fafc}
+    .header-menu{position:absolute;top:64px;right:16px;left:auto;width:320px;max-width:calc(100vw - 32px);background:white;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:12px;display:none;z-index:60}
+    .header-menu.active{display:block}
+    .header-menu .menu-section{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .header-menu .menu-note{font-size:12px;color:var(--text-muted);margin-bottom:8px}
 
-    .line-box { position: relative; border: 2px dashed #93c5fd; background: rgba(239, 246, 255, 0.3); z-index: 1; display: flex; flex-direction: column; pointer-events: none; }
-    .line-box-header { font-size: 0.75rem; font-weight: 700; color: #1e3a8a; background: #bfdbfe; padding: 4px 8px; width: max-content; pointer-events: auto; }
-    .resize-handle { width: 12px; height: 12px; background: #2563eb; border: 2px solid white; border-radius: 50%; position: absolute; bottom: -6px; right: -6px; cursor: se-resize; display: none; z-index: 20; pointer-events: auto; }
-    body.mode-edit .resize-handle { display: block; }
+    .btn{background:#f8fafc;color:var(--text-main);border:1px solid var(--border);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+    .btn:hover{background:#f1f5f9;border-color:#94a3b8}
+    .btn-primary{background:var(--cqi-ready);color:white;border:1px solid transparent}
+    .btn-primary:hover{background:#1d4ed8}
+    .btn-success{background:var(--running);color:white;border:1px solid transparent}
+    .btn-success:hover{background:#15803d}
+    .btn-danger{background:var(--down);color:white;border:1px solid transparent}
+    .btn-danger:hover{background:#b91c1c}
 
-    .node { width: 94%; height: 90%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; text-align: center; cursor: pointer; border-radius: 6px; position: relative; transition: all 0.2s; z-index: 10; }
-    .node-machine.OFF { background: var(--offplan); color: var(--offplan-text); border: 1px solid var(--border); }
-    .node-machine.RUNNING { background: var(--running); color: white; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4); }
-    .node-cqi.OFF { background: var(--cqi-off); color: var(--text-muted); border: 1px solid var(--border); }
-    .node-cqi.READY { background: var(--cqi-ready); color: white; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4); }
-    .node-label { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: 800; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .main-layout{display:flex;flex:1;overflow:hidden;position:relative}
+    .side-panel{width:280px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:margin-left .3s ease;z-index:20}
+    .side-panel.closed{margin-left:-280px}
 
-    .node-machine.planned { border: 2px solid currentColor; box-shadow: 0 0 0 3px white, 0 0 14px rgba(37,99,235,0.55); }
-    .node-cqi.planned-target { border: 3px solid #0f172a; box-shadow: 0 0 0 3px white, 0 0 18px rgba(37,99,235,0.45); }
-    .heatmap-badge { position: absolute; right: 4px; top: 4px; z-index: 12; background: #1e293b; color: #fff; border-radius: 4px; padding: 1px 4px; font-size: 9px; font-weight: 800; }
-    
-    .heatmap-legend { position: fixed; left: 24px; bottom: 24px; z-index: 1001; background: rgba(255,255,255,0.96); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow); display: none; min-width: 210px; }
-    .heatmap-legend.active { display: block; }
-    .heatmap-legend-title { font-size: 11px; font-weight: 800; margin-bottom: 7px; }
-    .heatmap-legend-row { display: flex; align-items: center; gap: 7px; font-size: 10px; margin: 4px 0; }
-    .heatmap-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+    .panel-toggle-btn{position:absolute;left:280px;top:50%;transform:translateY(-50%);width:24px;height:48px;background:white;border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:21}
+    .side-panel.closed ~ .panel-toggle-btn{left:0}
+    .panel-header{padding:12px 16px;border-bottom:1px solid var(--border);background:#f8fafc}
+    .panel-header h3{font-size:.9rem;color:var(--text-main);margin:0;font-weight:600;text-align:center}
+    .panel-body{padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
 
-    .del-btn { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: none; line-height: 18px; text-align: center; cursor: pointer; z-index: 15; border: 2px solid white; }
-    body.mode-edit .del-btn { display: block; }
-    body.mode-edit .node { cursor: grab; }
-    body.mode-landing .control-edit { display: none; }
-    body.mode-edit .control-landing { display: none; }
+    .stats-box{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:.8rem;color:var(--text-muted);display:flex;flex-direction:column;gap:8px}
+    .stat-line{display:flex;justify-content:space-between;align-items:center}
+    .stat-val{font-weight:700;color:var(--text-main);background:#e2e8f0;padding:2px 6px;border-radius:4px}
 
-    .zoom-controls { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 8px; z-index: 1000; }
-    .zoom-btn { background: white; border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: var(--shadow); }
+    .ws-group{margin-bottom:8px}
+    .ws-group-title{font-size:.75rem;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--grid-line);padding-bottom:4px}
+    .ws-group-buttons{display:flex;flex-wrap:wrap;gap:6px}
+    .ws-btn{background:#ffffff;color:var(--text-main);border:1px solid var(--border);padding:6px 8px;border-radius:4px;cursor:pointer;font-size:.75rem;font-weight:600;flex:1 1 calc(33% - 6px);text-align:center}
 
-    .toast-container { position: fixed; top: 70px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { background: white; border-left: 4px solid var(--cqi-ready); box-shadow: var(--shadow); padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease forwards; }
-    .toast.success { border-left-color: var(--running); }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .ws-btn.active-all{background:#dcfce7;color:#166534;border-color:#22c55e}
+    .ws-btn.active-partial{background:#fef9c3;color:#854d0e;border-color:#eab308}
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.4); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.2s; }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-card { background: white; border-radius: 12px; width: 340px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .form-control { border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; outline: none; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+    .map-viewport{flex:1;overflow:auto;background:var(--bg-main);position:relative;cursor:default}
+    .grid-wrapper{overflow:hidden;transform-origin:top left;padding:16px}
+    .factory-grid{position:relative;display:grid;border:1px solid var(--border);background:white;transform-origin:top left;box-shadow:var(--shadow);width:max-content;height:max-content}
+
+    .excel-header{background:#f8fafc;color:var(--text-muted);font-size:.75rem;font-weight:600;display:flex;align-items:center;justify-content:center;border:1px solid var(--grid-line)}
+    .excel-corner{background:#f1f5f9}
+    .grid-cell{border:1px solid var(--grid-line);min-width:78px;min-height:52px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
+
+    .line-box{position:relative;border:2px dashed #2563eb;background:rgba(239,246,255,0.25);z-index:1;display:flex;flex-direction:column}
+    .line-box .line-box-header{font-size:.75rem;font-weight:700;color:#1e3a8a;background:#bfdbfe;padding:4px 8px;width:max-content}
+    .resize-handle{width:12px;height:12px;background:#2563eb;border:2px solid white;border-radius:50%;position:absolute;bottom:-6px;right:-6px;cursor:se-resize;display:none;z-index:12}
+    body.mode-edit .resize-handle{display:block}
+
+    .node{width:94%;height:90%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;text-align:center;cursor:pointer;border-radius:6px;position:relative}
+    .node-machine.OFF{background:var(--offplan);color:var(--offplan-text);border:1px solid var(--border)}
+    .node-machine.RUNNING{background:var(--running);color:white;box-shadow:0 2px 8px rgba(22,163,74,0.4)}
+    .node-cqi.OFF{background:var(--cqi-off);color:var(--text-muted);border:1px solid var(--border)}
+    .node-cqi.READY{background:var(--cqi-ready);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.4)}
+    .node-label{background:#f8fafc;color:#475569;border:1px solid #cbd5e1;font-size:.8rem;font-weight:800;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
+
+    .node-machine.planned{border:2px solid currentColor;box-shadow:0 0 0 3px white,0 0 14px rgba(37,99,235,0.55)}
+    .node-cqi.planned-target{border:3px solid #0f172a;box-shadow:0 0 0 3px white,0 0 18px rgba(37,99,235,0.45)}
+    .heatmap-badge{position:absolute;right:4px;top:4px;z-index:12;background:#1e293b;color:#fff;border-radius:4px;padding:1px 4px;font-size:9px;font-weight:800}
+
+    .heatmap-legend{position:fixed;left:24px;bottom:24px;z-index:1001;background:rgba(255,255,255,0.96);border:1px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);display:none}
+    .heatmap-legend.active{display:block}
+    .heatmap-legend-title{font-size:11px;font-weight:800;margin-bottom:7px}
+    .heatmap-legend-row{display:flex;align-items:center;gap:7px;font-size:10px;margin:4px 0}
+    .heatmap-dot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,0.1)}
+
+    .del-btn{position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;display:none;line-height:18px;text-align:center;cursor:pointer}
+    body.mode-edit .del-btn{display:block}
+    body.mode-edit .node{cursor:grab}
+    body.mode-landing .control-edit{display:none}
+    body.mode-edit .control-landing{display:none}
+
+    .zoom-controls{position:fixed;bottom:30px;right:30px;display:flex;gap:8px;z-index:1000}
+    .zoom-btn{background:white;border:1px solid var(--border);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1.2rem;font-weight:bold;box-shadow:var(--shadow)}
+
+    .toast-container{position:fixed;top:70px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+    .toast{background:white;border-left:4px solid var(--cqi-ready);box-shadow:var(--shadow);padding:12px 16px;border-radius:6px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px}
+    .toast.success{border-left-color:var(--running)}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.4);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .15s ease}
+    .modal-overlay.active{opacity:1;pointer-events:auto}
+    .modal-card{background:white;border-radius:12px;width:340px;padding:24px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)}
+    .form-group{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
+    .form-control{border:1px solid var(--border);padding:8px 12px;border-radius:6px;outline:none}
+    .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
   </style>
 </head>
 <body class="mode-landing">
   <header>
-    <div class="brand">🏭 MAP LIQUID 3</div>
-    <div class="controls">
-      <button class="btn btn-warning control-landing" onclick="toggleEditMode()">✏️ Edit MAP</button>
-      <button class="btn btn-danger control-landing" onclick="resetFactoryState()">🔄 Reset Map</button>
-      <button class="btn control-landing" onclick="toggleHeatmap()">🔥 Heatmap</button>
-      <button class="btn btn-primary control-landing" onclick="goToConfig()">Lanjut Konfigurasi ➔</button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="brand">🏭 MAP LIQUID 3</div>
+    </div>
 
-      <button class="btn btn-primary control-edit" onclick="openNodeModal('machine')">➕ Mesin</button>
-      <button class="btn btn-primary control-edit" onclick="openNodeModal('cqi')">➕ CQI</button>
-      <button class="btn btn-primary control-edit" onclick="openNodeModal('label')">➕ Label</button>
-      <button class="btn btn-primary control-edit" onclick="openNodeModal('line')">➕ Batas Line</button>
-      <button class="btn btn-success control-edit" onclick="exportMapJson()">💾 Save map.json</button>
-      <button class="btn control-edit" onclick="toggleEditMode()">⬅️ Selesai</button>
+    <div class="controls">
+      <!-- Lanjut Konfigurasi tetap visible -->
+      <button id="goConfigBtn" class="btn btn-primary control-landing">Lanjut Konfigurasi ➔</button>
+
+      <!-- Hamburger -->
+      <button id="hamburgerBtn" class="hamburger" aria-label="Menu">☰</button>
+
+      <div id="headerMenu" class="header-menu" role="menu" aria-hidden="true">
+        <div class="menu-note">Menu Utama — fitur dan penambahan node</div>
+
+        <div class="menu-section">
+          <button id="menuEditBtn" class="btn">✏️ Edit MAP</button>
+          <button id="menuResetBtn" class="btn btn-danger">🔄 Reset Map</button>
+          <button id="menuHeatmapBtn" class="btn">🔥 Heatmap</button>
+        </div>
+
+        <div class="menu-note">Tambah Node</div>
+        <div class="menu-section">
+          <button id="menuAddMachine" class="btn btn-primary">➕ Mesin</button>
+          <button id="menuAddCqi" class="btn btn-primary">➕ CQI</button>
+          <button id="menuAddLabel" class="btn btn-primary">➕ Label</button>
+          <button id="menuAddLine" class="btn btn-primary">➕ Batas Line</button>
+        </div>
+
+        <div class="menu-section">
+          <button id="menuSaveMap" class="btn btn-success">💾 Save map.json</button>
+          <button id="menuDone" class="btn">⬅️ Selesai</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -122,8 +152,15 @@
     <div class="side-panel control-landing" id="sidePanel">
       <div class="panel-header"><h3>Filter & Status</h3></div>
       <div class="panel-body">
-        <div style="display: flex; gap: 8px;"><button class="btn btn-success" style="flex:1;font-size:0.75rem;" onclick="setAllMachinesRunning()">Run All</button><button class="btn btn-danger" style="flex:1;font-size:0.75rem;" onclick="setAllMachinesOff()">Off All</button></div>
-        <div style="display: flex; gap: 8px; margin-top:6px;"><button class="btn btn-primary" style="flex:1;font-size:0.75rem;" onclick="setAllCqiReady()">Ready All</button><button class="btn btn-danger" style="flex:1;font-size:0.75rem;" onclick="setAllCqiOff()">Off All</button></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-success" style="flex:1;font-size:.75rem" onclick="setAllMachinesRunning()">Run All</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="setAllMachinesOff()">All Off</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-primary" style="flex:1;font-size:.75rem" onclick="setAllCqiReady()">Ready All</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="setAllCqiOff()">All Off</button>
+        </div>
+
         <div class="stats-box">
           <div class="stat-line"><span>Mesin Running:</span> <span class="stat-val" id="statMachine">0 / 0</span></div>
           <div class="stat-line"><span>CQI Terpakai:</span> <span class="stat-val" id="statCqi">0 / 0</span></div>
@@ -131,7 +168,7 @@
         <div id="wsBtnContainer"></div>
       </div>
     </div>
-    
+
     <div class="panel-toggle-btn control-landing" onclick="toggleSidePanel()" id="panelToggleBtn">◀</div>
 
     <div class="map-viewport" id="mapViewport">
@@ -139,7 +176,7 @@
         <div class="factory-grid" id="factoryGrid"></div>
       </div>
     </div>
-    
+
     <div class="heatmap-legend" id="heatmapLegend">
       <div class="heatmap-legend-title">🔥 MANHATTAN ROUTE (WORKSTATION ENTRY)</div>
       <div class="heatmap-legend-row"><span class="heatmap-dot" style="background:#16a34a"></span><span>Garis ditarik dari Mesin ➔ Label WS ➔ CQI</span></div>
@@ -151,296 +188,446 @@
 
   <div class="modal-overlay" id="nodeModal">
     <div class="modal-card">
-      <h3 id="modalTitle">Tambah Node</h3><div id="modalFormContainer"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeNodeModal()">Batal</button><button class="btn btn-primary" onclick="submitNodeModal()">Simpan</button></div>
+      <h3 id="modalTitle">Tambah Node</h3>
+      <div id="modalFormContainer"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNodeModal()">Batal</button>
+        <button id="modalSaveBtn" class="btn btn-primary" type="button">Simpan</button>
+      </div>
     </div>
   </div>
 
   <script src="brain.js"></script>
   <script>
     let mapData = { machines: [], cqis: [], labels: [], lines: [] };
-    let currentZoom = null; let editMode = false; let showHeatmap = false; let draggedNode = null; let activePlanning = null;
+    let currentZoom = null, editMode = false, showHeatmap = false, draggedNode = null, activePlanning = null;
+    let activeModalType = null;
 
-    const GRID_WIDTH = 4330; const GRID_HEIGHT = 1068;
+    const GRID_WIDTH = 4330, GRID_HEIGHT = 1068;
     const mapViewport = document.getElementById('mapViewport');
-    let isPanning = false; let startX, startY;
 
-    function showToast(msg, type='info') {
+    function showToast(msg, type='info'){
       const container = document.getElementById('toastContainer');
       const t = document.createElement('div'); t.className = `toast ${type}`;
       t.innerHTML = `<span>${type==='success'?'✅':'ℹ️'}</span> ${msg}`; container.appendChild(t);
-      setTimeout(() => { if(t.parentNode) t.remove(); }, 2500);
+      setTimeout(()=>{ if(t.parentNode) t.remove(); }, 2500);
     }
 
-    function resetFactoryState() {
-      if(!confirm("Reset map state?")) return;
-      localStorage.removeItem('factory_internal_storage');
-      showToast("Map direset", "success"); setTimeout(() => location.reload(), 600);
-    }
+    function resetFactoryState(){ if(!confirm("Reset map state?")) return; localStorage.removeItem('factory_internal_storage'); showToast("Map direset","success"); setTimeout(()=>location.reload(),600); }
 
-    mapViewport.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.node') || e.target.closest('.line-box') || e.target.tagName === 'BUTTON') return;
-      isPanning = true; startX = e.clientX - mapViewport.scrollLeft; startY = e.clientY - mapViewport.scrollTop;
+    // Optimization: requestAnimationFrame for wheel event
+    let isWheelTicking = false;
+    mapViewport.addEventListener('wheel', function(e){
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      if (!isWheelTicking) {
+        window.requestAnimationFrame(() => {
+          mapViewport.scrollLeft += e.deltaY;
+          isWheelTicking = false;
+        });
+        isWheelTicking = true;
+      }
+    }, { passive: false });
+
+    // Header menu handling
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const headerMenu = document.getElementById('headerMenu');
+
+    hamburgerBtn.addEventListener('click', (e)=>{
+      headerMenu.classList.toggle('active');
+      headerMenu.setAttribute('aria-hidden', headerMenu.classList.contains('active') ? 'false' : 'true');
+      e.stopPropagation();
     });
-    mapViewport.addEventListener('mouseleave', () => isPanning = false);
-    mapViewport.addEventListener('mouseup', () => isPanning = false);
-    mapViewport.addEventListener('mousemove', (e) => { if (!isPanning) return; mapViewport.scrollLeft = e.clientX - startX; mapViewport.scrollTop = e.clientY - startY; });
 
-    function getColLetter(col) {
-      let letter = ''; while (col > 0) { let rem = (col - 1) % 26; letter = String.fromCharCode(65 + rem) + letter; col = Math.floor((col - 1) / 26); } return letter;
-    }
+    document.addEventListener('click', (ev)=>{
+      if (!headerMenu.classList.contains('active')) return;
+      if (ev.target === hamburgerBtn || headerMenu.contains(ev.target)) return;
+      headerMenu.classList.remove('active');
+      headerMenu.setAttribute('aria-hidden','true');
+    });
 
-    async function loadMap() {
-      try {
+    // Wire up buttons
+    document.getElementById('menuEditBtn').addEventListener('click', ()=>{ toggleEditMode(); headerMenu.classList.remove('active'); });
+    document.getElementById('menuResetBtn').addEventListener('click', ()=>{ resetFactoryState(); headerMenu.classList.remove('active'); });
+    document.getElementById('menuHeatmapBtn').addEventListener('click', ()=>{ toggleHeatmap(); headerMenu.classList.remove('active'); });
+
+    document.getElementById('menuAddMachine').addEventListener('click', ()=>{ openNodeModal('machine'); headerMenu.classList.remove('active'); });
+    document.getElementById('menuAddCqi').addEventListener('click', ()=>{ openNodeModal('cqi'); headerMenu.classList.remove('active'); });
+    document.getElementById('menuAddLabel').addEventListener('click', ()=>{ openNodeModal('label'); headerMenu.classList.remove('active'); });
+    document.getElementById('menuAddLine').addEventListener('click', ()=>{ openNodeModal('line'); headerMenu.classList.remove('active'); });
+
+    document.getElementById('menuSaveMap').addEventListener('click', ()=>{ exportMapJson(); headerMenu.classList.remove('active'); });
+    document.getElementById('menuDone').addEventListener('click', ()=>{ if(editMode) toggleEditMode(); headerMenu.classList.remove('active'); });
+
+    document.getElementById('goConfigBtn').addEventListener('click', goToConfig);
+
+    async function loadMap(){
+      try{
         const res = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/map.json');
         if (!res.ok) throw new Error(); mapData = await res.json();
-      } catch (e) {
-        try { const resL = await fetch('map.json'); if (resL.ok) mapData = await resL.json(); } catch(err) {}
+      }catch(e){
+        try{ const resL = await fetch('map.json'); if (resL.ok) mapData = await resL.json(); }catch(err){}
       }
+      mapData.machines = mapData.machines || [];
+      mapData.cqis = mapData.cqis || [];
+      mapData.labels = mapData.labels || [];
+      mapData.lines = mapData.lines || [];
+
       initializeStatuses(); renderWorkstationButtons(); applyZoom(true);
     }
 
-    function initializeStatuses() {
-      try { const raw = sessionStorage.getItem('active_planning'); activePlanning = raw ? JSON.parse(raw) : null; } catch(e){}
+    function initializeStatuses(){
+      try{ const raw = sessionStorage.getItem('active_planning'); activePlanning = raw ? JSON.parse(raw) : null; }catch(e){}
       const saved = localStorage.getItem('factory_internal_storage');
-      if (saved) {
-        try {
+      if (saved){
+        try{
           const parsed = JSON.parse(saved);
-          if (parsed.machines) parsed.machines.forEach(sm => { let m = mapData.machines.find(x => x.id === sm.id); if(m) m.status = sm.status; });
-          if (parsed.cqis) parsed.cqis.forEach(sc => { let c = mapData.cqis.find(x => x.id === sc.id); if(c) c.status = sc.status; });
-        } catch(e){}
+          if (parsed.machines) parsed.machines.forEach(sm=>{ let m = mapData.machines.find(x=>x.id===sm.id); if(m) m.status = sm.status; });
+          if (parsed.cqis) parsed.cqis.forEach(sc=>{ let c = mapData.cqis.find(x=>x.id===sc.id); if(c) c.status = sc.status; });
+        }catch(e){}
       } else {
-        mapData.machines.forEach(m => m.status = m.status === 'RUNNING' ? 'RUNNING' : 'OFF');
-        mapData.cqis.forEach(c => c.status = c.status === 'READY' ? 'READY' : 'OFF');
+        mapData.machines.forEach(m=>m.status = m.status === 'RUNNING' ? 'RUNNING' : 'OFF');
+        mapData.cqis.forEach(c=>c.status = c.status === 'READY' ? 'READY' : 'OFF');
       }
       renderGrid();
     }
 
-    function renderWorkstationButtons() {
-      const container = document.getElementById('wsBtnContainer'); if (!container) return; container.innerHTML = '';
+    function renderWorkstationButtons(){
+      const container = document.getElementById('wsBtnContainer'); if(!container) return; container.innerHTML = '';
       const groups = [
-        { title: "LINE A", keys: ["0A", "1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A"] },
-        { title: "LINE B", keys: ["0B", "1B", "2B", "3B", "4B", "5B", "6B", "7B", "8B", "9B", "10B", "11B"] },
-        { title: "LINE C", keys: ["1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C"] }
+        { title: "LINE A", keys: ["0A","1A","2A","3A","4A","5A","6A","7A","8A","9A","10A"] },
+        { title: "LINE B", keys: ["0B","1B","2B","3B","4B","5B","6B","7B","8B","9B","10B","11B"] },
+        { title: "LINE C", keys: ["1C","2C","3C","4C","5C","6C","7C","8C","9C","10C"] }
       ];
-      groups.forEach(g => {
+      groups.forEach(g=>{
         let box = document.createElement('div'); box.className = 'ws-group';
         box.innerHTML = `<div class="ws-group-title">${g.title}</div>`;
         let btns = document.createElement('div'); btns.className = 'ws-group-buttons';
-        g.keys.forEach(k => {
+        g.keys.forEach(k=>{
           let b = document.createElement('button'); b.className = 'ws-btn'; b.innerText = k; b.id = 'ws-btn-' + k;
-          b.onclick = () => toggleWorkstation(k); btns.appendChild(b);
+          b.onclick = ()=>toggleWorkstation(k); btns.appendChild(b);
         });
         box.appendChild(btns); container.appendChild(box);
       });
       updateStatsAndButtons();
     }
 
-    function updateStatsAndButtons() {
+    function updateStatsAndButtons(){
       document.getElementById('statMachine').innerText = `${mapData.machines.filter(m=>m.status==='RUNNING').length} / ${mapData.machines.length}`;
       document.getElementById('statCqi').innerText = `${mapData.cqis.filter(c=>c.status==='READY').length} / ${mapData.cqis.length}`;
       if (typeof WORKSTATIONS === 'undefined') return;
-      for (let k in WORKSTATIONS) {
-        let b = document.getElementById('ws-btn-' + k); if (!b) continue;
+      for (let k in WORKSTATIONS){
+        let b = document.getElementById('ws-btn-' + k); if(!b) continue;
         let macs = mapData.machines.filter(m => WORKSTATIONS[k].some(x => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(x)));
-        if(macs.length === 0) continue;
-        b.className = macs.every(m=>m.status==='RUNNING') ? 'ws-btn active-all' : (macs.some(m=>m.status==='RUNNING') ? 'ws-btn active-partial' : 'ws-btn');
+        if (macs.length === 0) { b.className = 'ws-btn'; continue; }
+        if (macs.every(m => m.status === 'RUNNING')) b.className = 'ws-btn active-all';
+        else if (macs.some(m => m.status === 'RUNNING')) b.className = 'ws-btn active-partial';
+        else b.className = 'ws-btn';
       }
     }
 
-    function toggleWorkstation(wsKey) {
+    function toggleWorkstation(wsKey){
       if (typeof WORKSTATIONS === 'undefined' || !WORKSTATIONS[wsKey]) return;
       let macs = mapData.machines.filter(m => WORKSTATIONS[wsKey].some(x => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(x)));
       let tgt = macs.every(m => m.status === 'RUNNING') ? 'OFF' : 'RUNNING';
-      macs.forEach(m => m.status = tgt); renderGrid();
+      macs.forEach(m=>m.status = tgt); renderGrid();
     }
 
-    function toggleSidePanel() {
-      const p = document.getElementById('sidePanel'); p.classList.toggle('closed');
-      document.getElementById('panelToggleBtn').innerText = p.classList.contains('closed') ? '▶' : '◀';
-      setTimeout(() => applyZoom(false), 310);
-    }
+    function toggleSidePanel(){ const p = document.getElementById('sidePanel'); p.classList.toggle('closed'); document.getElementById('panelToggleBtn').innerText = p.classList.contains('closed') ? '▶' : '◀'; setTimeout(()=>applyZoom(false),310); }
 
-    function renderGrid() {
-      const grid = document.getElementById('factoryGrid'); grid.innerHTML = '';
+    // Optimization: DocumentFragment to prevent Layout Thrashing
+    function renderGrid(){
+      const grid = document.getElementById('factoryGrid');
+      grid.innerHTML = '';
+      
+      const fragment = document.createDocumentFragment();
       let totalCols = 55, totalRows = 20;
-      grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`; grid.style.gridTemplateRows = `28px repeat(${totalRows}, 52px)`;
+      
+      grid.style.gridTemplateColumns = `40px repeat(${totalCols}, 78px)`; 
+      grid.style.gridTemplateRows = `28px repeat(${totalRows}, 52px)`;
+
+      const cellMap = {}; // Membantu pencarian node ke cell
 
       let corner = document.createElement('div'); corner.className = 'excel-header excel-corner'; corner.innerText = 'R\\C';
-      corner.style.gridRow = '1'; corner.style.gridColumn = '1'; grid.appendChild(corner);
+      corner.style.gridRow = '1'; corner.style.gridColumn = '1'; fragment.appendChild(corner);
 
-      for (let c = 1; c <= totalCols; c++) {
+      for (let c=1;c<=totalCols;c++){
         let h = document.createElement('div'); h.className = 'excel-header'; h.innerText = getColLetter(c);
-        h.style.gridRow = '1'; h.style.gridColumn = `${c + 1}`; grid.appendChild(h);
+        h.style.gridRow = '1'; h.style.gridColumn = `${c+1}`; fragment.appendChild(h);
       }
-      for (let r = 1; r <= totalRows; r++) {
+      for (let r=1;r<=totalRows;r++){
         let h = document.createElement('div'); h.className = 'excel-header'; h.innerText = r;
-        h.style.gridRow = `${r + 1}`; h.style.gridColumn = '1'; grid.appendChild(h);
-        for (let c = 1; c <= totalCols; c++) {
+        h.style.gridRow = `${r+1}`; h.style.gridColumn = '1'; fragment.appendChild(h);
+        for (let c=1;c<=totalCols;c++){
           let cell = document.createElement('div'); cell.className = 'grid-cell'; cell.dataset.row = r; cell.dataset.col = c;
-          cell.style.gridRow = `${r + 1}`; cell.style.gridColumn = `${c + 1}`;
-          cell.ondragover = e => e.preventDefault(); cell.ondrop = e => handleDrop(e, r, c); grid.appendChild(cell);
+          cell.style.gridRow = `${r+1}`; cell.style.gridColumn = `${c+1}`;
+          cell.ondragover = e => e.preventDefault(); cell.ondrop = e => handleDrop(e,r,c);
+          
+          cellMap[`${r}-${c}`] = cell;
+          fragment.appendChild(cell);
         }
       }
 
-      if (mapData.lines) {
-        mapData.lines.forEach(line => {
+      // Render lines
+      if (Array.isArray(mapData.lines)){
+        mapData.lines.forEach(line=>{
           let lEl = document.createElement('div'); lEl.className = 'line-box'; lEl.id = line.id;
-          lEl.style.gridRow = `${line.row + 1} / span ${line.height}`; lEl.style.gridColumn = `${line.col + 1} / span ${line.width}`;
+          const row = Math.max(1, Math.min(1000, (line.row||1)));
+          const col = Math.max(1, Math.min(1000, (line.col||1)));
+          const width = Math.max(1, Math.min(1000, (line.width||1)));
+          const height = Math.max(1, Math.min(1000, (line.height||1)));
+          
+          lEl.style.gridRow = `${row + 1} / span ${height}`; lEl.style.gridColumn = `${col + 1} / span ${width}`;
           lEl.innerHTML = `<div class="line-box-header">${line.name}</div>`;
-          if (editMode) {
-            lEl.draggable = true; lEl.ondragstart = e => { draggedNode = { node: line, type: 'line' }; };
-            let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; d.onclick = e => { e.stopPropagation(); deleteNode(line.id, 'line'); }; lEl.appendChild(d);
-            let h = document.createElement('div'); h.className = 'resize-handle'; h.onmousedown = e => { e.preventDefault(); e.stopPropagation(); initResizeLine(e, line); }; lEl.appendChild(h);
+          
+          if (editMode){
+            lEl.draggable = true; 
+            lEl.ondragstart = e => { 
+              draggedNode = { node: line, type: 'line' }; 
+              // Bebaskan pointer events sementara agar drop target pada cell bisa terbaca
+              setTimeout(() => { lEl.style.pointerEvents = 'none'; }, 0); 
+            };
+            lEl.ondragend = () => { if(editMode) lEl.style.pointerEvents = 'auto'; };
+            
+            let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; 
+            d.onclick = e => { e.stopPropagation(); deleteNode(line.id,'line'); }; 
+            lEl.appendChild(d);
+            
+            let h = document.createElement('div'); h.className = 'resize-handle'; 
+            h.onmousedown = e => { e.preventDefault(); e.stopPropagation(); initResizeLine(e,line); }; 
+            lEl.appendChild(h);
+            
+            lEl.style.pointerEvents = 'auto';
+            const hdr = lEl.querySelector('.line-box-header'); if (hdr) hdr.style.pointerEvents = 'auto';
+          } else {
+            lEl.style.pointerEvents = 'none';
           }
-          grid.appendChild(lEl);
+          fragment.appendChild(lEl);
         });
       }
 
       const assignments = new Map();
-      if (activePlanning && Array.isArray(activePlanning.slots)) {
-        activePlanning.slots.forEach(s => {
-          if(s && s.cqi && s.machines) s.machines.forEach(m => assignments.set(String(m.id || m.name).trim(), s.cqi));
+      if (activePlanning && Array.isArray(activePlanning.slots)){
+        activePlanning.slots.forEach(s=>{
+          if (s && s.cqi && s.machines) s.machines.forEach(m => assignments.set(String(m.id || m.name).trim(), s.cqi));
         });
       }
 
-      const appendNode = (node, type) => {
-        let cell = document.querySelector(`.grid-cell[data-row="${node.row}"][data-col="${node.col}"]`); if (!cell) return;
+      const appendNode = (node,type) => {
+        let cell = cellMap[`${node.row}-${node.col}`];
+        if (!cell) return;
         let div = document.createElement('div'); div.className = `node node-${type} ${node.status || ''}`;
         div.id = node.id; div.innerHTML = `<span>${node.name}</span>`;
-        
         let planCqi = assignments.get(String(node.id || node.name).trim());
-        if (planCqi) {
+        
+        if (planCqi){
           div.classList.add('planned');
-          if (type === 'machine' && showHeatmap) {
-            div.innerHTML += `<span class="heatmap-badge">${planCqi.name}</span>`;
-          }
+          if (type === 'machine' && showHeatmap) div.innerHTML += `<span class="heatmap-badge">${planCqi.name}</span>`;
         }
-
-        if (editMode) {
-          div.draggable = true; div.ondragstart = () => { draggedNode = { node, type }; };
-          let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; d.onclick = e => { e.stopPropagation(); deleteNode(node.id, type); }; div.appendChild(d);
+        
+        if (editMode){
+          div.draggable = true; 
+          div.ondragstart = () => { 
+            draggedNode = { node, type }; 
+            // Bebaskan target drop di background agar ondrop bisa terpanggil
+            setTimeout(() => { div.style.pointerEvents = 'none'; }, 0);
+          };
+          div.ondragend = () => { if(editMode) div.style.pointerEvents = 'auto'; };
+          
+          let d = document.createElement('div'); d.className = 'del-btn'; d.innerText = 'X'; 
+          d.onclick = e => { e.stopPropagation(); deleteNode(node.id, type); }; 
+          div.appendChild(d);
         } else {
-          if (type === 'machine' || type === 'cqi') div.onclick = () => cycleStatus(node, type);
+          if (type === 'machine' || type === 'cqi') div.onclick = () => cycleStatus(node,type);
         }
         cell.appendChild(div);
       };
 
-      mapData.machines.forEach(m => appendNode(m, 'machine'));
-      mapData.cqis.forEach(c => appendNode(c, 'cqi'));
-      mapData.labels.forEach(l => appendNode(l, 'label'));
+      mapData.machines.forEach(m=>appendNode(m,'machine'));
+      mapData.cqis.forEach(c=>appendNode(c,'cqi'));
+      mapData.labels.forEach(l=>appendNode(l,'label'));
 
-      // VISUALISASI JALUR HEATMAP MANHATTAN LEWAT DEPAN LABEL WORKSTATION
-      if (showHeatmap && assignments.size > 0) {
-        const svgNS = "http://www.w3.org/2000/svg"; let svg = document.createElementNS(svgNS, "svg");
+      if (showHeatmap && assignments.size > 0){
+        const svgNS = "http://www.w3.org/2000/svg"; let svg = document.createElementNS(svgNS,"svg");
         svg.style.position = "absolute"; svg.style.top = "0"; svg.style.left = "0"; svg.style.width = "100%"; svg.style.height = "100%"; svg.style.pointerEvents = "none"; svg.style.zIndex = "8";
-
         const getCenter = (n) => ({ x: 40 + (n.col - 1) * 78 + 39, y: 28 + (n.row - 1) * 52 + 26 });
-
-        assignments.forEach((cqiTarget, mId) => {
+        
+        assignments.forEach((cqiTarget, mId)=>{
           let mac = mapData.machines.find(x => String(x.id || x.name).trim() === mId);
           if (!mac || mac.status !== 'RUNNING') return;
           let tgt = mapData.cqis.find(x => String(x.id || x.name).trim() === String(cqiTarget.id || cqiTarget.name).trim());
           if (!tgt) return;
-
+          
           let wsKey = BrainAI.getWorkstationKey(mac.name || mac.id);
-          // AMBIL DATA KOORDINAT LANGSUNG DARI MAP DATA LABELS BERDASARKAN FILTRASI NAMA
           let wl = mapData.labels.find(l => BrainAI.normalizeName(l.name) === BrainAI.normalizeName(wsKey));
-
           let p1 = getCenter(mac);
           let pEnd = getCenter(tgt);
-
           let dPath = "";
-          if (wl) {
+          
+          if (wl){
             let pLabel = getCenter(wl);
-            // Garis ditarik dari Mesin -> Menuju Label Workstation (Depan) -> Menuju CQI tujuan
             dPath = `M ${p1.x} ${p1.y} L ${pLabel.x} ${p1.y} L ${pLabel.x} ${pLabel.y} L ${pEnd.x} ${pLabel.y} L ${pEnd.x} ${pEnd.y}`;
           } else {
-            // Standar jika label tidak teridentifikasi
             dPath = `M ${p1.x} ${p1.y} L ${pEnd.x} ${p1.y} L ${pEnd.x} ${pEnd.y}`;
           }
-
+          
           let path = document.createElementNS(svgNS, "path");
-          path.setAttribute("d", dPath); path.setAttribute("fill", "none"); path.setAttribute("stroke", "#16a34a");
-          path.setAttribute("stroke-width", "4"); path.setAttribute("stroke-dasharray", "8,5"); path.setAttribute("stroke-linejoin", "round");
+          path.setAttribute("d", dPath); path.setAttribute("fill","none"); path.setAttribute("stroke","#16a34a");
+          path.setAttribute("stroke-width","4"); path.setAttribute("stroke-dasharray","8,5"); path.setAttribute("stroke-linejoin","round");
           svg.appendChild(path);
-
-          let cEl = document.getElementById(tgt.id); if (cEl) cEl.classList.add('planned-target');
+          
+          let cEl = fragment.querySelector(`[id="${tgt.id}"]`);
+          if (cEl) cEl.classList.add('planned-target');
         });
-        grid.appendChild(svg);
+        fragment.appendChild(svg);
       }
+
+      grid.appendChild(fragment); // Masukkan semua dari fragment ke DOM (1 kali re-paint)
       updateStatsAndButtons();
     }
 
-    function applyZoom(init=false) {
+    function applyZoom(init=false){
       let mx = mapViewport.clientWidth / GRID_WIDTH, my = mapViewport.clientHeight / GRID_HEIGHT;
-      let minZ = Math.max(mx, my); if (init || currentZoom === null) currentZoom = minZ;
-      currentZoom = Math.max(minZ, Math.min(3, currentZoom));
+      // Berubah dari Math.min menjadi Math.max (Fill screen default)
+      let fitZoom = Math.max(mx, my); 
+      
+      if (!isFinite(fitZoom) || fitZoom <= 0) fitZoom = 0.1;
+      if (init || currentZoom === null) currentZoom = fitZoom;
+      currentZoom = Math.max(0.1, Math.min(3, currentZoom)); // Memberi batas rasional minimal .1x
+      
       document.getElementById('factoryGrid').style.transform = `scale(${currentZoom})`;
       document.getElementById('gridWrapper').style.width = `${GRID_WIDTH * currentZoom}px`;
       document.getElementById('gridWrapper').style.height = `${GRID_HEIGHT * currentZoom}px`;
     }
-    function zoomIn() { currentZoom += 0.1; applyZoom(); } function zoomOut() { currentZoom -= 0.1; applyZoom(); }
+    function zoomIn(){ currentZoom = (currentZoom || 1) + 0.1; applyZoom(); }
+    function zoomOut(){ currentZoom = (currentZoom || 1) - 0.1; applyZoom(); }
 
-    function cycleStatus(node, type) {
-      const arr = type === 'machine' ? ['OFF','RUNNING'] : ['OFF','READY'];
-      node.status = arr[(arr.indexOf(node.status)+1)%arr.length]; renderGrid();
-    }
-    function handleDrop(e, r, c) { if(!editMode || !draggedNode) return; e.preventDefault(); draggedNode.node.row = r; draggedNode.node.col = c; draggedNode=null; renderGrid(); }
-    function deleteNode(id, type) {
-      if(!confirm('Hapus?')) return;
-      mapData[type+'s'] = mapData[type+'s'].filter(x => x.id !== id); renderGrid();
-    }
+    function cycleStatus(node,type){ const arr = type === 'machine' ? ['OFF','RUNNING'] : ['OFF','READY']; node.status = arr[(arr.indexOf(node.status)+1)%arr.length]; renderGrid(); }
+    function handleDrop(e,r,c){ if(!editMode || !draggedNode) return; e.preventDefault(); draggedNode.node.row = r; draggedNode.node.col = c; draggedNode = null; renderGrid(); }
+    function deleteNode(id,type){ if(!confirm('Hapus?')) return; mapData[type+'s'] = mapData[type+'s'].filter(x => x.id !== id); renderGrid(); }
 
-    function initResizeLine(e, line) {
+    function initResizeLine(e,line){
       let sx = e.clientX, sy = e.clientY, sw = line.width, sh = line.height;
-      function move(me) {
-        line.width = Math.max(1, sw + Math.round((me.clientX-sx)/(78*currentZoom)));
-        line.height = Math.max(1, sh + Math.round((me.clientY-sy)/(52*currentZoom)));
+      function move(me){
+        line.width = Math.max(1, sw + Math.round((me.clientX - sx) / (78 * currentZoom)));
+        line.height = Math.max(1, sh + Math.round((me.clientY - sy) / (52 * currentZoom)));
         renderGrid();
       }
-      function up() { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); }
+      function up(){ document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); }
       document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
     }
 
-    function setAllMachinesRunning() { mapData.machines.forEach(m=>m.status='RUNNING'); renderGrid(); }
-    function setAllMachinesOff() { mapData.machines.forEach(m=>m.status='OFF'); renderGrid(); }
-    function setAllCqiReady() { mapData.cqis.forEach(c=>c.status='READY'); renderGrid(); }
-    function setAllCqiOff() { mapData.cqis.forEach(c=>c.status='OFF'); renderGrid(); }
+    function setAllMachinesRunning(){ mapData.machines.forEach(m=>m.status='RUNNING'); renderGrid(); }
+    function setAllMachinesOff(){ mapData.machines.forEach(m=>m.status='OFF'); renderGrid(); }
+    function setAllCqiReady(){ mapData.cqis.forEach(c=>c.status='READY'); renderGrid(); }
+    function setAllCqiOff(){ mapData.cqis.forEach(c=>c.status='OFF'); renderGrid(); }
 
-    function openNodeModal(t) {
-      activeModalType = t; const c = document.getElementById('modalFormContainer');
+    function openNodeModal(t){
+      activeModalType = t;
+      const c = document.getElementById('modalFormContainer');
       document.getElementById('modalTitle').innerText = `Tambah ${t.toUpperCase()}`;
-      c.innerHTML = `<div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama..." required></div>`;
+      const saveBtn = document.getElementById('modalSaveBtn');
+
+      // Hitung posisi center viewport untuk dijadikan default Row / Col Node
+      let centerRow = Math.max(1, Math.floor((mapViewport.scrollTop + mapViewport.clientHeight / 2) / (52 * (currentZoom || 1))));
+      let centerCol = Math.max(1, Math.floor((mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (78 * (currentZoom || 1))));
+      
+      // Amankan maksimum (gridnya total kolom 55 dan total baris 20)
+      centerRow = Math.min(20, centerRow);
+      centerCol = Math.min(55, centerCol);
+
+      if (t === 'line'){
+        saveBtn.innerText = 'Simpan Line';
+        c.innerHTML = `
+          <div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama line..." required></div>
+          <div class="form-group"><label>Row (angka)</label><input type="number" id="nRow" class="form-control" value="${centerRow}" min="1"></div>
+          <div class="form-group"><label>Column (angka)</label><input type="number" id="nCol" class="form-control" value="${centerCol}" min="1"></div>
+          <div class="form-group"><label>Width (span kolom)</label><input type="number" id="nWidth" class="form-control" value="5" min="1"></div>
+          <div class="form-group"><label>Height (span baris)</label><input type="number" id="nHeight" class="form-control" value="5" min="1"></div>
+        `;
+      } else {
+        saveBtn.innerText = 'Simpan';
+        c.innerHTML = `
+          <div class="form-group"><label>Nama</label><input type="text" id="nName" class="form-control" placeholder="Nama..." required></div>
+          <input type="hidden" id="nRow" value="${centerRow}">
+          <input type="hidden" id="nCol" value="${centerCol}">
+        `;
+      }
       document.getElementById('nodeModal').classList.add('active');
+      setTimeout(()=>{ const ni = document.getElementById('nName'); if(ni) ni.focus(); },50);
     }
-    function closeNodeModal() { document.getElementById('nodeModal').classList.remove('active'); }
-    function submitNodeModal() {
-      let name = document.getElementById('nName').value.trim(); if(!name) return;
+    function closeNodeModal(){ document.getElementById('nodeModal').classList.remove('active'); }
+
+    function submitNodeModal(){
+      const nameEl = document.getElementById('nName');
+      if(!nameEl){ alert('Form tidak valid'); return; }
+      let name = nameEl.value.trim(); if(!name){ alert('Nama wajib diisi'); nameEl.focus(); return; }
       let id = activeModalType.charAt(0).toUpperCase() + '-' + Date.now();
-      if(activeModalType==='line') mapData.lines.push({id, name, row:1, col:1, width:5, height:5});
-      else mapData[activeModalType+'s'].push({id, name, row:1, col:1, status:'OFF'});
+
+      // Membaca Value dinamis Center
+      let rVal = document.getElementById('nRow') ? parseInt(document.getElementById('nRow').value,10) : 1;
+      let cVal = document.getElementById('nCol') ? parseInt(document.getElementById('nCol').value,10) : 1;
+
+      let row = Math.max(1, rVal || 1);
+      let col = Math.max(1, cVal || 1);
+
+      if (activeModalType === 'line'){
+        let width = parseInt(document.getElementById('nWidth').value,10) || 5;
+        let height = parseInt(document.getElementById('nHeight').value,10) || 5;
+        width = Math.max(1,width); height = Math.max(1,height);
+        
+        const newLine = { id, name, row, col, width, height };
+        mapData.lines.push(newLine);
+        closeNodeModal(); renderGrid();
+        showToast('Batas line ditambahkan', 'success');
+        // Fitur auto-save dihapus (exportMapJson)
+        return;
+      } else {
+        if (activeModalType === 'machine') mapData.machines.push({ id, name, row, col, status:'OFF' });
+        else if (activeModalType === 'cqi') mapData.cqis.push({ id, name, row, col, status:'OFF' });
+        else if (activeModalType === 'label') mapData.labels.push({ id, name, row, col });
+        else {
+          if (!mapData[activeModalType+'s']) mapData[activeModalType+'s'] = [];
+          mapData[activeModalType+'s'].push({ id, name, row, col });
+        }
+      }
       closeNodeModal(); renderGrid();
     }
-    function toggleEditMode() { editMode = !editMode; document.body.className = editMode?'mode-edit':'mode-landing'; renderGrid(); }
-    function toggleHeatmap() { if(!activePlanning){ showToast("Tidak ada plan aktif!", "error"); return; } showHeatmap = !showHeatmap; renderGrid(); }
-    function exportMapJson() {
+
+    document.getElementById('modalSaveBtn').addEventListener('click', submitNodeModal);
+
+    function toggleEditMode(){ editMode = !editMode; document.body.className = editMode ? 'mode-edit' : 'mode-landing'; renderGrid(); }
+    function toggleHeatmap(){ if(!activePlanning){ showToast("Tidak ada plan aktif!", "error"); return; } showHeatmap = !showHeatmap; renderGrid(); }
+    
+    function exportMapJson(){
       let blob = new Blob([JSON.stringify(mapData, null, 2)], { type: "application/json" });
       let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "map.json"; a.click();
     }
 
-    function goToConfig() {
+    function goToConfig(){
       let runM = mapData.machines.filter(m=>m.status==='RUNNING');
       let rdyC = mapData.cqis.filter(c=>c.status==='READY');
-      if(runM.length===0 || rdyC.length===0) { showToast("Pastikan ada mesin RUNNING & CQI READY!", "error"); return; }
+      if (runM.length===0 || rdyC.length===0){ showToast("Pastikan ada mesin RUNNING & CQI READY!", "error"); return; }
       localStorage.setItem('factory_internal_storage', JSON.stringify({ machines: mapData.machines, cqis: mapData.cqis }));
-      // Kirim array labels juga ke sessionStorage agar bisa dibaca AI di config.html
       sessionStorage.setItem('planning_state', JSON.stringify({ machines: runM, cqis: rdyC, labels: mapData.labels }));
       window.location.href = 'config.html';
     }
 
-    window.addEventListener('resize', () => applyZoom());
+    // Optimization: Resize dengan debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => applyZoom(), 150);
+    });
+    
     loadMap();
+
+    // helpers
+    function getColLetter(col){
+      let letter = '';
+      while (col > 0){ let rem = (col - 1) % 26; letter = String.fromCharCode(65 + rem) + letter; col = Math.floor((col - 1) / 26); }
+      return letter;
+    }
   </script>
 </body>
 </html>
