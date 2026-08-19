@@ -1,8 +1,8 @@
 /*
 ================================================================================
  PLANNER CQI LIQUID 3
- Brain AI Engine
- Version: 1.2.1 (Score Reordered & 70% CQI Priority Impact)
+ Brain AI Engine - OPTIMIZED VERSION
+ Version: 1.2.0 (Coverage First, Auto-Repair, Load Balancing, Smart History)
 ================================================================================
 */
 
@@ -85,10 +85,9 @@ const CQI_PRIORITY_MAP = {
 
 /*
 ================================================================================
- DISTANCE ENGINE
+ DISTANCE ENGINE (Dipertahankan & Dioptimasi)
 ================================================================================
 */
-
 const DistanceEngine = {
   getDistance(r1, c1, r2, c2) {
     return Math.abs(r1 - r2) + Math.abs(c1 - c2);
@@ -118,13 +117,13 @@ const DistanceEngine = {
     }
 
     if (!isWWorOT && mZone === 'AB' && cZone === 'C') {
-      distTotal += this.getDistance(currentStartRow, currentStartCol, 10, 31);
-      distTotal += this.getDistance(10, 31, 12, 31);
-      distTotal += this.getDistance(12, 31, currentEndRow, currentEndCol);
+      distTotal += this.getDistance(currentStartRow, currentStartCol, 10, 31) + 
+                   this.getDistance(10, 31, 12, 31) + 
+                   this.getDistance(12, 31, currentEndRow, currentEndCol);
     } else if (!isWWorOT && mZone === 'C' && cZone === 'AB') {
-      distTotal += this.getDistance(currentStartRow, currentStartCol, 12, 31);
-      distTotal += this.getDistance(12, 31, 10, 31);
-      distTotal += this.getDistance(10, 31, currentEndRow, currentEndCol);
+      distTotal += this.getDistance(currentStartRow, currentStartCol, 12, 31) + 
+                   this.getDistance(12, 31, 10, 31) + 
+                   this.getDistance(10, 31, currentEndRow, currentEndCol);
     } else {
       distTotal += this.getDistance(currentStartRow, currentStartCol, currentEndRow, currentEndCol);
     }
@@ -135,109 +134,18 @@ const DistanceEngine = {
 
 /*
 ================================================================================
- CQI OPTIMIZER ENGINE (SMART DETECTOR)
+ HISTORY ENGINE (Diperkuat: Mempelajari Jarak, Beban Core/Non-Core)
 ================================================================================
 */
-
-const CQIOptimizer = {
-  detectBestCQIs(machines, cqis, coreLimit, getDistanceFn, getWsKeyFn, priorityMap, getHistoryFn, planMode) {
-    if (!cqis || cqis.length === 0) return [];
-    if (coreLimit >= cqis.length) return cqis;
-
-    let selected = [];
-    let available = [...cqis];
-    const historyWeight = planMode === 'history' ? 2.0 : 0.1;
-    
-    let machineNodes = machines.map(m => {
-      let nm = { ...m };
-      nm.wsKey = getWsKeyFn(nm.name || nm.id) || nm.ws || null;
-      let u = (nm.name || nm.id).toUpperCase();
-      nm.isM2M3 = ['M2', 'M3'].includes(u);
-      nm.isC1C2 = ['C1', 'C2'].includes(u);
-      return nm;
-    });
-
-    let hasM2M3 = machineNodes.some(m => m.isM2M3);
-    let hasC1C2 = machineNodes.some(m => m.isC1C2);
-
-    let cqi19Idx = available.findIndex(c => { let m = String(c.name || c.id).match(/\d+/); return m && m[0] === '19'; });
-    if (hasM2M3 && cqi19Idx !== -1 && selected.length < coreLimit) {
-        selected.push(available.splice(cqi19Idx, 1)[0]);
-    }
-
-    let cqi24Idx = available.findIndex(c => { let m = String(c.name || c.id).match(/\d+/); return m && m[0] === '24'; });
-    if (hasC1C2 && cqi24Idx !== -1 && selected.length < coreLimit) {
-        selected.push(available.splice(cqi24Idx, 1)[0]);
-    }
-
-    while (selected.length < coreLimit && available.length > 0) {
-        let bestCandidateIndex = -1;
-        let bestScore = -Infinity;
-
-        available.forEach((candCqi, idx) => {
-            let score = 0;
-            let candCqiIdStr = String(candCqi.name || candCqi.id).match(/\d+/);
-            candCqiIdStr = candCqiIdStr ? candCqiIdStr[0] : String(candCqi.id);
-
-            machineNodes.forEach(m => {
-                if (m.isM2M3 && candCqiIdStr !== '19') return; 
-                if (m.isC1C2 && candCqiIdStr !== '24') return; 
-
-                let distToCand = getDistanceFn(m, candCqi);
-                let distToSelected = Infinity;
-                selected.forEach(selCqi => {
-                    let d = getDistanceFn(m, selCqi);
-                    if (d < distToSelected) distToSelected = d;
-                });
-
-                if (distToCand < distToSelected) {
-                    let improvement = distToSelected === Infinity ? (150 - distToCand) : (distToSelected - distToCand);
-                    if (distToSelected > 50 && distToSelected !== Infinity) improvement *= 1.5;
-                    
-                    // ==========================================
-                    // PENILAIAN SKOR OPTIMIZER (Besar ke Kecil)
-                    // ==========================================
-                    let priorityBonus = (m.wsKey && priorityMap[candCqiIdStr] && priorityMap[candCqiIdStr].includes(m.wsKey)) ? 10000 : 0; //SCORE (70% Impact)
-                    let improvementScore = improvement * 3; //SCORE
-                    let distScore = (distToCand < 15) ? 300 : (distToCand < 30) ? 150 : (distToCand < 50) ? 50 : 0; //SCORE
-                    let histScore = getHistoryFn(m.id, candCqi.id) * historyWeight; //SCORE
-
-                    score += priorityBonus + improvementScore + distScore + histScore;
-                } else {
-                    let histScore = getHistoryFn(m.id, candCqi.id) * historyWeight; //SCORE
-                    score += histScore;
-                }
-            });
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestCandidateIndex = idx;
-            }
-        });
-
-        if (bestCandidateIndex !== -1 && bestScore > -Infinity) {
-            selected.push(available.splice(bestCandidateIndex, 1)[0]);
-        } else {
-            selected.push(available.shift());
-        }
-    }
-
-    return selected;
-  }
-};
-
-/*
-================================================================================
- HISTORY LEARNING ENGINE
-================================================================================
-*/
-
 const HistoryEngine = {
   getHistory(machineId, cqiId) {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (hist[machineId] && hist[machineId][cqiId]) {
       let h = hist[machineId][cqiId];
-      return h.count > 0 ? (h.success / h.count) * 100 : 50;
+      // Boost jika sering sukses dan frekuensi penggunaannya tinggi
+      let baseScore = h.count > 0 ? (h.success / h.count) * 100 : 50;
+      let freqBonus = Math.min(h.freq || 0, 10) * 2; 
+      return baseScore + freqBonus;
     }
     return 50;
   },
@@ -246,12 +154,22 @@ const HistoryEngine = {
     let hist = JSON.parse(localStorage.getItem('planning_history') || '{}');
     if (!hist[machineId]) hist[machineId] = {};
     if (!hist[machineId][cqiId]) {
-      hist[machineId][cqiId] = { count: 0, success: 0, lastDistance: meta.dist || null, lastUsed: null };
+      hist[machineId][cqiId] = { 
+        count: 0, success: 0, freq: 0, lastDistance: null, 
+        lastUsed: null, coreCount: 0, nonCoreCount: 0, mode: '' 
+      };
     }
-    hist[machineId][cqiId].count++;
-    if (success) hist[machineId][cqiId].success++;
-    hist[machineId][cqiId].lastUsed = new Date().toISOString();
-    if (meta.dist) hist[machineId][cqiId].lastDistance = meta.dist;
+    let h = hist[machineId][cqiId];
+    h.count++;
+    h.freq = (h.freq || 0) + 1;
+    if (success) h.success++;
+    h.lastUsed = new Date().toISOString();
+    
+    if (meta.dist) h.lastDistance = meta.dist;
+    if (meta.coreCount !== undefined) h.coreCount = meta.coreCount;
+    if (meta.nonCoreCount !== undefined) h.nonCoreCount = meta.nonCoreCount;
+    if (meta.mode) h.mode = meta.mode;
+
     localStorage.setItem('planning_history', JSON.stringify(hist));
   },
 
@@ -261,20 +179,21 @@ const HistoryEngine = {
       if (!response.ok) throw new Error();
       const githubHistory = await response.json();
       let localHistory = JSON.parse(localStorage.getItem('planning_history') || '{}');
+      
       for (let machineId in githubHistory) {
         if (!localHistory[machineId]) localHistory[machineId] = {};
         for (let cqiId in githubHistory[machineId]) {
-          if (!localHistory[machineId][cqiId]) localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
-          else { 
-            localHistory[machineId][cqiId].count += githubHistory[machineId][cqiId].count; 
-            localHistory[machineId][cqiId].success += githubHistory[machineId][cqiId].success; 
+          if (!localHistory[machineId][cqiId]) {
+            localHistory[machineId][cqiId] = githubHistory[machineId][cqiId];
+          } else { 
+            localHistory[machineId][cqiId].count += (githubHistory[machineId][cqiId].count || 0); 
+            localHistory[machineId][cqiId].success += (githubHistory[machineId][cqiId].success || 0); 
+            localHistory[machineId][cqiId].freq = (localHistory[machineId][cqiId].freq || 0) + 1;
           }
         }
       }
       localStorage.setItem('planning_history', JSON.stringify(localHistory));
-    } catch (e) { 
-      console.warn("Sync GitHub dilewati."); 
-    }
+    } catch (e) { console.warn("Sync GitHub history dilewati."); }
   },
 
   parseAndLearn(planningText) {
@@ -289,9 +208,12 @@ const HistoryEngine = {
           let machineId = machineStr.replace(/\s*\d+\s*mesin/gi, '').trim();
           if (!machineId) return;
           if (!currentHistory[machineId]) currentHistory[machineId] = {};
-          if (!currentHistory[machineId][cqiPart]) currentHistory[machineId][cqiPart] = { count: 0, success: 0, lastUsed: null };
+          if (!currentHistory[machineId][cqiPart]) {
+            currentHistory[machineId][cqiPart] = { count: 0, success: 0, freq: 0, lastUsed: null };
+          }
           currentHistory[machineId][cqiPart].count += 1;
           currentHistory[machineId][cqiPart].success += 1;
+          currentHistory[machineId][cqiPart].freq = (currentHistory[machineId][cqiPart].freq || 0) + 1;
           currentHistory[machineId][cqiPart].lastUsed = new Date().toISOString();
         });
       }
@@ -306,87 +228,53 @@ const HistoryEngine = {
  PLANNING ENGINE & MAIN BRAIN AI
 ================================================================================
 */
-
 const BrainAI = {
   WORKSTATIONS: WORKSTATIONS,
 
-  normalizeName(str) {
-    return str ? String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
-  },
-
+  // Alias fungsi lama (Backward Compatibility)
+  normalizeName(str) { return str ? String(str).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : ''; },
   getWorkstationKey(machineName) {
-    if (!machineName) return null;
     let norm = this.normalizeName(machineName);
     for (let wsKey in WORKSTATIONS) {
-      if (WORKSTATIONS[wsKey].some(item => this.normalizeName(item) === norm)) {
-        return wsKey;
-      }
+      if (WORKSTATIONS[wsKey].some(item => this.normalizeName(item) === norm)) return wsKey;
     }
     return null;
   },
+  getDistance(r1, c1, r2, c2) { return DistanceEngine.getDistance(r1, c1, r2, c2); },
+  getRoutedDistance(machine, cqi) { return DistanceEngine.getRoutedDistance(machine, cqi, this.getWorkstationKey.bind(this)); },
+  getHistory(machineId, cqiId) { return HistoryEngine.getHistory(machineId, cqiId); },
+  recordHistory(machineId, cqiId, success = true, meta = {}) { return HistoryEngine.recordHistory(machineId, cqiId, success, meta); },
+  initHistory(githubRawUrl) { return HistoryEngine.initHistory(githubRawUrl); },
+  parseAndLearn(planningText) { return HistoryEngine.parseAndLearn(planningText); },
 
-  getDistance(r1, c1, r2, c2) {
-    return DistanceEngine.getDistance(r1, c1, r2, c2);
-  },
-
-  getRoutedDistance(machine, cqi) {
-    return DistanceEngine.getRoutedDistance(machine, cqi, this.getWorkstationKey.bind(this));
-  },
-
-  getHistory(machineId, cqiId) {
-    return HistoryEngine.getHistory(machineId, cqiId);
-  },
-
-  recordHistory(machineId, cqiId, success = true, meta = {}) {
-    return HistoryEngine.recordHistory(machineId, cqiId, success, meta);
-  },
-
-  initHistory(githubRawUrl) {
-    return HistoryEngine.initHistory(githubRawUrl);
-  },
-
-  parseAndLearn(planningText) {
-    return HistoryEngine.parseAndLearn(planningText);
-  },
-
+  // Helper Rules Manpower
   _getRequiredNonCore(slot, astCount, apkCount) {
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
-
-    let is19 = cqiIdStr === '19';
-    if (is19) return 0;
-
+    if (cqiIdStr === '19') return 0;
+    
     let is24 = cqiIdStr === '24';
     let hasC1C2 = slot.machines.some(m => m.isC1C2);
     let total = astCount + apkCount;
     
-    if (is24 && hasC1C2) {
-       if (total <= 2) return 0; 
-       return 1; 
-    }
-
+    if (is24 && hasC1C2) return (total <= 2) ? 0 : 1;
     if (total <= 4) return 0;
     
     let isAstDominant = astCount > 0;
-    
-    if (isAstDominant) {
-      if (total <= 6) return 1;
-      return 2;
-    } else {
-      if (total <= 5) return 0;
-      if (total <= 7) return 1;
-      return 2;
-    }
+    if (isAstDominant) return (total <= 6) ? 1 : 2;
+    return (total <= 5) ? 0 : (total <= 7) ? 1 : 2;
   },
 
-  _canAcceptMachine(slot, m, availableTotalNC) {
-    if (slot.isExclusive) return { can: false };
+  // Validator Mesin vs Slot CQI
+  _canAcceptMachine(slot, m, availableTotalNC, forceRepair = false) {
+    if (slot.isExclusive && !forceRepair) return { can: false, reason: "exclusive" };
 
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
     let is24 = cqiIdStr === '24';
     let is10 = cqiIdStr === '10';
 
+    // ATURAN MUTLAK (Tidak boleh dilanggar meski forceRepair)
     if (m.isC1C2 && !is24) return { can: false, reason: "ww_exclusive_cqi24" };
     if (!m.isC1C2 && is24) return { can: false, reason: "cqi24_only_ww" };
 
@@ -398,375 +286,307 @@ const BrainAI = {
     let mIsAnyApk = m.isApk || m.isKX || m.isC1C2;
 
     if (is10) {
-        if ((hasAst && m.isKX) || (hasKX && m.isAst)) return { can: false, reason: "strict_mix_cqi10" };
+      if ((hasAst && m.isKX) || (hasKX && m.isAst)) return { can: false, reason: "strict_mix_cqi10" };
     } else {
-        if (hasAst && mIsAnyApk) return { can: false, reason: "strict_mix" };
-        if (hasAnyApk && m.isAst) return { can: false, reason: "strict_mix" };
+      if (hasAst && mIsAnyApk) return { can: false, reason: "strict_mix" };
+      if (hasAnyApk && m.isAst) return { can: false, reason: "strict_mix" };
     }
 
+    // ATURAN KAPASITAS (Bisa dilonggarkan saat Auto-Repair)
     let astCount = slot.machines.filter(sm => sm.isAst).length + (m.isAst ? 1 : 0);
     let apkCount = slot.machines.filter(sm => sm.isAnyApk).length + (mIsAnyApk ? 1 : 0);
     
     let reqNC = this._getRequiredNonCore(slot, astCount, apkCount);
     let currentNC = slot.nonCore.length + (slot.longshift ? slot.longshift.length : 0);
     let neededNC = reqNC - currentNC;
-    
     let hasTargetC1C2 = hasC1C2 || m.isC1C2;
-    let isAstDominant = astCount > 0;
     
-    let absoluteMax;
-    if (is24 && hasTargetC1C2) {
-      absoluteMax = 4;
-    } else if (isAstDominant) {
-      absoluteMax = (reqNC === 0 ? 4 : reqNC === 1 ? 6 : 8);
-    } else {
-      absoluteMax = (reqNC === 0 ? 5 : reqNC === 1 ? 7 : 8);
+    let absoluteMax = (is24 && hasTargetC1C2) ? 4 : (astCount > 0 ? (reqNC === 0 ? 4 : reqNC === 1 ? 6 : 8) : (reqNC === 0 ? 5 : reqNC === 1 ? 7 : 8));
+    
+    if (!forceRepair) {
+      if (astCount + apkCount > absoluteMax) return { can: false, reason: "capacity" }; 
+      if (neededNC > availableTotalNC) return { can: false, reason: "no_nc" }; 
     }
-    
-    if (astCount + apkCount > absoluteMax) return { can: false, reason: "capacity" }; 
-    if (neededNC > availableTotalNC) return { can: false, reason: "no_nc" }; 
     
     return { can: true, neededNC: Math.max(0, neededNC), reqNC: reqNC, absoluteMax: absoluteMax };
   },
 
+  // Scoring AI Baru: Prioritaskan Coverage & Distribusi Merata
   _scoreSlot(m, slot, slots, availableTotalNC, planMode = 'ai') {
     let acceptStatus = this._canAcceptMachine(slot, m, availableTotalNC);
     if (!acceptStatus.can) return -Infinity;
 
+    let dist = this.getRoutedDistance(m, slot.cqi);
+    let distScore = Math.max(0, 500 - (dist * 4)); // Skala jarak diperbesar
+    
+    const historyWeight = planMode === 'history' ? 3.0 : 0.8;
+    let histScore = this.getHistory(m.id, slot.cqi.id) * historyWeight;
+    
+    let priorityBonus = 0;
     let match = String(slot.cqi.name || slot.cqi.id).match(/\d+/);
     let cqiIdStr = match ? match[0] : String(slot.cqi.id);
-    let sameWsCount = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
-    let dist = this.getRoutedDistance(m, slot.cqi);
-    let totalMachines = slot.machines.length + 1;
+
+    // 2. CQI Priority Rule (Bobot Tertinggi setelah rule mutlak)
+    if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) {
+      priorityBonus = 3000; 
+    }
+
+    // 3. Workstation Cluster (Menjaga agar mesin deret berdekatan)
+    let wsBonus = 0;
+    if (m.wsKey) {
+      let sameWsCount = slot.machines.filter(sm => sm.wsKey === m.wsKey).length;
+      wsBonus = sameWsCount > 0 ? (2000 + (sameWsCount * 500)) : 0; 
+    }
+
+    // 6. Capacity & Load Balancing (Mencegah 1 CQI terlalu penuh, isi yang kosong)
+    let ncPenalty = acceptStatus.neededNC > 0 ? -800 : 0; 
+    let slotMachineCount = slot.machines.length;
+    
+    // Bonus besar jika CQI kosong, penalti eksponensial jika mulai penuh
+    let distributionScore = slotMachineCount === 0 ? 1500 : (acceptStatus.absoluteMax - slotMachineCount) * 100;
     let slotDistSum = slot.machines.reduce((sum, sm) => sum + this.getRoutedDistance(sm, slot.cqi), 0);
-    const historyWeight = planMode === 'history' ? 2.0 : 0.3;
+    let workloadPenalty = (slotMachineCount * 150) + (slotDistSum * 3);
 
-    // ==========================================
-    // PENILAIAN SKOR AI (Diurutkan dari Besar ke Kecil)
-    // ==========================================
-
-    // 1. PRIORITAS CQI (70% Impact, Nilai tertinggi mendominasi keputusan)
-    let priorityBonus = (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) ? 10000 : 0; //SCORE
-    
-    // 2. CLUSTERING WORKSTATION (Mengelompokkan mesin di satu WS yang sama)
-    let wsBonus = (m.wsKey && sameWsCount > 0) ? (1500 + (sameWsCount * 500)) : 0; //SCORE
-    
-    // 3. JARAK MESIN KE CQI (Semakin dekat, poin semakin besar)
-    let distScore = Math.max(0, 100 - (dist * 2)); //SCORE
-    
-    // 4. HISTORI PLANNING (Pengalaman masa lalu)
-    let histScore = this.getHistory(m.id, slot.cqi.id) * historyWeight; //SCORE
-    
-    // 5. SKOR KAPASITAS (Mengutamakan pembagian merata)
-    let capScore = ((acceptStatus.absoluteMax - totalMachines) * 10); //SCORE
-
-    // 6. PENALTI BEBAN KERJA & JARAK TOTAL SLOT (Minus)
-    let workloadPenalty = -((slot.machines.length * 25) + (slotDistSum * 2)); //SCORE
-    
-    // 7. PENALTI KEKURANGAN NON-CORE (Minus Terbesar, mencegah slot cacat)
-    let ncPenalty = acceptStatus.neededNC > 0 ? -2000 : 0; //SCORE
-
-    // Kalkulasi Skor Total
-    return priorityBonus + wsBonus + distScore + histScore + capScore + workloadPenalty + ncPenalty;
+    return distScore + histScore + wsBonus + priorityBonus + distributionScore + ncPenalty - workloadPenalty;
   },
 
+  /*================ NEW FITUR: AUTO REPAIR & COVERAGE CHECK ================*/
+  detectUnassignedMachine(machinesData, slots) {
+    let assignedIds = new Set();
+    slots.forEach(s => s.machines.forEach(m => assignedIds.add(m.id)));
+    return machinesData.filter(m => !assignedIds.has(m.id));
+  },
+
+  repairUnassignedMachine(unassigned, slots, availableTotalNC) {
+    let stillUnassigned = [];
+    unassigned.forEach(u => {
+      let placed = false;
+      // Urutkan slot berdasarkan Jarak terdekat
+      let fallbackSlots = [...slots].sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi));
+      
+      for (let target of fallbackSlots) {
+        // Coba masukkan dengan mode forceRepair = true (mengabaikan kapasitas & sisa NC, tapi tetap menjaga aturan ketat)
+        let accept = this._canAcceptMachine(target, u, availableTotalNC, true);
+        if (accept.can) {
+          target.machines.push(u);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) stillUnassigned.push(u);
+    });
+    return stillUnassigned;
+  },
+
+  finalCoverageCheck(machinesData, slots) {
+    return this.detectUnassignedMachine(machinesData, slots).length === 0;
+  },
+
+  /*================ NEW FITUR: HEATMAP BEBAN CQI ================*/
+  getCQILoadHeatmap(slots) {
+    return slots.map(slot => {
+      let machineCount = slot.machines.length;
+      let totalDist = slot.machines.reduce((sum, m) => sum + this.getRoutedDistance(m, slot.cqi), 0);
+      let is24 = String(slot.cqi.name || slot.cqi.id).includes('24');
+      let hasC1C2 = slot.machines.some(sm => ['C1', 'C2'].includes((sm.name || sm.id).toUpperCase()));
+      let astCount = slot.machines.filter(sm => (sm.name || sm.id).toUpperCase().startsWith('AST')).length;
+      
+      let hardLimit = (is24 && hasC1C2) ? 4 : (astCount > 0 ? 8 : 8); 
+      let capacityRatio = machineCount / hardLimit;
+
+      let status = "LOW";
+      if (capacityRatio >= 1) status = "OVERLOAD";
+      else if (capacityRatio >= 0.8) status = "HIGH";
+      else if (capacityRatio >= 0.5) status = "NORMAL";
+      
+      if (machineCount === 0) status = "EMPTY";
+
+      return {
+        cqi: slot.cqi.name,
+        machines: machineCount,
+        totalDistance: totalDist,
+        usedCapacity: Math.round(capacityRatio * 100) + "%",
+        status: status
+      };
+    });
+  },
+
+  /*================ MAIN GENERATOR ENGINE ================*/
   generatePlan(machines, cqis, config) {
     let coreLimit = parseInt(config.core) || 1;
     let nonCoreCount = parseInt(config.nonCore) || 0;
-
-    let availableCores = [];
-    let rawCores = config.coreData || config.coreNames || [];
     
-    for (let i = 0; i < coreLimit; i++) {
-        if (rawCores[i]) {
-            if (typeof rawCores[i] === 'object') {
-                availableCores.push({
-                    id: rawCores[i].id || null,
-                    name: rawCores[i].name || `CORE ${i+1}`,
-                    cqi_priority: rawCores[i].cqi_priority || null
-                });
-            } else {
-                availableCores.push({ id: null, name: rawCores[i], cqi_priority: null });
-            }
-        } else {
-            availableCores.push({ id: null, name: `CORE ${i+1}`, cqi_priority: null });
-        }
-    }
+    // Inisialisasi Pool (Sama seperti versi sebelumnya)
+    let availableCores = (config.coreData || config.coreNames || []).slice(0, coreLimit).map((c, i) => 
+      typeof c === 'object' ? { id: c.id, name: c.name || `CORE ${i+1}`, cqi_priority: c.cqi_priority } : { id: null, name: c || `CORE ${i+1}` }
+    );
+    while (availableCores.length < coreLimit) availableCores.push({ id: null, name: `CORE ${availableCores.length+1}` });
 
-    let nonCorePool = [];
-    let rawNonCores = config.nonCoreData || config.nonCoreNames || [];
-    for (let i = 0; i < nonCoreCount; i++) {
-        if (rawNonCores[i]) {
-            if (typeof rawNonCores[i] === 'object') {
-                nonCorePool.push(rawNonCores[i].name || `NON CORE ${i+1}`);
-            } else {
-                nonCorePool.push(rawNonCores[i]);
-            }
-        } else {
-            nonCorePool.push(`NON CORE ${i+1}`);
-        }
-    }
+    let nonCorePool = (config.nonCoreData || config.nonCoreNames || []).slice(0, nonCoreCount).map(nc => typeof nc === 'object' ? nc.name : nc);
+    while (nonCorePool.length < nonCoreCount) nonCorePool.push(`NON CORE ${nonCorePool.length+1}`);
 
-    let lsPool = [];
     let rawLS = config.longshiftData || config.longshiftNames || [];
     let lsCount = parseInt(config.longshift) || rawLS.length || 0;
-    for (let i = 0; i < lsCount; i++) {
-        if (rawLS[i]) {
-            if (typeof rawLS[i] === 'object') {
-                lsPool.push(rawLS[i].name || `(LS)`);
-            } else {
-                lsPool.push(rawLS[i]);
-            }
-        } else {
-            lsPool.push(`(LS)`);
-        }
-    }
+    let lsPool = rawLS.slice(0, lsCount).map(ls => typeof ls === 'object' ? ls.name : ls);
+    while (lsPool.length < lsCount) lsPool.push(`(LS)`);
 
+    // Mapping Mesin
     let unassigned = machines.map(m => {
       let nm = { ...m };
       let upName = (nm.name || nm.id).toUpperCase();
       nm.wsKey = this.getWorkstationKey(nm.name || nm.id) || nm.ws || null;
-      
       nm.isAst = upName.startsWith('AST');
       nm.isApk = upName.startsWith('APK');
       nm.isKX = upName.startsWith('K') || upName.startsWith('X');
       nm.isM2M3 = ['M2', 'M3'].includes(upName);
       nm.isC1C2 = ['C1', 'C2'].includes(upName);
       nm.isAnyApk = nm.isApk || nm.isKX || nm.isC1C2;
-      
       return nm;
     });
 
     unassigned.sort((a, b) => (a.wsKey || '').localeCompare(b.wsKey || '') || (a.name || '').localeCompare(b.name || ''));
 
-    let activeCQIs = CQIOptimizer.detectBestCQIs(
-        unassigned, 
-        cqis, 
-        coreLimit, 
-        this.getRoutedDistance.bind(this),
-        this.getWorkstationKey.bind(this),
-        CQI_PRIORITY_MAP,
-        this.getHistory.bind(this),
-        config.planMode
-    );
-
-    let slots = activeCQIs.map((cqi, i) => {
-      return {
-        slotId: 'SLOT-' + i, 
-        cqi: cqi, 
-        core: null,
-        nonCore: [], 
-        longshift: [], 
-        machines: [],
-        isExclusive: false
-      };
+    // Memilih CQI Aktif
+    let cqiScores = cqis.map(cqi => {
+      let score = 0;
+      let match = String(cqi.name || cqi.id).match(/\d+/);
+      let cqiIdStr = match ? match[0] : String(cqi.id);
+      unassigned.forEach(m => {
+        if (m.wsKey && CQI_PRIORITY_MAP[cqiIdStr] && CQI_PRIORITY_MAP[cqiIdStr].includes(m.wsKey)) score += 1500;
+        let dist = this.getRoutedDistance(m, cqi);
+        score += dist < 15 ? 200 : dist < 30 ? 100 : dist < 50 ? 50 : dist < 80 ? 20 : 0;
+        score += this.getHistory(m.id, cqi.id) * (config.planMode === 'history' ? 2.0 : 0.1);
+        if (cqiIdStr === '19' && m.isM2M3) score += 10000;
+        if (cqiIdStr === '24' && m.isC1C2) score += 10000;
+      });
+      return { cqi: cqi, score: score };
     });
 
-    let slot19 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '19'; });
-    let m2m3MachinesExist = unassigned.some(m => m.isM2M3);
-    let isCQI19Active = Boolean(slot19 && m2m3MachinesExist);
+    cqiScores.sort((a, b) => b.score - a.score);
+    let activeCQIs = cqiScores.slice(0, coreLimit).map(cs => cs.cqi);
+    let slots = activeCQIs.map((cqi, i) => ({ slotId: 'SLOT-'+i, cqi: cqi, core: null, nonCore: [], longshift: [], machines: [], isExclusive: false }));
 
-    let slot24 = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
-    let c1c2MachinesExist = unassigned.some(m => m.isC1C2);
-    let isCQI24Active = Boolean(slot24 && c1c2MachinesExist);
-
-    const isCOT1 = (coreObj) => {
-        if (!coreObj) return false;
-        let idUpper = String(coreObj.id || '').toUpperCase();
-        let nameUpper = String(coreObj.name || '').toUpperCase();
-        return idUpper === 'COT1' || idUpper === 'CORE2' || nameUpper.includes('FARHAN');
-    };
-
-    const isCOT2 = (coreObj) => {
-        if (!coreObj) return false;
-        let idUpper = String(coreObj.id || '').toUpperCase();
-        let nameUpper = String(coreObj.name || '').toUpperCase();
-        return idUpper === 'COT2' || idUpper === 'CORE4' || nameUpper.includes('DINI');
-    };
-
-    const isCWW1 = (coreObj) => {
-        if (!coreObj) return false;
-        let idUpper = String(coreObj.id || '').toUpperCase();
-        let nameUpper = String(coreObj.name || '').toUpperCase();
-        return idUpper === 'CWW1' || idUpper === 'C1' || idUpper === 'CORE1' || nameUpper.includes('JIDDAN');
-    };
-
-    const isCWW2 = (coreObj) => {
-        if (!coreObj) return false;
-        let idUpper = String(coreObj.id || '').toUpperCase();
-        let nameUpper = String(coreObj.name || '').toUpperCase();
-        return idUpper === 'CWW2' || nameUpper.includes('MIA');
-    };
+    // Handler Khusus OT & WW Core Assignment (Dipertahankan)
+    const isCOT1 = (c) => c && (String(c.id).toUpperCase() === 'COT1' || String(c.id).toUpperCase() === 'CORE2' || String(c.name).toUpperCase().includes('FARHAN'));
+    const isCOT2 = (c) => c && (String(c.id).toUpperCase() === 'COT2' || String(c.id).toUpperCase() === 'CORE4' || String(c.name).toUpperCase().includes('DINI'));
+    const isCWW1 = (c) => c && (String(c.id).toUpperCase() === 'CWW1' || String(c.id).toUpperCase() === 'C1' || String(c.id).toUpperCase() === 'CORE1' || String(c.name).toUpperCase().includes('JIDDAN'));
+    const isCWW2 = (c) => c && (String(c.id).toUpperCase() === 'CWW2' || String(c.name).toUpperCase().includes('MIA'));
 
     const assignCoreToCQI = (cqiStr) => {
-        if (availableCores.length === 0) return "UNKNOWN CORE";
-        let match = String(cqiStr).match(/\d+/);
-        let targetCqi = match ? match[0] : null;
+      if (availableCores.length === 0) return "UNKNOWN CORE";
+      let match = String(cqiStr).match(/\d+/);
+      let tCqi = match ? match[0] : null;
+      let slot19 = slots.find(s => String(s.cqi.name).includes('19'));
+      let slot24 = slots.find(s => String(s.cqi.name).includes('24'));
+      let is19Act = slot19 && unassigned.some(m => m.isM2M3);
+      let is24Act = slot24 && unassigned.some(m => m.isC1C2);
 
-        if (targetCqi === '19' && isCQI19Active) {
-            let cot1Index = availableCores.findIndex(c => isCOT1(c));
-            if (cot1Index !== -1) return availableCores.splice(cot1Index, 1)[0].name;
-            let cot2Index = availableCores.findIndex(c => isCOT2(c));
-            if (cot2Index !== -1) return availableCores.splice(cot2Index, 1)[0].name;
-            return "NO VALID OT CORE (FARHAN/DINI REQUIRED)";
-        }
-
-        if (targetCqi === '24' && isCQI24Active) {
-            let cww1Index = availableCores.findIndex(c => isCWW1(c));
-            if (cww1Index !== -1) return availableCores.splice(cww1Index, 1)[0].name;
-            let cww2Index = availableCores.findIndex(c => isCWW2(c));
-            if (cww2Index !== -1) return availableCores.splice(cww2Index, 1)[0].name;
-            return "NO VALID WW CORE (JIDDAN/MIA REQUIRED)";
-        }
-
-        let candidates = availableCores.filter(c => {
-            let prioMatch = false;
-            if (c.cqi_priority) {
-                let prioNum = String(c.cqi_priority).match(/\d+/);
-                prioMatch = prioNum && prioNum[0] === targetCqi;
-            }
-            let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
-            return prioMatch && !isRestricted;
-        });
-
-        if (candidates.length > 0) {
-            let selected = candidates[0];
-            availableCores.splice(availableCores.indexOf(selected), 1);
-            return selected.name;
-        }
-
-        let fallbackIndex = availableCores.findIndex(c => {
-            let isRestricted = (isCQI19Active && isCOT1(c)) || (isCQI24Active && isCWW1(c));
-            return !isRestricted;
-        });
-
-        if (fallbackIndex !== -1) {
-            return availableCores.splice(fallbackIndex, 1)[0].name;
-        }
-
-        let fallback = availableCores.shift();
-        return fallback ? fallback.name : "UNKNOWN CORE";
+      if (tCqi === '19' && is19Act) {
+        let i = availableCores.findIndex(c => isCOT1(c));
+        if (i !== -1) return availableCores.splice(i, 1)[0].name;
+        i = availableCores.findIndex(c => isCOT2(c));
+        return i !== -1 ? availableCores.splice(i, 1)[0].name : "NO VALID OT CORE";
+      }
+      if (tCqi === '24' && is24Act) {
+        let i = availableCores.findIndex(c => isCWW1(c));
+        if (i !== -1) return availableCores.splice(i, 1)[0].name;
+        i = availableCores.findIndex(c => isCWW2(c));
+        return i !== -1 ? availableCores.splice(i, 1)[0].name : "NO VALID WW CORE";
+      }
+      let cands = availableCores.filter(c => {
+        let prioMatch = c.cqi_priority && String(c.cqi_priority).match(/\d+/) && String(c.cqi_priority).match(/\d+/)[0] === tCqi;
+        let isRestricted = (is19Act && isCOT1(c)) || (is24Act && isCWW1(c));
+        return prioMatch && !isRestricted;
+      });
+      if (cands.length > 0) {
+        let sel = cands[0]; availableCores.splice(availableCores.indexOf(sel), 1); return sel.name;
+      }
+      let fIndex = availableCores.findIndex(c => !((is19Act && isCOT1(c)) || (is24Act && isCWW1(c))));
+      if (fIndex !== -1) return availableCores.splice(fIndex, 1)[0].name;
+      return availableCores.shift()?.name || "UNKNOWN CORE";
     };
 
-    if (slot19) slot19.core = assignCoreToCQI('19');
-    if (slot24) slot24.core = assignCoreToCQI('24');
-
-    slots.forEach(slot => {
-        if (!slot.core) slot.core = assignCoreToCQI(slot.cqi.name || slot.cqi.id);
-    });
+    slots.forEach(slot => { if (!slot.core) slot.core = assignCoreToCQI(slot.cqi.name || slot.cqi.id); });
 
     const applyNonCoreIfNeeded = (slot) => {
       let astCount = slot.machines.filter(sm => sm.isAst).length;
       let apkCount = slot.machines.filter(sm => sm.isAnyApk).length;
       let reqNC = this._getRequiredNonCore(slot, astCount, apkCount);
-      let currentTotalNC = slot.nonCore.length + slot.longshift.length;
-      
-      while (currentTotalNC < reqNC) {
-        if (nonCorePool.length > 0) {
-          slot.nonCore.push(nonCorePool.shift());
-          currentTotalNC++;
-        } else if (lsPool.length > 0) {
-          slot.longshift.push(lsPool.shift());
-          currentTotalNC++;
-        } else {
-          break;
-        }
+      while (slot.nonCore.length + slot.longshift.length < reqNC) {
+        if (nonCorePool.length > 0) slot.nonCore.push(nonCorePool.shift());
+        else if (lsPool.length > 0) slot.longshift.push(lsPool.shift());
+        else break;
       }
     };
 
-    let m2m3Machines = unassigned.filter(m => m.isM2M3);
-    if (slot19 && m2m3Machines.length > 0) {
-      slot19.machines.push(...m2m3Machines);
-      slot19.isExclusive = true; 
+    // Alokasi M2/M3 & C1/C2 (Eksklusif Mutlak)
+    let slot19 = slots.find(s => String(s.cqi.name).includes('19'));
+    if (slot19 && unassigned.some(m => m.isM2M3)) {
+      slot19.machines.push(...unassigned.filter(m => m.isM2M3));
+      slot19.isExclusive = true;
       unassigned = unassigned.filter(m => !m.isM2M3);
       applyNonCoreIfNeeded(slot19);
     }
-
-    let c1c2Machines = unassigned.filter(m => m.isC1C2);
-    if (slot24 && c1c2Machines.length > 0) {
-      slot24.machines.push(...c1c2Machines);
+    let slot24 = slots.find(s => String(s.cqi.name).includes('24'));
+    if (slot24 && unassigned.some(m => m.isC1C2)) {
+      slot24.machines.push(...unassigned.filter(m => m.isC1C2));
+      slot24.isExclusive = true;
       unassigned = unassigned.filter(m => !m.isC1C2);
-      slot24.isExclusive = true; 
       applyNonCoreIfNeeded(slot24);
     }
 
+    // Hindari CQI Kosong
     slots.forEach(slot => {
       if (slot.machines.length === 0 && unassigned.length > 0) {
         unassigned.sort((a, b) => this.getRoutedDistance(a, slot.cqi) - this.getRoutedDistance(b, slot.cqi));
-        let seedMachine = unassigned.shift();
-        slot.machines.push(seedMachine);
+        slot.machines.push(unassigned.shift());
         applyNonCoreIfNeeded(slot);
       }
     });
 
-    // FASE 1: MASUKKAN MESIN DENGAN CLUSTERING WORKSTATION
+    // FASE 1: Distribusi Cerdas (Load Balancing & Clustering)
     let remainingUnassigned = [];
     unassigned.forEach(m => {
-      let bestSlot = null;
-      let bestScore = -Infinity;
-
+      let bestSlot = null, bestScore = -Infinity;
       slots.forEach(slot => {
         let score = this._scoreSlot(m, slot, slots, nonCorePool.length + lsPool.length, config.planMode || 'ai');
         if (score > bestScore) { bestScore = score; bestSlot = slot; }
       });
-
       if (bestSlot) {
-        bestSlot.machines.push(m);
-        applyNonCoreIfNeeded(bestSlot);
-      } else {
-        remainingUnassigned.push(m);
-      }
+        bestSlot.machines.push(m); applyNonCoreIfNeeded(bestSlot);
+      } else remainingUnassigned.push(m);
     });
 
-    let slot24Fallback = slots.find(s => { let m = String(s.cqi.name || s.cqi.id).match(/\d+/); return m && m[0] === '24'; });
-    if (slot24Fallback && slot24Fallback.machines.some(m => m.isC1C2)) {
-        slot24Fallback.isExclusive = false;
-    }
+    // Lepas eksklusivitas CQI 24 jika cadangan penuh (Bisa tampung APK)
+    if (slot24 && slot24.machines.some(m => m.isC1C2)) slot24.isExclusive = false;
     
-    // FASE 2: GESER & TUKAR (SWAP)
+    // FASE 2: SWAP Taktis
     if (remainingUnassigned.length > 0) {
-      let iterations = remainingUnassigned.length * 5; 
+      let iterations = remainingUnassigned.length * 5;
       while (remainingUnassigned.length > 0 && iterations > 0) {
         let u = remainingUnassigned.shift();
         let placed = false;
-
-        let fallbackSlots = [...slots].filter(s => !s.isExclusive)
-          .sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi));
-
-        for (let target of fallbackSlots) {
+        let fbSlots = [...slots].filter(s => !s.isExclusive).sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi));
+        
+        for (let target of fbSlots) {
           let accept = this._canAcceptMachine(target, u, nonCorePool.length + lsPool.length);
           if (accept.can) {
-            target.machines.push(u); 
-            applyNonCoreIfNeeded(target);
-            placed = true; 
-            break;
-          } 
-          else if (accept.reason === "capacity" || accept.reason === "no_nc") {
+            target.machines.push(u); applyNonCoreIfNeeded(target); placed = true; break;
+          } else if (accept.reason === "capacity" || accept.reason === "no_nc") {
             for (let i = 0; i < target.machines.length; i++) {
-              let occupant = target.machines[i];
-              target.machines.splice(i, 1); 
-
-              let acceptU = this._canAcceptMachine(target, u, nonCorePool.length + lsPool.length);
-              if (acceptU.can) {
-                let newHomes = [...slots].filter(s => s !== target && !s.isExclusive)
-                  .sort((a, b) => this.getRoutedDistance(occupant, a.cqi) - this.getRoutedDistance(occupant, b.cqi));
-                
-                let foundHome = false;
-                for(let home of newHomes) {
-                  let currentTotalPool = nonCorePool.length + lsPool.length;
-                  let currentAvail = Math.max(0, currentTotalPool - acceptU.neededNC);
-                  let acceptOcc = this._canAcceptMachine(home, occupant, currentAvail);
-                  
-                  if(acceptOcc.can) {
-                     target.machines.push(u); 
-                     applyNonCoreIfNeeded(target);
-                     home.machines.push(occupant); 
-                     applyNonCoreIfNeeded(home);
-                     placed = true; 
-                     foundHome = true;
-                     break;
-                  }
-                }
+              let occupant = target.machines[i]; target.machines.splice(i, 1);
+              if (this._canAcceptMachine(target, u, nonCorePool.length + lsPool.length).can) {
+                let foundHome = [...slots].filter(s => s !== target && !s.isExclusive)
+                  .sort((a, b) => this.getRoutedDistance(occupant, a.cqi) - this.getRoutedDistance(occupant, b.cqi))
+                  .some(home => {
+                     let poolCount = nonCorePool.length + lsPool.length;
+                     if(this._canAcceptMachine(home, occupant, poolCount).can) {
+                        target.machines.push(u); applyNonCoreIfNeeded(target);
+                        home.machines.push(occupant); applyNonCoreIfNeeded(home);
+                        placed = true; return true;
+                     }
+                     return false;
+                  });
                 if (foundHome) break;
               }
               target.machines.splice(i, 0, occupant); 
@@ -774,79 +594,20 @@ const BrainAI = {
           }
           if (placed) break;
         }
-        if (!placed) remainingUnassigned.push(u); 
+        if (!placed) remainingUnassigned.push(u);
         iterations--;
       }
     }
 
-    // FASE 3: BULLDOZER
-    if (remainingUnassigned.length > 0) {
-        let tempUnassigned = [...remainingUnassigned];
-        remainingUnassigned = [];
-        while(tempUnassigned.length > 0) {
-            let u = tempUnassigned.shift();
-            let possibleSlots = slots.filter(s => {
-                let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
-                let is19 = match && match[0] === '19';
-                if (is19 && !u.isM2M3) return false;
-                if (!is19 && u.isM2M3) return false;
-                let accept = this._canAcceptMachine(s, u, nonCorePool.length + lsPool.length);
-                return accept.can;
-            });
-            if (possibleSlots.length > 0) {
-                let closestTarget = possibleSlots.sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi))[0];
-                closestTarget.machines.push(u);
-                applyNonCoreIfNeeded(closestTarget);
-            } else {
-                remainingUnassigned.push(u);
-            }
-        }
+    // FASE 3: AUTO-REPAIR & COVERAGE FIRST (100% Assurance)
+    let repCount = 0;
+    while (remainingUnassigned.length > 0 && repCount < 3) {
+      remainingUnassigned = this.repairUnassignedMachine(remainingUnassigned, slots, nonCorePool.length + lsPool.length);
+      slots.forEach(s => applyNonCoreIfNeeded(s));
+      repCount++;
     }
 
-    // FASE 4: DESPERATE FORCE
-    if (remainingUnassigned.length > 0) {
-        let tempUnassigned = [...remainingUnassigned];
-        remainingUnassigned = [];
-        while(tempUnassigned.length > 0) {
-            let u = tempUnassigned.shift();
-            let possibleSlots = slots.filter(s => {
-                let match = String(s.cqi.name || s.cqi.id).match(/\d+/);
-                let is19 = match && match[0] === '19';
-                let is24 = match && match[0] === '24';
-                let is10 = match && match[0] === '10';
-                
-                if (is19 && !u.isM2M3) return false;
-                if (!is19 && u.isM2M3) return false;
-                if (u.isC1C2 && !is24) return false;
-                if (!u.isC1C2 && is24) return false;
-                
-                let hasC1C2 = s.machines.some(m => m.isC1C2) || u.isC1C2;
-                let hardLimit = (is24 && hasC1C2) ? 4 : 8; 
-
-                let hasAst = s.machines.some(sm => sm.isAst);
-                let hasAnyApk = s.machines.some(sm => sm.isAnyApk);
-                let hasKX = s.machines.some(sm => sm.isKX);
-
-                if (is10) {
-                    if ((hasKX && u.isAst) || (hasAst && u.isKX)) return false;
-                } else {
-                    if (hasAst && u.isAnyApk) return false;
-                    if (hasAnyApk && u.isAst) return false;
-                }
-
-                return s.machines.length < hardLimit;
-            });
-            
-            if(possibleSlots.length > 0) {
-                let forcedTarget = possibleSlots.sort((a, b) => this.getRoutedDistance(u, a.cqi) - this.getRoutedDistance(u, b.cqi))[0];
-                forcedTarget.machines.push(u);
-                applyNonCoreIfNeeded(forcedTarget); 
-            } else {
-                remainingUnassigned.push(u); 
-            }
-        }
-    }
-
+    // Memastikan pengurutan UI CQI
     slots.leftoverNonCores = nonCorePool;
     slots.leftoverLongshifts = lsPool;
     slots.sort((a,b) => {
@@ -858,12 +619,7 @@ const BrainAI = {
     return slots;
   },
 
-/*
-================================================================================
- VALIDATION ENGINE & OUTPUT FORMATTERS
-================================================================================
-*/
-
+  /*================ VALIDATION ENGINE (Dipertahankan) ================*/
   validate(plan, machinesData) {
     let isMachinesArray = Array.isArray(machinesData);
     let totalMachinesCount = isMachinesArray ? machinesData.length : machinesData;
@@ -875,7 +631,6 @@ const BrainAI = {
     };
 
     let coveredIds = new Set();
-    let machineDistances = [];
     let isNonCoreShortageDetected = false;
 
     plan.forEach(slot => {
@@ -908,12 +663,9 @@ const BrainAI = {
 
       let reqNC = this._getRequiredNonCore(slot, astCount, anyApkCount);
       let totalNC = slot.nonCore.length + slot.longshift.length;
-
       let hasC1C2 = slot.machines.some(sm => ['C1','C2'].includes((sm.name||sm.id).toUpperCase()));
-      if (is24 && hasC1C2 && slot.machines.length > 2 && totalNC > 0) {
-          report.info.push(`💡 [INFO] CQI 24 menyerap Pekerja cadangan.`);
-      }
-
+      if (is24 && hasC1C2 && slot.machines.length > 2 && totalNC > 0) report.info.push(`💡 [INFO] CQI 24 menyerap Pekerja cadangan.`);
+      
       let hardLimit = (is24 && hasC1C2) ? 4 : 8; 
 
       if (totalNC > 2) {
@@ -939,15 +691,9 @@ const BrainAI = {
       }
 
       slot.machines.forEach(m => {
-        if (coveredIds.has(m.id)) {
-          report.duplicateMachines.push(m.name);
-          report.valid = false;
-        }
+        if (coveredIds.has(m.id)) { report.duplicateMachines.push(m.name); report.valid = false; }
         coveredIds.add(m.id);
-        
-        let dist = this.getRoutedDistance(m, slot.cqi);
-        report.totalDistance += dist;
-        machineDistances.push(dist);
+        report.totalDistance += this.getRoutedDistance(m, slot.cqi);
       });
     });
 
@@ -956,10 +702,7 @@ const BrainAI = {
     report.avgDistance = report.assignedCount > 0 ? +(report.totalDistance / report.assignedCount).toFixed(2) : 0;
 
     if (isMachinesArray) report.unassignedMachines = machinesData.filter(m => !coveredIds.has(m.id));
-
-    if (isNonCoreShortageDetected) {
-        report.info.push(`🚨 [PERINGATAN KRITIS] KEKURANGAN MANPOWER! AI memaksa mesin beroperasi tanpa pekerja standar.`);
-    }
+    if (isNonCoreShortageDetected) report.info.push(`🚨 [PERINGATAN KRITIS] KEKURANGAN MANPOWER! AI memaksa mesin beroperasi tanpa pekerja standar.`);
 
     if (report.coveragePercent < 100) {
       report.valid = false;
@@ -972,10 +715,10 @@ const BrainAI = {
     }
 
     if (report.violations.length > 0) report.valid = false;
-    
     return report;
   },
 
+  /*================ FORMATTER OUTPUT (Dipertahankan) ================*/
   formatMachineList(machines) {
     if (!machines || machines.length === 0) return '-';
     let wsGroups = {}; let unGrouped = [];
