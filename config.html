@@ -27,6 +27,13 @@
   .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; color: var(--text-muted); }
   .badge.ok { background: var(--success-bg); color: var(--success); }
 
+  /* Dropdown Mode */
+  .dropdown { position: relative; display: inline-block; }
+  .dropdown-content { display: none; position: absolute; background-color: var(--surface); min-width: 160px; box-shadow: var(--shadow); border: 1px solid var(--border); border-radius: 6px; z-index: 100; right: 0; top: 110%; overflow: hidden; }
+  .dropdown-content a { color: var(--text-main); padding: 12px 16px; text-decoration: none; display: block; font-size: 13px; font-weight: 500; transition: 0.2s; }
+  .dropdown-content a:hover { background-color: var(--surface-hover); color: var(--accent); }
+  .dropdown.show .dropdown-content { display: block; animation: fadeIn 0.2s; }
+
   /* App Layout */
   .app-container { display: flex; flex: 1; overflow: hidden; }
   .config-panel { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
@@ -45,7 +52,6 @@
 
   .icon-btn { width: 28px; height: 28px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
   .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
-
   .list-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
   .list-item:hover { border-color: #94a3b8; }
   .list-item.locked { border-color: var(--success); background: var(--success-bg); }
@@ -78,11 +84,27 @@
   .stat-box p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
   .stat-box span { display: block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-main); }
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; flex: 1; min-height: 400px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; flex: 1; }
   .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
   .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
-  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; min-height: 250px; }
+
+  /* Interactive CQI Editor Cards */
+  .cqi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .cqi-card { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .cqi-card-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .cqi-card-head h4 { margin: 0; font-size: 14px; font-weight: 700; color: var(--accent); }
+  .cqi-meta { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); font-weight: 600; }
+  .cqi-manpower { font-size: 12px; color: var(--text-main); display: flex; flex-direction: column; gap: 4px; }
+  .cqi-manpower span { display: flex; align-items: center; gap: 6px; }
+  .cqi-manpower span b { font-weight: 600; color: var(--text-muted); width: 45px; }
+  .cqi-machines { display: flex; flex-direction: column; gap: 6px; }
+  .cqi-machine-item { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 500; }
+  .cqi-machine-item .m-name { color: var(--text-main); }
+  .btn-swap { background: transparent; border: none; color: var(--text-subtle); cursor: pointer; transition: 0.2s; font-size: 13px; padding: 4px; border-radius: 4px; }
+  .btn-swap:hover { color: var(--accent); background: #e0e7ff; }
+
+  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; min-height: 200px; display:none; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
@@ -90,24 +112,22 @@
   .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
   .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
+  .btn-outline { border-color: var(--border); color: var(--text-main); background: transparent; }
+  .btn-outline:hover { background: var(--surface-hover); }
 
-  /* WIZARD MODAL CSS */
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); display: none; place-items: center; z-index: 100; backdrop-filter: blur(2px); }
-  .modal-card { background: var(--surface); width: 90%; max-width: 500px; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 16px; position: relative; }
-  .modal-head h2 { margin: 0; font-size: 18px; color: var(--text-main); }
-  .modal-head p { margin: 6px 0 0; font-size: 13px; color: var(--text-muted); }
+  /* SWAP MODAL CSS */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; place-items: center; z-index: 100; backdrop-filter: blur(2px); }
+  .modal-card { background: var(--surface); width: 90%; max-width: 450px; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 16px; }
+  .modal-head h2 { margin: 0; font-size: 16px; color: var(--text-main); }
+  .modal-head p { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
   
-  .wizard-q { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
-  .wizard-opt { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-  .wizard-opt label { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; background: var(--surface-hover); font-size: 13px; font-weight: 500; }
-  .wizard-opt label:hover { border-color: var(--accent); }
-  .wizard-opt input[type="radio"] { accent-color: var(--accent); transform: scale(1.2); }
-  
-  .wizard-step { display: none; }
-  .wizard-step.active { display: block; animation: fadeIn 0.3s; }
-  
-  .modal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 16px; }
-  .wizard-progress { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .swap-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+  .swap-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; background: var(--surface); }
+  .swap-item:hover { border-color: var(--accent); background: #eff6ff; }
+  .swap-item-info { display: flex; flex-direction: column; gap: 4px; }
+  .swap-item-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .swap-item-cqi { font-size: 11px; color: var(--text-muted); }
+  .swap-item-score { font-size: 12px; font-weight: 700; color: var(--success); background: var(--success-bg); padding: 4px 8px; border-radius: 4px; }
 
   @media (max-width: 1024px) {
     html, body { overflow: auto; height: auto; }
@@ -119,6 +139,7 @@
     #dashboard { grid-template-columns: repeat(2, 1fr); }
     .actions { flex-direction: column; }
     .actions .btn { width: 100%; }
+    .cqi-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -130,7 +151,14 @@
       <span class="badge" id="statusBadge">Draft</span>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn" style="background:#fef3c7; border-color:#fde68a; color:#92400e;" onclick="openWizard()">📋 Panduan Aturan AI</button>
+      <div class="dropdown" id="modeDropdownWrapper">
+        <button class="btn btn-outline" onclick="toggleDropdown()">⚙️ Mode: <span id="currentModeLabel">Full Mode</span></button>
+        <div class="dropdown-content" id="modeOptions">
+          <a href="#" onclick="changeMode('<60', 'Kurang 60 Mesin'); return false;">Kurang 60 Mesin</a>
+          <a href="#" onclick="changeMode('<80', 'Kurang 80 Mesin'); return false;">Kurang 80 Mesin</a>
+          <a href="#" onclick="changeMode('FULL', 'Full Mode'); return false;">Full Mode</a>
+        </div>
+      </div>
       <button class="btn btn-primary" onclick="executePlan()">🚀 Generate</button>
     </div>
   </header>
@@ -196,9 +224,17 @@
 
       <section class="card">
         <div class="card-head">
-          <div><h2>Editor Output Final</h2><p>Pastikan cek log AI untuk melihat alasan pembagian.</p></div>
+          <div><h2>Editor Interaktif Output (BETA)</h2><p>Tinjau dan tukar mesin antar CQI dengan bantuan persentase saran kecocokan dari AI.</p></div>
+          <button class="btn btn-outline" style="font-size:12px; padding: 4px 8px;" onclick="toggleRawText()">Lihat Teks Mentah</button>
         </div>
+        
+        <!-- Interactive CQI Grid -->
+        <div id="interactiveCards" class="cqi-grid">
+            <div style="font-size: 13px; color: var(--text-muted); grid-column: 1/-1;">Klik "Generate" terlebih dahulu untuk melihat hasil Card CQI.</div>
+        </div>
+
         <textarea id="textOutput" spellcheck="false" placeholder="Klik 'Generate Plan' untuk melihat hasil..."></textarea>
+        
         <div class="actions">
           <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
           <button class="btn" onclick="shareWA()">💬 Kirim WA</button>
@@ -209,98 +245,52 @@
     </main>
   </div>
 
-  <!-- WIZARD PANDUAN MODAL -->
-  <div class="modal-overlay" id="wizardModal">
+  <!-- SWAP SUGGESTION MODAL -->
+  <div class="modal-overlay" id="swapModal">
     <div class="modal-card">
       <div class="modal-head">
-        <h2>Panduan Aturan Khusus AI</h2>
-        <p>Bantu sistem mengingatkan aturan setup mesin sebelum di Generate.</p>
+        <h2>Saran Pergantian Mesin (AI Swap)</h2>
+        <p id="swapSubtitle">Mencari kandidat terbaik untuk menukar mesin X dari CQI Y.</p>
       </div>
-
-      <!-- Step 1 -->
-      <div class="wizard-step active" id="step1">
-        <div class="wizard-q">1. Aturan Khusus Kapasitas Mesin Sosoft (Qty 8)</div>
-        <div class="wizard-opt">
-          <label><input type="radio" name="q1" value="A" checked> AI akan menaruh max 6 mesin per 1 Non Core</label>
-          <label><input type="radio" name="q1" value="B"> AI akan menyusun hingga 8 mesin JIKA tersedia 2 Non Core di CQI tersebut.</label>
-        </div>
+      <div class="swap-list" id="swapListContainer">
+        <!-- List inserted by JS -->
       </div>
-
-      <!-- Step 2 -->
-      <div class="wizard-step" id="step2">
-        <div class="wizard-q">2. Aturan Batas Mesin (Max 8)</div>
-        <div class="wizard-opt">
-          <label><input type="radio" name="q2" value="A" checked> AI dikunci maksimal 8 Mesin per CQI dalam kondisi apapun.</label>
-          <label><input type="radio" name="q2" value="B"> Khusus C1/C2 (Eksklusif) dikunci maksimal 4 Mesin.</label>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="wizard-step" id="step3">
-        <div class="wizard-q">3. Aturan Cluster Sklsct dan Pouch</div>
-        <div class="wizard-opt">
-          <label><input type="radio" name="q3" value="A" checked> Mengerti. AI <b>hanya</b> akan mencampur Sklsct & Pouch di CQI 10.</label>
-          <label><input type="radio" name="q3" value="B"> Mengerti. Selain CQI 10, campuran mesin beda keluarga akan diblokir.</label>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="wizard-step" id="stepSummary">
-        <div class="wizard-q">Aturan Tersimpan.</div>
-        <p style="font-size:13px; line-height:1.5; color:var(--text-muted);">AI telah dikonfigurasi secara ketat di <code>brain.js</code> sesuai parameter ini. Jika manpower kurang, AI akan menyisakan mesin agar aturan ini tidak dilanggar.<br><br><b>Tips:</b> Anda wajib menyediakan Manpower (NC) yang cukup untuk mengakomodasi target mesin Sosoft yang besar.</p>
-      </div>
-
-      <div class="modal-footer">
-        <span class="wizard-progress" id="wizardProgress">1 / 3</span>
-        <div style="display:flex; gap:8px;">
-          <button class="btn" id="btnPrev" style="display:none;" onclick="wizPrev()">Kembali</button>
-          <button class="btn btn-primary" id="btnNext" onclick="wizNext()">Lanjut</button>
-        </div>
+      <div style="display:flex; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+        <button class="btn btn-outline" onclick="closeSwapModal()">Batal</button>
       </div>
     </div>
   </div>
 
 <script src="brain.js"></script>
 <script>
-  // WIZARD LOGIC
-  let currentStep = 1; const totalSteps = 3;
-  function openWizard() {
-    document.getElementById('wizardModal').style.display = 'grid';
-    currentStep = 1; updateWizardUI();
+  // ================= SYSTEM LOGIC & DATA =================
+  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
+  let state = null, currentPlan = [], finalConfig = {}; 
+  const planningMode = 'history';
+  let activeMachineMode = 'FULL'; // Default Mode
+
+  // ================= DROPDOWN MODE LOGIC =================
+  function toggleDropdown() {
+    document.getElementById("modeDropdownWrapper").classList.toggle("show");
   }
-  function closeWizard() {
-    document.getElementById('wizardModal').style.display = 'none';
-    localStorage.setItem('wizard_seen', 'true');
-  }
-  function wizNext() {
-    if (currentStep <= totalSteps) {
-      document.getElementById(`step${currentStep}`).classList.remove('active');
-      currentStep++;
-      if(currentStep <= totalSteps) document.getElementById(`step${currentStep}`).classList.add('active');
-      else document.getElementById(`stepSummary`).classList.add('active');
-      updateWizardUI();
-    } else { closeWizard(); }
-  }
-  function wizPrev() {
-    if (currentStep > 1) {
-      if(currentStep > totalSteps) document.getElementById(`stepSummary`).classList.remove('active');
-      else document.getElementById(`step${currentStep}`).classList.remove('active');
-      currentStep--;
-      document.getElementById(`step${currentStep}`).classList.add('active');
-      updateWizardUI();
+  window.onclick = function(event) {
+    if (!event.target.matches('.btn-outline') && !event.target.closest('#modeDropdownWrapper')) {
+      let dropdowns = document.getElementsByClassName("dropdown");
+      for (let i = 0; i < dropdowns.length; i++) {
+        let openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
+      }
     }
   }
-  function updateWizardUI() {
-    document.getElementById('btnPrev').style.display = currentStep > 1 ? 'inline-flex' : 'none';
-    document.getElementById('btnNext').innerText = currentStep > totalSteps ? 'Selesai & Tutup' : 'Lanjut';
-    document.getElementById('wizardProgress').innerText = currentStep > totalSteps ? 'Selesai' : `${currentStep} / ${totalSteps}`;
+  function changeMode(modeVal, modeLabel) {
+    activeMachineMode = modeVal;
+    document.getElementById('currentModeLabel').innerText = modeLabel;
+    document.getElementById("modeDropdownWrapper").classList.remove("show");
   }
 
-  // SYSTEM LOGIC
-  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
+  // ================= EDITOR LIST LOGIC =================
   function getSavedData(key){ let raw = JSON.parse(localStorage.getItem(key)) || ['']; return raw.map(i => typeof i === 'string' ? { name:i, locked:false } : i); }
   function saveData(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
-
   function renderList(containerId, storageKey){
     const container = document.getElementById(containerId); container.innerHTML = '';
     const data = getSavedData(storageKey);
@@ -322,14 +312,12 @@
     });
     updateCounters();
   }
-
   function updateCounters(){
     const c = getListData(storageKeys.core).length; const n = getListData(storageKeys.nonCore).length;
     const ls = parseInt(document.getElementById('ncLongshiftCount').value) || 0; const q = getListData(storageKeys.qcPassed).length;
     document.getElementById('cnt-core').innerText = c; document.getElementById('cnt-noncore').innerText = n; document.getElementById('cnt-qc').innerText = q;
     document.getElementById('mpCount').innerText = c + n + ls; document.getElementById('mpBar').style.width = Math.min(100, (c+n+ls)*8) + '%';
   }
-
   function updateItemName(k,i,v){ const d=getSavedData(k); d[i].name=v; saveData(k,d); updateCounters(); }
   function toggleLock(k,i,c){ const d=getSavedData(k); d[i].locked=!d[i].locked; saveData(k,d); renderList(c,k); }
   function addNewItem(k,i,c){ const d=getSavedData(k); if(i>d.length) i=d.length; d.splice(i,0,{name:'',locked:false}); saveData(k,d); renderList(c,k); setTimeout(()=>document.getElementById(c).querySelectorAll('input')[i]?.focus(),10); }
@@ -337,8 +325,6 @@
   function shiftListUp(k,c){ const d=getSavedData(k); if(d.length<=1) return; d.push(d.shift()); saveData(k,d); renderList(c,k); }
   function shiftListDown(k,c){ const d=getSavedData(k); if(d.length<=1) return; d.unshift(d.pop()); saveData(k,d); renderList(c,k); }
   function getListData(k){ return getSavedData(k).map(i=>i.name.trim()).filter(n=>n!==''); }
-
-  let state = null, currentPlan = [], finalConfig = {}; const planningMode = 'history';
 
   window.onload = async () => {
     renderList('coreList', storageKeys.core); renderList('nonCoreList', storageKeys.nonCore); renderList('qcPassedList', storageKeys.qcPassed);
@@ -351,8 +337,6 @@
     state = JSON.parse(sessionStorage.getItem('planning_state'));
     if(!state) { alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
     else document.getElementById('db-run').innerText = state.machines.length;
-
-    if (!localStorage.getItem('wizard_seen')) openWizard();
   };
 
   async function loadDefaultManpower() {
@@ -376,6 +360,7 @@
     violations.forEach(err => c.innerHTML += `<div class="alert-card danger"><span class="alert-icon">❌</span><div class="alert-body"><strong>Pelanggaran Aturan:</strong> ${err}</div></div>`);
   }
 
+  // ================= MAIN EXECUTION =================
   function executePlan(){
     if(!state) return;
     let coreData = getListData(storageKeys.core); let nonCoreData = getListData(storageKeys.nonCore); let qcData = getListData(storageKeys.qcPassed);
@@ -386,52 +371,143 @@
       longshiftNames: Array.from({length: lsCount}, () => "(LS)"), longshift: lsCount,
       qcPassedNames: qcData, qcPassed: qcData.length === 1 ? qcData[0] : (qcData.length > 1 ? qcData.map((n,i)=>`${i+1}. ${n}`).join('\n') : ""),
       milStd: document.getElementById('milStd').value, standbyOt: document.getElementById('standbyOt').value, supportFg: document.getElementById('supportFg').value,
-      planMode: planningMode, rawCoreCount: coreData.length, rawNonCoreCount: nonCoreData.length, rawLsCount: lsCount
+      planMode: planningMode, rawCoreCount: coreData.length, rawNonCoreCount: nonCoreData.length, rawLsCount: lsCount,
+      machineMode: activeMachineMode, // Pass selected mode to Brain.js
+      allowPouchInWW: true // Override if needed
     };
+    
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
+    updateInterface();
+    document.getElementById('statusBadge').innerText = 'Generated'; document.getElementById('statusBadge').classList.add('ok');
+  }
+
+  function updateInterface() {
     let rep = BrainAI.validate(currentPlan, state.machines); renderAlerts(rep.info, rep.violations);
     
     const p = { version: 1, updatedAt: new Date().toISOString(), mode: planningMode, slots: JSON.parse(JSON.stringify(currentPlan)) };
     sessionStorage.setItem('active_planning', JSON.stringify(p)); sessionStorage.setItem('active_planning_mode', planningMode); localStorage.setItem('last_active_planning', JSON.stringify(p));
     
-    let cov=0, mCount=0; currentPlan.forEach(s => { cov+=s.machines.length; });
+    let cov=0; currentPlan.forEach(s => { cov+=s.machines.length; });
     document.getElementById('db-core').innerText = finalConfig.rawCoreCount||0; document.getElementById('db-nc').innerText = finalConfig.rawNonCoreCount||0;
     document.getElementById('db-ls').innerText = finalConfig.rawLsCount||0; document.getElementById('db-run').innerText = state.machines.length;
     document.getElementById('db-cov').innerText = cov; document.getElementById('db-sisa-ls').innerText = currentPlan.leftoverLongshifts?.length || 0;
     document.getElementById('db-cqi').innerText = currentPlan.length;
     
-    if(currentPlan.length > 0) document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, finalConfig);
-    document.getElementById('statusBadge').innerText = 'Generated'; document.getElementById('statusBadge').classList.add('ok');
+    if(currentPlan.length > 0) {
+        document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, finalConfig);
+        renderInteractiveCards();
+    }
   }
 
+  // ================= INTERACTIVE CARDS & SWAP MODAL =================
+  function toggleRawText() {
+      let t = document.getElementById('textOutput'); let c = document.getElementById('interactiveCards');
+      if (t.style.display === 'none' || t.style.display === '') { t.style.display = 'block'; c.style.display = 'none'; }
+      else { t.style.display = 'none'; c.style.display = 'grid'; }
+  }
+
+  function renderInteractiveCards() {
+      const container = document.getElementById('interactiveCards');
+      container.innerHTML = '';
+      currentPlan.forEach((slot, sIdx) => {
+          let ncStr = (slot.nonCore||[]).concat(slot.longshift||[]).join(', ') || '-';
+          let mHtml = slot.machines.map(m => `
+             <div class="cqi-machine-item">
+                 <span class="m-name">${m.name || m.id}</span>
+                 <button class="btn-swap" title="Tukar Mesin (AI Suggest)" onclick="openSwapModal(${sIdx}, '${m.id}')">🔄</button>
+             </div>
+          `).join('');
+
+          let card = document.createElement('div'); card.className = 'cqi-card';
+          card.innerHTML = `
+             <div class="cqi-card-head">
+                 <h4>${slot.cqi.name}</h4>
+                 <span class="cqi-meta">${slot.machines.length} Mesin</span>
+             </div>
+             <div class="cqi-manpower">
+                 <span><b>Core:</b> ${slot.core}</span>
+                 <span><b>NC:</b> ${ncStr}</span>
+             </div>
+             <div class="cqi-machines">${mHtml}</div>
+          `;
+          container.appendChild(card);
+      });
+  }
+
+  function openSwapModal(slotIndex, machineId) {
+      let slot = currentPlan[slotIndex];
+      let machine = slot.machines.find(m => m.id === machineId);
+      if(!machine) return;
+
+      document.getElementById('swapSubtitle').innerHTML = `Mencari saran kandidat pertukaran untuk <b>${machine.name || machine.id}</b> dari <b>${slot.cqi.name}</b>.`;
+      
+      let suggestions = BrainAI.getSwapSuggestions(currentPlan, slotIndex, machineId, finalConfig);
+      let listCont = document.getElementById('swapListContainer');
+      listCont.innerHTML = '';
+
+      if (suggestions.length === 0) {
+          listCont.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:13px;">Tidak ada rekomendasi mesin lain yang memenuhi aturan (Max 8 / Bentrok Cluster).</div>`;
+      } else {
+          suggestions.forEach(sug => {
+              let btn = document.createElement('div'); btn.className = 'swap-item';
+              btn.innerHTML = `
+                  <div class="swap-item-info">
+                      <span class="swap-item-name">Tukar dengan ${sug.machine.name || sug.machine.id}</span>
+                      <span class="swap-item-cqi">Dari ${sug.fromSlot.cqi.name}</span>
+                  </div>
+                  <div class="swap-item-score">${sug.percentage}% Cocok</div>
+              `;
+              btn.onclick = () => { confirmSwap(slotIndex, machineId, sug.fromSlotIndex, sug.machine.id); };
+              listCont.appendChild(btn);
+          });
+      }
+      document.getElementById('swapModal').style.display = 'grid';
+  }
+
+  function closeSwapModal() { document.getElementById('swapModal').style.display = 'none'; }
+
+  function confirmSwap(s1, m1, s2, m2) {
+      currentPlan = BrainAI.applySwap(currentPlan, s1, m1, s2, m2);
+      closeSwapModal();
+      updateInterface();
+      alert("Pertukaran mesin berhasil diaplikasikan!");
+  }
+
+  // ================= EXPORT ACTIONS =================
   function validateAndExport(){
-    if(currentPlan.length===0) return alert("Generate planning dulu!");
+    if(currentPlan.length===0) return alert("Silakan jalankan tombol Generate terlebih dahulu.");
     let rep = BrainAI.validate(currentPlan, state.machines); renderAlerts(rep.info, rep.violations);
-    if(!rep.valid) return alert("VALIDASI GAGAL! Periksa kembali card alert di layar.");
+    if(!rep.valid) return alert("Validasi gagal! Terdapat pelanggaran aturan pada panel peringatan.");
     currentPlan.forEach(s => s.machines.forEach(m => BrainAI.recordHistory(m.id, s.cqi.id, true)));
-    navigator.clipboard.writeText(document.getElementById('textOutput').value); alert("Validasi Lulus! Output dicopy ke Clipboard.");
+    navigator.clipboard.writeText(document.getElementById('textOutput').value); alert("Validasi berhasil! Format teks telah disalin ke Clipboard.");
   }
   function shareWA(){
     let t = document.getElementById('textOutput').value;
-    if(!t) return alert("Generate planning dulu!"); window.open(`https://wa.me/?text=${encodeURIComponent(t)}`, '_blank');
+    if(!t) return alert("Hasil planning belum tersedia."); window.open(`https://wa.me/?text=${encodeURIComponent(t)}`, '_blank');
   }
+
   function downloadReasonLog(){
-    if(currentPlan.length === 0 || !currentPlan.reasonLog) return alert("Generate planning terlebih dahulu untuk melihat log AI.");
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([currentPlan.reasonLog], { type: 'text/plain' }));
-    a.download = `AI_Reasoning_Log.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    if(!currentPlan || currentPlan.length === 0 || !currentPlan.reasonLog) {
+      return alert("Log AI belum tersedia. Jalankan 'Generate' terlebih dahulu.");
+    }
+    const blob = new Blob([currentPlan.reasonLog], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `AI_Log_${activeMachineMode}_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
   const EXCELJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
-  function loadExcelJS(){ if(window.ExcelJS) return Promise.resolve(); return new Promise((r,j)=>{ const s=document.createElement('script'); s.src=EXCELJS_CDN; s.onload=r; s.onerror=()=>j(new Error('Gagal muat ExcelJS.')); document.head.appendChild(s); }); }
+  function loadExcelJS(){ if(window.ExcelJS) return Promise.resolve(); return new Promise((r,j)=>{ const s=document.createElement('script'); s.src=EXCELJS_CDN; s.onload=r; s.onerror=()=>j(new Error('Gagal memuat pustaka Excel.')); document.head.appendChild(s); }); }
   async function exportExcel(){
-    if(currentPlan.length === 0) return alert("Generate planning dulu!");
+    if(currentPlan.length === 0) return alert("Jalankan Generate Planning terlebih dahulu.");
     try { await loadExcelJS(); } catch(e){ return alert(e.message); }
-    // Excel script export kept standard.
-    const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet('Plan');
-    ws.addRow(["EXPORT SEDERHANA SEMENTARA"]); 
+    const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet('Planning Shift');
+    ws.addRow(["LAPORAN PLANNING SHIFT LIQUID 3"]);
     const buf = await wb.xlsx.writeBuffer(); const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-    a.download = "Planning_Shift.xlsx"; a.click();
+    a.download = "Planning_Shift_Liquid_3.xlsx"; a.click();
   }
 </script>
 </body>
