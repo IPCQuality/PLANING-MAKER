@@ -9,18 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f0f4f8; 
-    --surface: #ffffff; 
-    --surface-hover: #f8fafc; 
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface-hover: #f8fafc;
     --border: #cbd5e1;
-    --text-main: #1e293b; 
-    --text-muted: #64748b; 
+    --text-main: #1e293b;
+    --text-muted: #64748b;
     --text-subtle: #94a3b8;
-    --accent: #2563eb; 
-    --accent-hover: #1d4ed8; 
-    --success: #16a34a; 
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --success: #16a34a;
     --success-bg: #dcfce7;
-    --warning: #d97706; 
+    --warning: #d97706;
     --danger: #dc2626;
     --radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
@@ -28,7 +28,7 @@
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden; }
-  
+
   /* Topbar */
   .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); z-index: 10; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
@@ -40,11 +40,11 @@
 
   /* App Layout (2 Columns) */
   .app-container { display: flex; flex: 1; overflow: hidden; }
-  
+
   /* Left Panel (Config) */
   .config-panel { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
   .config-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
-  
+
   /* Progress Bar di Panel Config */
   .meter-box { padding: 16px 20px; background: var(--surface-hover); border-bottom: 1px solid var(--border); }
   .meter-box p { margin: 0 0 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
@@ -57,10 +57,10 @@
   .group-header .t { display: flex; align-items: center; gap: 8px; }
   .group-header h3 { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-main); }
   .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-  
+
   .icon-btn { width: 28px; height: 28px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
   .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
-  
+
   .list-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
   .list-item:hover { border-color: #94a3b8; }
   .list-item.locked { border-color: var(--success); background: var(--success-bg); }
@@ -68,16 +68,16 @@
   .list-item input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; font-family: inherit; font-weight: 500; }
   .list-item input::placeholder { color: #cbd5e1; font-weight: 400; }
   .list-item.locked input { color: #166534; font-weight: 600; }
-  
+
   .row-actions { display: flex; gap: 2px; opacity: 0; transition: 0.2s; }
   .list-item:hover .row-actions, .list-item.locked .row-actions, .list-item:focus-within .row-actions { opacity: 1; }
   .row-actions .lock { color: var(--success); }
   .list-item.locked .row-actions .lock { color: var(--warning); }
   .row-actions .del:hover { color: var(--danger); background: #fee2e2; }
-  
+
   .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; }
   .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
-  
+
   .fields { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .fields label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
   .fields input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
@@ -96,9 +96,9 @@
 
   /* Right Panel (Output & Dashboard) */
   .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
-  
-  /* Dashboard KPI */
-  #dashboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+
+  /* Dashboard KPI (Diubah menjadi 4 kolom atau 7 item dinamis) */
+  #dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .stat-box { background: var(--surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
   .stat-box p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
   .stat-box span { display: block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-main); }
@@ -109,12 +109,12 @@
   .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
   .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; }
-  
+
   #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; min-height: 250px; }
   #textOutput:focus { border-color: var(--accent); background: var(--surface); }
-  
+
   .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-  
+
   /* Buttons General */
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
   .btn:hover { background: var(--surface-hover); border-color: #94a3b8; }
@@ -123,16 +123,7 @@
   .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
   .btn-ok:hover { background: #bbf7d0; }
 
-  /* Mode Planning */
-  .planning-modes { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
-  .mode-card { border:1px solid var(--border); border-radius:10px; background:var(--surface); padding:12px; cursor:pointer; transition:.2s; text-align:left; }
-  .mode-card:hover { border-color:#94a3b8; background:var(--surface-hover); }
-  .mode-card.active { border-color:var(--accent); box-shadow:0 0 0 2px rgba(37,99,235,.12); background:#eff6ff; }
-  .mode-card .mode-title { font-size:13px; font-weight:800; color:var(--text-main); }
-  .mode-card .mode-desc { margin-top:5px; font-size:10px; line-height:1.45; color:var(--text-muted); }
-  .mode-status { margin-top:8px; font-size:10px; font-weight:700; color:var(--accent); }
-
-  /* RESPONSIVE DESIGN UNTUK MODE MOBILE (Rapi, Touch-friendly, Terstruktur) */
+  /* RESPONSIVE DESIGN UNTUK MODE MOBILE */
   @media (max-width: 1024px) {
     html, body { overflow: auto; height: auto; }
     body { overflow-y: auto; }
@@ -149,25 +140,24 @@
     .topbar { padding: 0 12px; height: 56px; }
     .topbar h1 { font-size: 14px; padding-left: 10px; }
     .back-btn { padding: 4px 8px; font-size: 12px; }
-    
+
     #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .stat-box { padding: 10px; border-radius: 8px; }
     .stat-box p { font-size: 10px; }
     .stat-box span { font-size: 16px; margin-top: 4px; }
-    
+
     .main-content { padding: 12px; gap: 12px; }
     .card { padding: 14px; border-radius: 8px; }
     .card-head { flex-direction: column; gap: 6px; align-items: flex-start; }
     .card-head .meta { align-self: flex-start; }
-    
-    /* Tombol Aksi Full Width / Nyaman di Jari pada Layar Kecil */
+
     .actions { flex-direction: column; gap: 8px; }
     .actions .btn { width: 100%; padding: 10px 16px; justify-content: center; }
-    
+
     .config-section { padding: 12px 14px; }
     .list-item { padding: 8px 10px; }
-    .list-item input { font-size: 14px; } /* Mencegah zoom otomatis di iOS */
-    .icon-btn { width: 32px; height: 32px; font-size: 14px; } /* Target sentuh lebih besar di HP */
+    .list-item input { font-size: 14px; }
+    .icon-btn { width: 32px; height: 32px; font-size: 14px; }
     .add-btn { padding: 10px; font-size: 13px; }
   }
 </style>
@@ -181,7 +171,7 @@
       <span class="badge" id="statusBadge">Draft</span>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn btn-primary" onclick="executePlan(planningMode)">🚀 Generate</button>
+      <button class="btn btn-primary" onclick="executePlan()">🚀 Generate</button>
     </div>
   </header>
 
@@ -218,6 +208,14 @@
         <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
       </div>
 
+      <!-- HANYA 1 KOLOM INPUT ANGKA UNTUK NC LONGSHIFT -->
+      <div class="config-section fields">
+        <div class="group-header" style="margin-bottom: 8px;">
+          <div class="t"><h3>Jumlah NC Longshift</h3></div>
+        </div>
+        <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateCounters();">
+      </div>
+
       <div class="config-section">
         <div class="group-header">
           <div class="t"><h3>QC Passed</h3><span class="count" id="cnt-qc">0</span></div>
@@ -235,25 +233,6 @@
         <div><label>Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)"></div>
         <div><label>Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)"></div>
       </div>
-
-      <div class="config-section">
-        <div class="group-header">
-          <div class="t"><h3>Mode Planning</h3><span class="count" id="planningModeBadge">AI</span></div>
-        </div>
-        <div class="planning-modes">
-          <button type="button" class="mode-card active" id="modeAiCard" onclick="selectPlanningMode('ai')">
-            <div class="mode-title">🧠 Planning By AI</div>
-            <div class="mode-desc">Gunakan BrainAI lengkap: prioritas CQI, jarak Manhattan, kapasitas, aturan khusus dan optimasi.</div>
-            <div class="mode-status" id="modeAiStatus">AKTIF</div>
-          </button>
-          <button type="button" class="mode-card" id="modeHistoryCard" onclick="selectPlanningMode('history')">
-            <div class="mode-title">🕘 Planning By History</div>
-            <div class="mode-desc">Tetap memakai BrainAI; riwayat machine↔CQI yang tersimpan ikut menjadi faktor penilaian.</div>
-            <div class="mode-status" id="modeHistoryStatus">PILIH</div>
-          </button>
-        </div>
-      </div>
-
     </aside>
 
     <!-- KONTEN KANAN (OUTPUT) -->
@@ -262,12 +241,13 @@
       <div id="alertContainer" class="alert-container"></div>
 
       <section id="dashboard">
+        <div class="stat-box"><p>Total Core</p><span id="db-core">0</span></div>
+        <div class="stat-box"><p>Total NC</p><span id="db-nc">0</span></div>
+        <div class="stat-box"><p>Total NC LS</p><span id="db-ls">0</span></div>
         <div class="stat-box"><p>Target Mesin</p><span id="db-run">0</span></div>
         <div class="stat-box"><p>Ter-cover</p><span id="db-cov">0</span></div>
-        <div class="stat-box"><p>Coverage</p><span id="db-pct">0%</span></div>
+        <div class="stat-box" style="border-color: var(--accent);"><p style="color:var(--accent);">Sisa NC LS</p><span id="db-sisa-ls">0</span></div>
         <div class="stat-box"><p>CQI Dipakai</p><span id="db-cqi">0</span></div>
-        <div class="stat-box"><p>Rata Jarak</p><span id="db-dist">0 m</span></div>
-        <div class="stat-box"><p>AI Success</p><span id="db-acc">0%</span></div>
       </section>
 
       <section class="card">
@@ -283,6 +263,8 @@
           <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
           <button class="btn" onclick="shareWA()">💬 Kirim WA</button>
           <button class="btn" onclick="exportExcel()">📊 Export Excel</button>
+          <!-- TAMBAHAN TOMBOL DOWNLOAD LOG AI -->
+          <button class="btn" onclick="downloadReasonLog()">📝 Download Log AI</button>
         </div>
       </section>
     </main>
@@ -290,6 +272,7 @@
 
 <script src="brain.js"></script>
 <script>
+  // KEY untuk penyimpanan
   const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
 
   function getSavedData(key){ let raw = JSON.parse(localStorage.getItem(key)) || ['']; return raw.map(i => typeof i === 'string' ? { name:i, locked:false } : i); }
@@ -334,12 +317,14 @@
   function updateCounters(){
     const c = getListData(storageKeys.core).length;
     const n = getListData(storageKeys.nonCore).length;
+    const ls = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     const q = getListData(storageKeys.qcPassed).length;
+
     document.getElementById('cnt-core').innerText = c;
     document.getElementById('cnt-noncore').innerText = n;
     document.getElementById('cnt-qc').innerText = q;
-    document.getElementById('mpCount').innerText = c + n;
-    document.getElementById('mpBar').style.width = Math.min(100, (c+n)*8) + '%';
+    document.getElementById('mpCount').innerText = c + n + ls;
+    document.getElementById('mpBar').style.width = Math.min(100, (c+n+ls)*8) + '%';
   }
 
   function updateMeta(){
@@ -364,14 +349,18 @@
   function getListData(key){ return getSavedData(key).map(i=>i.name.trim()).filter(n=>n!==''); }
 
   let state = null, currentPlan = [], finalConfig = {};
-  let planningMode = sessionStorage.getItem('planning_mode') || 'ai';
+  const planningMode = 'history';
 
   window.onload = async () => {
     renderList('coreList', storageKeys.core);
     renderList('nonCoreList', storageKeys.nonCore);
     renderList('qcPassedList', storageKeys.qcPassed);
-    
+
+    // Set value LS dari local storage
+    document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
+
     await loadDefaultManpower();
+    updateCounters();
 
     document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
     document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
@@ -381,7 +370,6 @@
     if(!state){ alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
     else {
       document.getElementById('db-run').innerText = state.machines.length;
-      selectPlanningMode(planningMode);
     }
   };
 
@@ -400,7 +388,7 @@
 
         const response = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
         if (!response.ok) return;
-        
+
         const data = await response.json();
         let needsUpdate = false;
 
@@ -413,21 +401,21 @@
             });
         };
 
-        if (data.core && checkEmpty(storageKeys.core)) { 
-            saveData(storageKeys.core, formatData(data.core)); 
-            needsUpdate = true; 
+        if (data.core && checkEmpty(storageKeys.core)) {
+            saveData(storageKeys.core, formatData(data.core));
+            needsUpdate = true;
         }
-        
+
         const nonCoreData = data.nonCore || data.noncore;
-        if (nonCoreData && checkEmpty(storageKeys.nonCore)) { 
-            saveData(storageKeys.nonCore, formatData(nonCoreData)); 
-            needsUpdate = true; 
+        if (nonCoreData && checkEmpty(storageKeys.nonCore)) {
+            saveData(storageKeys.nonCore, formatData(nonCoreData));
+            needsUpdate = true;
         }
-        
+
         const qcData = data.qcPassed || data.qc;
-        if (qcData && checkEmpty(storageKeys.qcPassed)) { 
-            saveData(storageKeys.qcPassed, formatData(qcData)); 
-            needsUpdate = true; 
+        if (qcData && checkEmpty(storageKeys.qcPassed)) {
+            saveData(storageKeys.qcPassed, formatData(qcData));
+            needsUpdate = true;
         }
 
         if (needsUpdate) {
@@ -438,19 +426,6 @@
     } catch (error) {
         console.error('Gagal memuat data manpower.json:', error);
     }
-  }
-
-  function selectPlanningMode(mode){
-    planningMode = mode === 'history' ? 'history' : 'ai';
-    sessionStorage.setItem('planning_mode', planningMode);
-    document.getElementById('modeAiCard')?.classList.toggle('active', planningMode === 'ai');
-    document.getElementById('modeHistoryCard')?.classList.toggle('active', planningMode === 'history');
-    const a = document.getElementById('modeAiStatus');
-    const h = document.getElementById('modeHistoryStatus');
-    if (a) a.innerText = planningMode === 'ai' ? 'AKTIF' : 'PILIH';
-    if (h) h.innerText = planningMode === 'history' ? 'AKTIF' : 'PILIH';
-    const b = document.getElementById('planningModeBadge');
-    if (b) b.innerText = planningMode.toUpperCase();
   }
 
   function renderAlerts(infos = [], violations = []) {
@@ -479,12 +454,12 @@
     });
   }
 
-  function executePlan(mode = planningMode){
+  function executePlan(){
     if(!state) return;
-    selectPlanningMode(mode);
 
     let coreData = getListData(storageKeys.core);
     let nonCoreData = getListData(storageKeys.nonCore);
+    let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     let qcData = getListData(storageKeys.qcPassed);
 
     let qcPassedFormatted = "";
@@ -494,16 +469,20 @@
     finalConfig = {
       coreNames: coreData, core: coreData.length > 0 ? coreData.length : 1,
       nonCoreNames: nonCoreData, nonCore: nonCoreData.length,
+      longshiftNames: Array.from({length: lsCount}, () => "(LS)"), longshift: lsCount, // Langsung mengisi "(LS)" tanpa identifier lain
       qcPassedNames: qcData, qcPassed: qcPassedFormatted,
       milStd: document.getElementById('milStd').value,
       standbyOt: document.getElementById('standbyOt').value,
       supportFg: document.getElementById('supportFg').value,
-      planMode: planningMode
+      planMode: planningMode,
+      rawCoreCount: coreData.length,
+      rawNonCoreCount: nonCoreData.length,
+      rawLsCount: lsCount
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-    
-    let validationReport = BrainAI.validate(currentPlan, state.machines.length);
+
+    let validationReport = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(validationReport.info, validationReport.violations);
 
     const planPayload = {
@@ -520,25 +499,31 @@
     generateTextOutput();
 
     const b = document.getElementById('statusBadge');
-    b.innerText = planningMode === 'history' ? 'History Generated' : 'AI Generated';
+    b.innerText = 'History Generated';
     b.classList.add('ok');
   }
 
   function updateDashboard(){
-    let covered=0, totalDist=0, totalHist=0, mCount=0;
+    let covered=0, mCount=0;
     currentPlan.forEach(slot => {
       covered += slot.machines.length;
       slot.machines.forEach(m => {
-        totalDist += BrainAI.getDistance(m.row, m.col, slot.cqi.row, slot.cqi.col);
-        totalHist += BrainAI.getHistory(m.id, slot.cqi.id);
         mCount++;
       });
     });
+
+    document.getElementById('db-core').innerText = finalConfig.rawCoreCount || 0;
+    document.getElementById('db-nc').innerText = finalConfig.rawNonCoreCount || 0;
+    document.getElementById('db-ls').innerText = finalConfig.rawLsCount || 0;
+
+    document.getElementById('db-run').innerText = state.machines.length;
     document.getElementById('db-cov').innerText = covered;
-    document.getElementById('db-pct').innerText = ((covered / state.machines.length) * 100).toFixed(1) + '%';
+
+    // Tampilkan sisa pekerja NC Longshift
+    let sisaLs = currentPlan.leftoverLongshifts ? currentPlan.leftoverLongshifts.length : 0;
+    document.getElementById('db-sisa-ls').innerText = sisaLs;
+
     document.getElementById('db-cqi').innerText = currentPlan.length;
-    document.getElementById('db-dist').innerText = mCount ? (totalDist/mCount).toFixed(2) + ' m' : '0 m';
-    document.getElementById('db-acc').innerText = mCount ? (totalHist/mCount).toFixed(1) + '%' : '0%';
   }
 
   function generateTextOutput(){
@@ -549,14 +534,14 @@
 
   function validateAndExport(){
     if(currentPlan.length === 0) return alert("Generate planning dulu!");
-    let report = BrainAI.validate(currentPlan, state.machines.length);
+    let report = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(report.info, report.violations);
 
-    if(!report.valid){ 
-      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran."); 
-      return; 
+    if(!report.valid){
+      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran (Cek juga jika ada mesin terlewat).");
+      return;
     }
-    
+
     currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
     const validatedPayload = {
       version: 1,
@@ -575,6 +560,19 @@
     let text = document.getElementById('textOutput').value;
     if(!text) return alert("Generate planning dan pastikan text ada isinya!");
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  }
+  
+  // FUNGSI BARU UNTUK MENDOWNLOAD REASON LOG
+  function downloadReasonLog(){
+    if(currentPlan.length === 0 || !currentPlan.reasonLog) {
+      return alert("Generate planning terlebih dahulu untuk melihat log AI.");
+    }
+    const blob = new Blob([currentPlan.reasonLog], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `AI_Reasoning_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
 
   const EXCELJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
@@ -602,8 +600,12 @@
     });
     ws.properties.defaultRowHeight = 18;
 
-    const headers = ["NO","CQI","CORE","NON CORE","MESIN (WORKSTATION/KODE)","LINE"];
-    const rows = currentPlan.map((slot,i)=>[ i+1, slot.cqi.name, String(slot.core), slot.nonCore.join(" & ") || "-", BrainAI.formatMachineList(slot.machines), slot.cqi.line || "-" ]);
+    const headers = ["NO","CQI","CORE","NON CORE","LS","MESIN (WORKSTATION/KODE)","LINE"];
+    const rows = currentPlan.map((slot,i)=>{
+      let nc = slot.nonCore && slot.nonCore.length > 0 ? slot.nonCore.join(" & ") : "-";
+      let ls = slot.longshift && slot.longshift.length > 0 ? slot.longshift.join(" & ") : "-";
+      return [ i+1, slot.cqi.name, String(slot.core), nc, ls, BrainAI.formatMachineList(slot.machines), slot.cqi.line || "-" ];
+    });
 
     const lastCol = headers.length;
     const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]);
@@ -636,7 +638,7 @@
       const row = ws.addRow(r);
       row.eachCell({ includeEmpty:true }, (c,col)=>{
         c.font = { name:'Arial', size:10, color:{argb:XL.text} };
-        c.alignment = { vertical:'middle', wrapText:true, horizontal:(col===1||col===3||col===6)?'center':'left' };
+        c.alignment = { vertical:'middle', wrapText:true, horizontal:(col===1||col===3||col===7)?'center':'left' };
         c.border = boxBorder();
         if(i % 2 === 1) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.zebra} };
       });
@@ -671,7 +673,7 @@
         const v = cell.value == null ? "" : String(cell.value);
         v.split("\n").forEach(line=>{ if(line.length > max) max = line.length; });
       });
-      col.width = Math.min(idx === 4 ? 70 : 34, Math.max(idx === 0 ? 6 : 12, max + 3));
+      col.width = Math.min(idx === 5 ? 70 : 34, Math.max(idx === 0 ? 6 : 12, max + 3));
     });
 
     const buf = await wb.xlsx.writeBuffer();
