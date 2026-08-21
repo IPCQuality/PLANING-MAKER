@@ -1091,8 +1091,8 @@
       "line": "WW",
       "ws": "WW",
       "status": "OFF",
-      "cluster": "",
-      "qtytimbang": "8"
+      "cluster": "WW",
+      "qtytimbang": "null"
     },
     {
       "id": "M-WW-2",
@@ -1102,8 +1102,8 @@
       "line": "WW",
       "ws": "WW",
       "status": "OFF",
-      "cluster": "",
-      "qtytimbang": "8"
+      "cluster": "WW",
+      "qtytimbang": "null"
     },
     {
       "id": "M-OT-1",
@@ -1113,8 +1113,8 @@
       "line": "OT",
       "ws": "OT",
       "status": "OFF",
-      "cluster": "",
-      "qtytimbang": "8"
+      "cluster": "CPOTB",
+      "qtytimbang": "null"
     },
     {
       "id": "M-OT-2",
@@ -1124,8 +1124,8 @@
       "line": "OT",
       "ws": "OT",
       "status": "OFF",
-      "cluster": "",
-      "qtytimbang": "8"
+      "cluster": "CPOTB",
+      "qtytimbang": "null"
     }
   ],
   "cqis": [
