@@ -1504,57 +1504,5 @@
       "row": 13,
       "col": 52
     }
-  ],
-  /*"lines": [
-    {
-      "id": "line-a",
-      "name": "LINE A",
-      "row": 2,
-      "col": 4,
-      "width": 24,
-      "height": 8,
-      "borderColor": "#3b82f6",
-      "textColor": "#60a5fa"
-    },
-    {
-      "id": "line-b",
-      "name": "LINE B",
-      "row": 11,
-      "col": 4,
-      "width": 27,
-      "height": 6,
-      "borderColor": "#3b82f6",
-      "textColor": "#60a5fa"
-    },
-    {
-      "id": "line-c",
-      "name": "LINE C",
-      "row": 13,
-      "col": 32,
-      "width": 22,
-      "height": 5,
-      "borderColor": "#3b82f6",
-      "textColor": "#60a5fa"
-    },
-    {
-      "id": "line-ww",
-      "name": "WW",
-      "row": 7,
-      "col": 32,
-      "width": 4,
-      "height": 4,
-      "borderColor": "#3b82f6",
-      "textColor": "#60a5fa"
-    },
-    {
-      "id": "line-ot",
-      "name": "OT",
-      "row": 2,
-      "col": 32,
-      "width": 4,
-      "height": 4,
-      "borderColor": "#3b82f6",
-      "textColor": "#60a5fa"
-    }
-  ]*/
+  ]
 }
