@@ -1058,7 +1058,7 @@
       "line": "LINE C",
       "ws": "9C",
       "status": "RUNNING",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1069,7 +1069,7 @@
       "line": "LINE C",
       "ws": "10C",
       "status": "OFF",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1080,7 +1080,7 @@
       "line": "LINE C",
       "ws": "10C",
       "status": "OFF",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1091,7 +1091,7 @@
       "line": "WW",
       "ws": "WW",
       "status": "RUNNING",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1102,7 +1102,7 @@
       "line": "WW",
       "ws": "WW",
       "status": "RUNNING",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1113,7 +1113,7 @@
       "line": "OT",
       "ws": "OT",
       "status": "RUNNING",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     },
     {
@@ -1124,7 +1124,7 @@
       "line": "OT",
       "ws": "OT",
       "status": "RUNNING",
-      "cluster": "sosoft",
+      "cluster": "",
       "qtytimbang": "8"
     }
   ],
@@ -1505,7 +1505,7 @@
       "col": 52
     }
   ],
-  "lines": [
+  /*"lines": [
     {
       "id": "line-a",
       "name": "LINE A",
@@ -1556,5 +1556,5 @@
       "borderColor": "#3b82f6",
       "textColor": "#60a5fa"
     }
-  ]
+  ]*/
 }
