@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planning Shift & Konfigurasi — Liquid 3</title>
+<title>Konfigurasi Planning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -31,8 +31,11 @@
   /* Header */
   .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
-  .back-btn { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; transition: 0.2s; border: 1px solid transparent; }
-  .back-btn:hover { background: var(--surface-hover); color: var(--text-main); border-color: var(--border); }
+  
+  /* Tombol Kembali dengan style sama seperti generate */
+  .back-btn { text-decoration: none; color: #fff; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; padding: 9px 18px; border-radius: 6px; background: var(--accent); border: 1px solid var(--accent); transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
+  .back-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  
   .topbar h1 { font-size: 16px; font-weight: 600; margin: 0; color: var(--accent); border-left: 2px solid var(--border); padding-left: 16px; }
   .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; color: var(--text-muted); }
   .badge.ok { background: var(--success-bg); color: var(--success); }
@@ -53,13 +56,19 @@
   .cols-3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
   @media (max-width: 1024px) { .cols-3-grid { grid-template-columns: 1fr; } }
 
-  /* Kotak Kolom Manpower TANPA scrollbar (memanjang ke bawah) */
+  /* Kotak Kolom Manpower */
   .config-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; }
-  .box-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-  .box-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; }
-  .count-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); }
+  .box-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; gap: 8px; }
+  .box-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; flex: 1; }
+  .count-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); flex-shrink: 0; }
 
-  /* List container tanpa scrollbar, memanjang ke bawah */
+  /* Styling Tombol Rolling (Estetik & Rapi) */
+  .rolling-group { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+  .rolling-group .icon-btn { border: none; border-radius: 0; background: transparent; height: 26px; width: 26px; display: grid; place-items: center; color: var(--text-muted); font-size: 10px; cursor: pointer; transition: 0.2s; }
+  .rolling-group .icon-btn:not(:last-child) { border-right: 1px solid var(--border); }
+  .rolling-group .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
+
+  /* List container memanjang ke bawah tanpa scrollbar */
   .list-container { display: flex; flex-direction: column; gap: 6px; }
   
   .list-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; transition: 0.2s; }
@@ -81,7 +90,7 @@
   .field-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
   .field-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-  /* Alert Box dipindah ke bawah pengaturan manpower */
+  /* Alert Box di bawah pengaturan manpower */
   .alert-container { display: flex; flex-direction: column; gap: 8px; }
   .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
   .alert-card.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
@@ -113,12 +122,12 @@
   <!-- Header -->
   <header class="topbar">
     <div class="topbar-left">
-      <a class="back-btn" href="index.html">← Kembali ke Map</a>
-      <h1>Planning Liquid 3 — Konfigurasi & Output</h1>
+      <a class="back-btn" href="index.html">Kembali ke Map</a>
+      <h1>Konfigurasi Planning</h1>
       <span class="badge" id="statusBadge">Siap Generate</span>
     </div>
     <div>
-      <button class="btn btn-primary" onclick="executePlan()">🚀 Generate Planning</button>
+      <button class="btn btn-primary" onclick="executePlan()">GENERATE</button>
     </div>
   </header>
 
@@ -154,16 +163,13 @@
 
     <!-- Pengaturan Manpower 3 Kolom -->
     <div>
-      <div class="settings-section-title">
-        <span>Pengaturan Sumber Daya Manusia & Parameter Shift</span>
-      </div>
       <div class="cols-3-grid">
         
         <!-- Kolom 1: Core Manpower -->
         <div class="config-box">
           <div class="box-header">
             <h3>Core Manpower</h3>
-            <div>
+            <div class="rolling-group">
               <button class="icon-btn" title="Rotasi naik" onclick="shiftList('core', -1)">▲</button>
               <button class="icon-btn" title="Rotasi turun" onclick="shiftList('core', 1)">▼</button>
             </div>
@@ -177,7 +183,7 @@
         <div class="config-box">
           <div class="box-header">
             <h3>Non-Core Manpower</h3>
-            <div>
+            <div class="rolling-group">
               <button class="icon-btn" title="Rotasi naik" onclick="shiftList('nonCore', -1)">▲</button>
               <button class="icon-btn" title="Rotasi turun" onclick="shiftList('nonCore', 1)">▼</button>
             </div>
@@ -187,11 +193,15 @@
           <button class="add-btn" onclick="addManpowerItem('nonCore')">+ Tambah Non-Core</button>
         </div>
 
-        <!-- Kolom 3: LS, QC Passed (Max 5), Mil-Std, Standby OT, Support FG -->
+        <!-- Kolom 3: LS, QC Passed (Max 5, dengan rolling), Mil-Std, Standby OT, Support FG -->
         <div class="config-box">
           <div class="box-header">
             <h3>Longshift & Tugas Khusus</h3>
-            <span class="count-badge" id="cnt-extra">Parameter</span>
+            <div class="rolling-group">
+              <button class="icon-btn" title="Rotasi naik" onclick="shiftList('qcPassed', -1)">▲</button>
+              <button class="icon-btn" title="Rotasi turun" onclick="shiftList('qcPassed', 1)">▼</button>
+            </div>
+            <span class="count-badge" id="cnt-qc">0/5</span>
           </div>
           <div class="sub-fields-group">
             <div class="field-group">
@@ -221,7 +231,7 @@
       </div>
     </div>
 
-    <!-- Alert / Notifikasi Validasi dipindah ke bawah pengaturan manpower -->
+    <!-- Alert / Notifikasi Validasi dipindah di bawah pengaturan manpower -->
     <div id="alertContainer" class="alert-container"></div>
 
     <!-- Output Planning Section -->
@@ -311,12 +321,21 @@
       let rawNonCore = data.nonCore || data.noncore || [];
       let qcList = [];
       let filteredNonCore = [];
+      let milstdName = '';
+      let standbyotName = '';
+      let supportfgName = '';
 
       rawNonCore.forEach(item => {
         let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
-        // Perbaikan pembacaan job_priority qcpassed (bisa qcpassed atau qc)
+        // Memfilter semua peran khusus agar tidak masuk ke daftar nonCore
         if (jobP === 'qcpassed' || jobP === 'qc' || jobP === 'qc-passed') {
           qcList.push(item);
+        } else if (jobP === 'milstd') {
+          milstdName = item.name;
+        } else if (jobP === 'standbyot') {
+          standbyotName = item.name;
+        } else if (jobP === 'supportfg') {
+          supportfgName = item.name;
         } else {
           filteredNonCore.push(item);
         }
@@ -324,18 +343,6 @@
 
       manpowerData.nonCore = filteredNonCore;
       manpowerData.qcPassed = qcList;
-
-      // Ambil tugas khusus lainnya jika ada di nonCore
-      let milstdName = '';
-      let standbyotName = '';
-      let supportfgName = '';
-
-      rawNonCore.forEach(item => {
-        let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
-        if (jobP === 'milstd') milstdName = item.name;
-        if (jobP === 'standbyot') standbyotName = item.name;
-        if (jobP === 'supportfg') supportfgName = item.name;
-      });
 
       if (milstdName && !localStorage.getItem('milStd_val')) document.getElementById('milStdInput').value = milstdName;
       if (standbyotName && !localStorage.getItem('standbyOt_val')) document.getElementById('standbyOtInput').value = standbyotName;
@@ -450,7 +457,8 @@
       container.appendChild(row);
     });
 
-    // Batasi tombol tambah QC jika sudah mencapai max 5
+    document.getElementById('cnt-qc').innerText = `${manpowerData.qcPassed.length}/5`;
+
     const addBtn = document.getElementById('addQcBtn');
     if (manpowerData.qcPassed.length >= 5) {
       addBtn.style.display = 'none';
@@ -490,15 +498,17 @@
     }, 50);
   }
 
-  // Fungsi Rolling Manpower (Naik / Turun)
+  // Fungsi Rolling Manpower (Core, Non-Core, QC Passed)
   function shiftList(type, direction) {
-    let list = type === 'core' ? manpowerData.core : manpowerData.nonCore;
-    if (list.length <= 1) return;
+    let list;
+    if (type === 'core') list = manpowerData.core;
+    else if (type === 'nonCore') list = manpowerData.nonCore;
+    else if (type === 'qcPassed') list = manpowerData.qcPassed;
+
+    if (!list || list.length <= 1) return;
     if (direction === -1) {
-      // Rotasi naik (elemen pertama pindah ke bawah)
       list.push(list.shift());
     } else if (direction === 1) {
-      // Rotasi turun (elemen terakhir pindah ke atas)
       list.unshift(list.pop());
     }
     persistManpower();
@@ -684,7 +694,7 @@
     });
 
     const lastCol = headers.length;
-    const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]);
+    const title = ws.addRow(["KONFIGURASI PLANNING"]);
     ws.mergeCells(title.number, 1, title.number, lastCol);
     title.height = 28;
     const tCell = ws.getCell(title.number, 1);
@@ -697,7 +707,7 @@
     ws.mergeCells(stamp.number, 1, stamp.number, lastCol);
     const sCell = ws.getCell(stamp.number, 1);
     sCell.font = { name:'Arial', size:9, italic:true, color:{argb:'FF64748B'} };
-    sCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} };
+    sCell.fill = { type:'pattern', pattern:{argb:XL.soft} };
     sCell.alignment = { vertical:'middle', horizontal:'center' };
     ws.addRow([]);
 
