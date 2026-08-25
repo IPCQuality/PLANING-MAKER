@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Editor Planning Shift — Konfigurasi & Output</title>
+<title>Planning Shift & Konfigurasi — Liquid 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f0f4f8;
+    --bg: #f8fafc;
     --surface: #ffffff;
-    --surface-hover: #f8fafc;
+    --surface-hover: #f1f5f9;
     --border: #cbd5e1;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
+    --text-main: #0f172a;
+    --text-muted: #475569;
     --text-subtle: #94a3b8;
     --accent: #2563eb;
     --accent-hover: #1d4ed8;
@@ -22,15 +22,14 @@
     --success-bg: #dcfce7;
     --warning: #d97706;
     --danger: #dc2626;
-    --radius: 8px;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    --radius: 10px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden; }
+  body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
 
-  /* Topbar */
-  .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); z-index: 10; }
+  /* Header */
+  .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
   .back-btn { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; transition: 0.2s; border: 1px solid transparent; }
   .back-btn:hover { background: var(--surface-hover); color: var(--text-main); border-color: var(--border); }
@@ -38,391 +37,491 @@
   .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; color: var(--text-muted); }
   .badge.ok { background: var(--success-bg); color: var(--success); }
 
-  /* App Layout (2 Columns) */
-  .app-container { display: flex; flex: 1; overflow: hidden; }
+  /* Container */
+  .container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; flex: 1; }
 
-  /* Left Panel (Config) */
-  .config-panel { width: 380px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
-  .config-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  /* Realtime Dashboard */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .stat-card { background: var(--surface); padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; }
+  .stat-card p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+  .stat-card span { margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--text-main); }
+  .stat-card.highlight { border-color: var(--accent); background: #eff6ff; }
+  .stat-card.highlight span { color: var(--accent); }
 
-  /* Progress Bar di Panel Config */
-  .meter-box { padding: 16px 20px; background: var(--surface-hover); border-bottom: 1px solid var(--border); }
-  .meter-box p { margin: 0 0 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-  .meter { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
-  .meter i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.3s; }
-  .meter-box small { font-size: 12px; color: var(--text-subtle); font-weight: 500; }
+  /* Pengaturan Manpower 3 Kolom */
+  .settings-section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+  .cols-3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 1024px) { .cols-3-grid { grid-template-columns: 1fr; } }
 
-  /* Group Headers & Lists */
-  .group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .group-header .t { display: flex; align-items: center; gap: 8px; }
-  .group-header h3 { margin: 0; font-size: 12px; font-weight: 700; color: var(--text-main); }
-  .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  /* Kotak Kolom Manpower TANPA scrollbar (memanjang ke bawah) */
+  .config-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; }
+  .box-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .box-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; }
+  .count-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); }
 
-  .icon-btn { width: 28px; height: 28px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
-  .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
-
-  .list-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; margin-bottom: 6px; transition: 0.2s; }
+  /* List container tanpa scrollbar, memanjang ke bawah */
+  .list-container { display: flex; flex-direction: column; gap: 6px; }
+  
+  .list-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; transition: 0.2s; }
   .list-item:hover { border-color: #94a3b8; }
-  .list-item.locked { border-color: var(--success); background: var(--success-bg); }
-  .list-item .num { width: 20px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-subtle); flex-shrink: 0; }
+  .list-item .num { width: 22px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-subtle); flex-shrink: 0; }
   .list-item input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; font-family: inherit; font-weight: 500; }
-  .list-item input::placeholder { color: #cbd5e1; font-weight: 400; }
-  .list-item.locked input { color: #166534; font-weight: 600; }
+  .list-item input::placeholder { color: #cbd5e1; }
 
-  .row-actions { display: flex; gap: 2px; opacity: 0; transition: 0.2s; }
-  .list-item:hover .row-actions, .list-item.locked .row-actions, .list-item:focus-within .row-actions { opacity: 1; }
-  .row-actions .lock { color: var(--success); }
-  .list-item.locked .row-actions .lock { color: var(--warning); }
-  .row-actions .del:hover { color: var(--danger); background: #fee2e2; }
+  .icon-btn { width: 26px; height: 26px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; flex-shrink: 0; }
+  .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
+  .icon-btn.del:hover { color: var(--danger); background: #fee2e2; }
 
-  .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 4px; }
+  .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; margin-top: 4px; }
   .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
 
-  .fields { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .fields label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-  .fields input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
-  .fields input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  /* Sub-fields di kolom 3 */
+  .sub-fields-group { display: flex; flex-direction: column; gap: 12px; }
+  .field-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+  .field-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
+  .field-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-  /* Alert Cards */
-  .alert-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); animation: fadeIn 0.3s ease; }
+  /* Alert Box dipindah ke bawah pengaturan manpower */
+  .alert-container { display: flex; flex-direction: column; gap: 8px; }
+  .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
   .alert-card.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
   .alert-card.success { background: var(--success-bg); border-color: #bbf7d0; color: #166534; }
   .alert-card.warning { background: #fef3c7; border-color: #fde68a; color: #92400e; }
   .alert-card.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
-  .alert-card .alert-icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
-  .alert-card .alert-body { flex: 1; line-height: 1.4; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Right Panel (Output & Dashboard) */
-  .main-content { flex: 1; min-width: 0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
-
-  /* Dashboard KPI (Diubah menjadi 4 kolom atau 7 item dinamis) */
-  #dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .stat-box { background: var(--surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-  .stat-box p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
-  .stat-box span { display: block; margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text-main); }
-
-  /* Output Card */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; flex: 1; min-height: 400px; }
-  .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  /* Output Planning Section */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; }
   .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
-  .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; }
+  .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
 
-  #textOutput { flex: 1; width: 100%; resize: none; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; min-height: 250px; }
+  #textOutput { width: 100%; height: 320px; resize: vertical; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; }
   #textOutput:focus { border-color: var(--accent); background: var(--surface); }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-
-  /* Buttons General */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
   .btn:hover { background: var(--surface-hover); border-color: #94a3b8; }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 8px 24px; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
-  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
   .btn-ok:hover { background: #bbf7d0; }
-
-  /* RESPONSIVE DESIGN UNTUK MODE MOBILE */
-  @media (max-width: 1024px) {
-    html, body { overflow: auto; height: auto; }
-    body { overflow-y: auto; }
-    .app-container { flex-direction: column; overflow: visible; height: auto; }
-    .config-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow-y: visible; }
-    .main-content { overflow: visible; padding: 16px; gap: 16px; }
-    #dashboard { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .stat-box { padding: 12px; }
-    .stat-box span { font-size: 18px; }
-    .card { min-height: 400px; }
-  }
-
-  @media (max-width: 640px) {
-    .topbar { padding: 0 12px; height: 56px; }
-    .topbar h1 { font-size: 14px; padding-left: 10px; }
-    .back-btn { padding: 4px 8px; font-size: 12px; }
-
-    #dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat-box { padding: 10px; border-radius: 8px; }
-    .stat-box p { font-size: 10px; }
-    .stat-box span { font-size: 16px; margin-top: 4px; }
-
-    .main-content { padding: 12px; gap: 12px; }
-    .card { padding: 14px; border-radius: 8px; }
-    .card-head { flex-direction: column; gap: 6px; align-items: flex-start; }
-    .card-head .meta { align-self: flex-start; }
-
-    .actions { flex-direction: column; gap: 8px; }
-    .actions .btn { width: 100%; padding: 10px 16px; justify-content: center; }
-
-    .config-section { padding: 12px 14px; }
-    .list-item { padding: 8px 10px; }
-    .list-item input { font-size: 14px; }
-    .icon-btn { width: 32px; height: 32px; font-size: 14px; }
-    .add-btn { padding: 10px; font-size: 13px; }
-  }
 </style>
 </head>
 <body>
-  <!-- HEADER UTAMA -->
+
+  <!-- Header -->
   <header class="topbar">
     <div class="topbar-left">
-      <a class="back-btn" href="index.html">← Map</a>
-      <h1>Planning Liquid 3</h1>
-      <span class="badge" id="statusBadge">Draft</span>
+      <a class="back-btn" href="index.html">← Kembali ke Map</a>
+      <h1>Planning Liquid 3 — Konfigurasi & Output</h1>
+      <span class="badge" id="statusBadge">Siap Generate</span>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn btn-primary" onclick="executePlan()">🚀 Generate</button>
+    <div>
+      <button class="btn btn-primary" onclick="executePlan()">🚀 Generate Planning</button>
     </div>
   </header>
 
-  <div class="app-container">
-    <!-- PANEL KIRI (KONFIGURASI) -->
-    <aside class="config-panel">
-      <div class="meter-box">
-        <p>Total Manpower</p>
-        <div class="meter"><i id="mpBar"></i></div>
-        <small><span id="mpCount">0</span> orang terdaftar</small>
-      </div>
+  <div class="container">
 
-      <div class="config-section">
-        <div class="group-header">
-          <div class="t"><h3>Core Manpower</h3><span class="count" id="cnt-core">0</span></div>
-          <div>
-            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.core,'coreList')">▲</button>
-            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.core,'coreList')">▼</button>
+    <!-- Realtime Dashboard -->
+    <section class="dashboard-grid">
+      <div class="stat-card highlight">
+        <p>Mesin Running</p>
+        <span id="db-running">0</span>
+      </div>
+      <div class="stat-card highlight">
+        <p>CQI Ready</p>
+        <span id="db-cqi-ready">0</span>
+      </div>
+      <div class="stat-card">
+        <p>Total Core</p>
+        <span id="db-core">0</span>
+      </div>
+      <div class="stat-card">
+        <p>Total Non-Core</p>
+        <span id="db-noncore">0</span>
+      </div>
+      <div class="stat-card">
+        <p>Total Longshift</p>
+        <span id="db-ls">0</span>
+      </div>
+      <div class="stat-card">
+        <p>Total Mesin Ter-cover</p>
+        <span id="db-covered">0</span>
+      </div>
+    </section>
+
+    <!-- Pengaturan Manpower 3 Kolom -->
+    <div>
+      <div class="settings-section-title">
+        <span>Pengaturan Sumber Daya Manusia & Parameter Shift</span>
+      </div>
+      <div class="cols-3-grid">
+        
+        <!-- Kolom 1: Core Manpower -->
+        <div class="config-box">
+          <div class="box-header">
+            <h3>Core Manpower</h3>
+            <div>
+              <button class="icon-btn" title="Rotasi naik" onclick="shiftList('core', -1)">▲</button>
+              <button class="icon-btn" title="Rotasi turun" onclick="shiftList('core', 1)">▼</button>
+            </div>
+            <span class="count-badge" id="cnt-core">0</span>
+          </div>
+          <div class="list-container" id="coreListContainer"></div>
+          <button class="add-btn" onclick="addManpowerItem('core')">+ Tambah Core</button>
+        </div>
+
+        <!-- Kolom 2: Non-Core Manpower -->
+        <div class="config-box">
+          <div class="box-header">
+            <h3>Non-Core Manpower</h3>
+            <div>
+              <button class="icon-btn" title="Rotasi naik" onclick="shiftList('nonCore', -1)">▲</button>
+              <button class="icon-btn" title="Rotasi turun" onclick="shiftList('nonCore', 1)">▼</button>
+            </div>
+            <span class="count-badge" id="cnt-noncore">0</span>
+          </div>
+          <div class="list-container" id="nonCoreListContainer"></div>
+          <button class="add-btn" onclick="addManpowerItem('nonCore')">+ Tambah Non-Core</button>
+        </div>
+
+        <!-- Kolom 3: LS, QC Passed (Max 5), Mil-Std, Standby OT, Support FG -->
+        <div class="config-box">
+          <div class="box-header">
+            <h3>Longshift & Tugas Khusus</h3>
+            <span class="count-badge" id="cnt-extra">Parameter</span>
+          </div>
+          <div class="sub-fields-group">
+            <div class="field-group">
+              <label>Jumlah Longshift (LS)</label>
+              <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateDashboardStats();">
+            </div>
+            <div class="field-group">
+              <label>QC Passed (Maksimal 5)</label>
+              <div class="list-container" id="qcPassedContainer"></div>
+              <button class="add-btn" id="addQcBtn" onclick="addQcItem()">+ Tambah QC Passed</button>
+            </div>
+            <div class="field-group">
+              <label>Mil-Std</label>
+              <input type="text" id="milStdInput" placeholder="Nama Mil-Std..." oninput="localStorage.setItem('milStd_val', this.value)">
+            </div>
+            <div class="field-group">
+              <label>Standby OT</label>
+              <input type="text" id="standbyOtInput" placeholder="Nama Standby OT..." oninput="localStorage.setItem('standbyOt_val', this.value)">
+            </div>
+            <div class="field-group">
+              <label>Support FG</label>
+              <input type="text" id="supportFgInput" placeholder="Nama Support FG..." oninput="localStorage.setItem('supportFg_val', this.value)">
+            </div>
           </div>
         </div>
-        <div id="coreList"></div>
-        <button class="add-btn" onclick="addNewItem(storageKeys.core, getSavedData(storageKeys.core).length, 'coreList')">+ Tambah Core</button>
+
       </div>
+    </div>
 
-      <div class="config-section">
-        <div class="group-header">
-          <div class="t"><h3>Non Core Manpower</h3><span class="count" id="cnt-noncore">0</span></div>
-          <div>
-            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.nonCore,'nonCoreList')">▲</button>
-            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.nonCore,'nonCoreList')">▼</button>
-          </div>
+    <!-- Alert / Notifikasi Validasi dipindah ke bawah pengaturan manpower -->
+    <div id="alertContainer" class="alert-container"></div>
+
+    <!-- Output Planning Section -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Output Planning Final</h2>
+          <p>Hasil alokasi otomatis dari Brain AI Engine siap divalidasi atau dibagikan.</p>
         </div>
-        <div id="nonCoreList"></div>
-        <button class="add-btn" onclick="addNewItem(storageKeys.nonCore, getSavedData(storageKeys.nonCore).length, 'nonCoreList')">+ Tambah Non Core</button>
+        <span class="meta" id="lineMeta">Belum digenerate</span>
       </div>
-
-      <!-- HANYA 1 KOLOM INPUT ANGKA UNTUK NC LONGSHIFT -->
-      <div class="config-section fields">
-        <div class="group-header" style="margin-bottom: 8px;">
-          <div class="t"><h3>Jumlah NC Longshift</h3></div>
-        </div>
-        <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateCounters();">
+      <textarea id="textOutput" spellcheck="false" placeholder="Klik tombol 'Generate Planning' di atas untuk memproses alokasi shift..." oninput="updateMeta()"></textarea>
+      <div class="actions">
+        <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
+        <button class="btn" onclick="shareWA()">💬 Kirim ke WhatsApp</button>
+        <button class="btn" onclick="exportExcel()">📊 Export ke Excel</button>
       </div>
+    </section>
 
-      <div class="config-section">
-        <div class="group-header">
-          <div class="t"><h3>QC Passed</h3><span class="count" id="cnt-qc">0</span></div>
-          <div>
-            <button class="icon-btn" title="Rotasi naik" onclick="shiftListUp(storageKeys.qcPassed,'qcPassedList')">▲</button>
-            <button class="icon-btn" title="Rotasi turun" onclick="shiftListDown(storageKeys.qcPassed,'qcPassedList')">▼</button>
-          </div>
-        </div>
-        <div id="qcPassedList"></div>
-        <button class="add-btn" onclick="addNewItem(storageKeys.qcPassed, getSavedData(storageKeys.qcPassed).length, 'qcPassedList')">+ Tambah QC</button>
-      </div>
-
-      <div class="config-section fields">
-        <div><label>MIL-STD</label><input type="text" id="milStd" oninput="localStorage.setItem('milStd_val', this.value)"></div>
-        <div><label>Standby OT</label><input type="text" id="standbyOt" oninput="localStorage.setItem('standbyOt_val', this.value)"></div>
-        <div><label>Support FG</label><input type="text" id="supportFg" oninput="localStorage.setItem('supportFg_val', this.value)"></div>
-      </div>
-    </aside>
-
-    <!-- KONTEN KANAN (OUTPUT) -->
-    <main class="main-content">
-      <!-- KOTAK ALERT / PERINGATAN DINAMIS -->
-      <div id="alertContainer" class="alert-container"></div>
-
-      <section id="dashboard">
-        <div class="stat-box"><p>Total Core</p><span id="db-core">0</span></div>
-        <div class="stat-box"><p>Total NC</p><span id="db-nc">0</span></div>
-        <div class="stat-box"><p>Total NC LS</p><span id="db-ls">0</span></div>
-        <div class="stat-box"><p>Target Mesin</p><span id="db-run">0</span></div>
-        <div class="stat-box"><p>Ter-cover</p><span id="db-cov">0</span></div>
-        <div class="stat-box" style="border-color: var(--accent);"><p style="color:var(--accent);">Sisa NC LS</p><span id="db-sisa-ls">0</span></div>
-        <div class="stat-box"><p>CQI Dipakai</p><span id="db-cqi">0</span></div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h2>Editor Output Final</h2>
-            <p>Anda bisa memodifikasi hasil planning di sini sebelum dibagikan.</p>
-          </div>
-          <span class="meta" id="lineMeta">kosong</span>
-        </div>
-        <textarea id="textOutput" spellcheck="false" placeholder="Klik 'Generate Plan' untuk melihat hasil..." oninput="updateMeta()"></textarea>
-        <div class="actions">
-          <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
-          <button class="btn" onclick="shareWA()">💬 Kirim WA</button>
-          <button class="btn" onclick="exportExcel()">📊 Export Excel</button>
-        </div>
-      </section>
-    </main>
   </div>
 
 <script src="brain.js"></script>
 <script>
-  // KEY untuk penyimpanan
-  const storageKeys = { core:'core_names', nonCore:'noncore_names', qcPassed:'qc_names' };
+  let state = null;
+  let currentPlan = [];
+  let manpowerData = { core: [], nonCore: [], qcPassed: [] };
 
-  function getSavedData(key){ let raw = JSON.parse(localStorage.getItem(key)) || ['']; return raw.map(i => typeof i === 'string' ? { name:i, locked:false } : i); }
-  function saveData(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
+  window.onload = async () => {
+    try {
+      const rawState = sessionStorage.getItem('planning_state');
+      if (rawState) {
+        state = JSON.parse(rawState);
+      }
+    } catch(e) {}
 
-  function renderList(containerId, storageKey){
+    if (!state || !state.machines) {
+      try {
+        const fallback = JSON.parse(localStorage.getItem('factory_internal_storage'));
+        if (fallback) {
+          state = {
+            machines: (fallback.machines || []).filter(m => m.status === 'RUNNING'),
+            cqis: (fallback.cqis || []).filter(c => c.status === 'READY'),
+            labels: []
+          };
+        }
+      } catch(e) {}
+    }
+
+    if (!state || !state.machines || state.machines.length === 0) {
+      alert("Tidak ada mesin dengan status RUNNING yang dikirim dari Map. Silakan pilih mesin RUNNING terlebih dahulu di index.html.");
+      window.location.href = 'index.html';
+      return;
+    }
+
+    document.getElementById('db-running').innerText = state.machines.length;
+    document.getElementById('db-cqi-ready').innerText = state.cqis.length;
+
+    document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
+
+    await loadManpowerData();
+    loadExtraConfigs();
+    renderAllLists();
+    updateDashboardStats();
+  };
+
+  async function loadManpowerData() {
+    let savedCore = localStorage.getItem('manpower_core');
+    let savedNonCore = localStorage.getItem('manpower_noncore');
+    let savedQc = localStorage.getItem('manpower_qc');
+
+    if (savedCore || savedNonCore || savedQc) {
+      try {
+        manpowerData.core = savedCore ? JSON.parse(savedCore) : [];
+        manpowerData.nonCore = savedNonCore ? JSON.parse(savedNonCore) : [];
+        manpowerData.qcPassed = savedQc ? JSON.parse(savedQc) : [];
+        return;
+      } catch(e) {}
+    }
+
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      
+      manpowerData.core = data.core || [];
+      
+      let rawNonCore = data.nonCore || data.noncore || [];
+      let qcList = [];
+      let filteredNonCore = [];
+
+      rawNonCore.forEach(item => {
+        let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
+        // Perbaikan pembacaan job_priority qcpassed (bisa qcpassed atau qc)
+        if (jobP === 'qcpassed' || jobP === 'qc' || jobP === 'qc-passed') {
+          qcList.push(item);
+        } else {
+          filteredNonCore.push(item);
+        }
+      });
+
+      manpowerData.nonCore = filteredNonCore;
+      manpowerData.qcPassed = qcList;
+
+      // Ambil tugas khusus lainnya jika ada di nonCore
+      let milstdName = '';
+      let standbyotName = '';
+      let supportfgName = '';
+
+      rawNonCore.forEach(item => {
+        let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
+        if (jobP === 'milstd') milstdName = item.name;
+        if (jobP === 'standbyot') standbyotName = item.name;
+        if (jobP === 'supportfg') supportfgName = item.name;
+      });
+
+      if (milstdName && !localStorage.getItem('milStd_val')) document.getElementById('milStdInput').value = milstdName;
+      if (standbyotName && !localStorage.getItem('standbyOt_val')) document.getElementById('standbyOtInput').value = standbyotName;
+      if (supportfgName && !localStorage.getItem('supportFg_val')) document.getElementById('supportFgInput').value = supportfgName;
+
+      persistManpower();
+    } catch(err) {
+      console.warn("Gagal fetch manpower.json, menggunakan data kosong.");
+      manpowerData = { core: [], nonCore: [], qcPassed: [] };
+    }
+  }
+
+  function persistManpower() {
+    localStorage.setItem('manpower_core', JSON.stringify(manpowerData.core));
+    localStorage.setItem('manpower_noncore', JSON.stringify(manpowerData.nonCore));
+    localStorage.setItem('manpower_qc', JSON.stringify(manpowerData.qcPassed));
+  }
+
+  function renderAllLists() {
+    renderList('coreListContainer', manpowerData.core, 'core');
+    renderList('nonCoreListContainer', manpowerData.nonCore, 'nonCore');
+    renderQcList();
+    updateDashboardStats();
+  }
+
+  function renderList(containerId, listArray, type) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    const data = getSavedData(storageKey);
 
-    data.forEach((item, index) => {
+    listArray.forEach((item, index) => {
       const row = document.createElement('div');
-      row.className = 'list-item' + (item.locked ? ' locked' : '');
+      row.className = 'list-item';
 
       const num = document.createElement('span');
       num.className = 'num';
-      num.innerText = String(index + 1).padStart(2,'0');
+      num.innerText = String(index + 1).padStart(2, '0');
 
       const input = document.createElement('input');
-      input.type = 'text'; input.value = item.name; input.placeholder = 'Ketik nama & tekan Enter…';
-      if (item.locked) input.readOnly = true;
-      input.oninput = e => updateItemName(storageKey, index, e.target.value);
-      input.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); addNewItem(storageKey, index+1, containerId); } };
-
-      const acts = document.createElement('div'); acts.className = 'row-actions';
-
-      const lockBtn = document.createElement('button');
-      lockBtn.className = 'icon-btn lock'; lockBtn.innerHTML = item.locked ? '✎' : '✓'; lockBtn.title = item.locked ? 'Buka kunci' : 'Kunci nama';
-      lockBtn.onclick = () => toggleLock(storageKey, index, containerId);
+      input.type = 'text';
+      input.value = typeof item === 'object' ? (item.name || '') : item;
+      input.placeholder = 'Nama manpower...';
+      input.oninput = (e) => {
+        if (typeof listArray[index] === 'object') {
+          listArray[index].name = e.target.value;
+        } else {
+          listArray[index] = e.target.value;
+        }
+        persistManpower();
+        updateDashboardStats();
+      };
 
       const delBtn = document.createElement('button');
-      delBtn.className = 'icon-btn del'; delBtn.innerHTML = '✕'; delBtn.title = 'Hapus baris';
-      delBtn.onclick = () => removeItem(storageKey, index, containerId);
+      delBtn.className = 'icon-btn del';
+      delBtn.innerHTML = '✕';
+      delBtn.title = 'Hapus baris';
+      delBtn.onclick = () => {
+        listArray.splice(index, 1);
+        persistManpower();
+        renderAllLists();
+      };
 
-      acts.appendChild(lockBtn); acts.appendChild(delBtn);
-      row.appendChild(num); row.appendChild(input); row.appendChild(acts);
+      row.appendChild(num);
+      row.appendChild(input);
+      row.appendChild(delBtn);
       container.appendChild(row);
     });
-    updateCounters();
-  }
 
-  function updateCounters(){
-    const c = getListData(storageKeys.core).length;
-    const n = getListData(storageKeys.nonCore).length;
-    const ls = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
-    const q = getListData(storageKeys.qcPassed).length;
-
-    document.getElementById('cnt-core').innerText = c;
-    document.getElementById('cnt-noncore').innerText = n;
-    document.getElementById('cnt-qc').innerText = q;
-    document.getElementById('mpCount').innerText = c + n + ls;
-    document.getElementById('mpBar').style.width = Math.min(100, (c+n+ls)*8) + '%';
-  }
-
-  function updateMeta(){
-    const v = document.getElementById('textOutput').value;
-    document.getElementById('lineMeta').innerText = v ? (v.split('\n').length + ' baris') : 'kosong';
-  }
-
-  function updateItemName(key,index,value){ const d=getSavedData(key); d[index].name=value; saveData(key,d); updateCounters(); }
-  function toggleLock(key,index,containerId){ const d=getSavedData(key); d[index].locked=!d[index].locked; saveData(key,d); renderList(containerId,key); }
-  function addNewItem(key,index,containerId){
-    const d=getSavedData(key); if(index>d.length) index=d.length;
-    d.splice(index,0,{name:'',locked:false}); saveData(key,d); renderList(containerId,key);
-    setTimeout(()=>{ const inputs=document.getElementById(containerId).querySelectorAll('input'); if(inputs[index]) inputs[index].focus(); },10);
-  }
-  function removeItem(key,index,containerId){
-    const d=getSavedData(key);
-    if(d.length===1){ d[0]={name:'',locked:false}; } else { d.splice(index,1); }
-    saveData(key,d); renderList(containerId,key);
-  }
-  function shiftListUp(key,containerId){ const d=getSavedData(key); if(d.length<=1) return; d.push(d.shift()); saveData(key,d); renderList(containerId,key); }
-  function shiftListDown(key,containerId){ const d=getSavedData(key); if(d.length<=1) return; d.unshift(d.pop()); saveData(key,d); renderList(containerId,key); }
-  function getListData(key){ return getSavedData(key).map(i=>i.name.trim()).filter(n=>n!==''); }
-
-  let state = null, currentPlan = [], finalConfig = {};
-  const planningMode = 'history';
-
-  window.onload = async () => {
-    renderList('coreList', storageKeys.core);
-    renderList('nonCoreList', storageKeys.nonCore);
-    renderList('qcPassedList', storageKeys.qcPassed);
-
-    // Set value LS dari local storage
-    document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
-
-    await loadDefaultManpower();
-    updateCounters();
-
-    document.getElementById('milStd').value = localStorage.getItem('milStd_val') || '';
-    document.getElementById('standbyOt').value = localStorage.getItem('standbyOt_val') || '';
-    document.getElementById('supportFg').value = localStorage.getItem('supportFg_val') || '';
-
-    state = JSON.parse(sessionStorage.getItem('planning_state'));
-    if(!state){ alert("Data kosong! Kembali ke Map."); window.location.href='index.html'; }
-    else {
-      document.getElementById('db-run').innerText = state.machines.length;
+    let badgeId = type === 'core' ? 'cnt-core' : type === 'nonCore' ? 'cnt-noncore' : null;
+    if (badgeId && document.getElementById(badgeId)) {
+      document.getElementById(badgeId).innerText = listArray.length;
     }
-  };
+  }
 
-  async function loadDefaultManpower() {
-    try {
-        const checkEmpty = (key) => {
-            const val = localStorage.getItem(key);
-            if (!val) return true;
-            try {
-                const parsed = JSON.parse(val);
-                if (!parsed || parsed.length === 0) return true;
-                if (parsed.length === 1 && (parsed[0] === '' || parsed[0].name === '')) return true;
-            } catch(e) {}
-            return false;
-        };
+  function renderQcList() {
+    const container = document.getElementById('qcPassedContainer');
+    container.innerHTML = '';
 
-        const response = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
-        if (!response.ok) return;
+    manpowerData.qcPassed.forEach((item, index) => {
+      const row = document.createElement('div');
+      row.className = 'list-item';
 
-        const data = await response.json();
-        let needsUpdate = false;
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.innerText = String(index + 1).padStart(2, '0');
 
-        const formatData = (arr) => {
-            if (!Array.isArray(arr)) return [];
-            return arr.map(item => {
-                if (typeof item === 'string') return { name: item, locked: false };
-                if (item && item.name) return { name: item.name, locked: !!item.locked };
-                return { name: String(item), locked: false };
-            });
-        };
-
-        if (data.core && checkEmpty(storageKeys.core)) {
-            saveData(storageKeys.core, formatData(data.core));
-            needsUpdate = true;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = typeof item === 'object' ? (item.name || '') : item;
+      input.placeholder = 'Nama QC Passed...';
+      input.oninput = (e) => {
+        if (typeof manpowerData.qcPassed[index] === 'object') {
+          manpowerData.qcPassed[index].name = e.target.value;
+        } else {
+          manpowerData.qcPassed[index] = e.target.value;
         }
+        persistManpower();
+      };
 
-        const nonCoreData = data.nonCore || data.noncore;
-        if (nonCoreData && checkEmpty(storageKeys.nonCore)) {
-            saveData(storageKeys.nonCore, formatData(nonCoreData));
-            needsUpdate = true;
-        }
+      const delBtn = document.createElement('button');
+      delBtn.className = 'icon-btn del';
+      delBtn.innerHTML = '✕';
+      delBtn.title = 'Hapus baris';
+      delBtn.onclick = () => {
+        manpowerData.qcPassed.splice(index, 1);
+        persistManpower();
+        renderAllLists();
+      };
 
-        const qcData = data.qcPassed || data.qc;
-        if (qcData && checkEmpty(storageKeys.qcPassed)) {
-            saveData(storageKeys.qcPassed, formatData(qcData));
-            needsUpdate = true;
-        }
+      row.appendChild(num);
+      row.appendChild(input);
+      row.appendChild(delBtn);
+      container.appendChild(row);
+    });
 
-        if (needsUpdate) {
-            renderList('coreList', storageKeys.core);
-            renderList('nonCoreList', storageKeys.nonCore);
-            renderList('qcPassedList', storageKeys.qcPassed);
-        }
-    } catch (error) {
-        console.error('Gagal memuat data manpower.json:', error);
+    // Batasi tombol tambah QC jika sudah mencapai max 5
+    const addBtn = document.getElementById('addQcBtn');
+    if (manpowerData.qcPassed.length >= 5) {
+      addBtn.style.display = 'none';
+    } else {
+      addBtn.style.display = 'block';
+    }
+  }
+
+  function addManpowerItem(type) {
+    let newItem = { id: type.toUpperCase().substring(0,2) + Date.now(), name: '', cqi_priority: '', job_priority: '' };
+    if (type === 'core') manpowerData.core.push(newItem);
+    else if (type === 'nonCore') manpowerData.nonCore.push(newItem);
+
+    persistManpower();
+    renderAllLists();
+    
+    setTimeout(() => {
+      let containerId = type === 'core' ? 'coreListContainer' : 'nonCoreListContainer';
+      let inputs = document.querySelectorAll(`#${containerId} input`);
+      if (inputs.length > 0) inputs[inputs.length - 1].focus();
+    }, 50);
+  }
+
+  function addQcItem() {
+    if (manpowerData.qcPassed.length >= 5) {
+      alert("Maksimal QC Passed adalah 5 orang!");
+      return;
+    }
+    let newItem = { id: 'QC' + Date.now(), name: '', job_priority: 'qcpassed' };
+    manpowerData.qcPassed.push(newItem);
+    persistManpower();
+    renderAllLists();
+
+    setTimeout(() => {
+      let inputs = document.querySelectorAll('#qcPassedContainer input');
+      if (inputs.length > 0) inputs[inputs.length - 1].focus();
+    }, 50);
+  }
+
+  // Fungsi Rolling Manpower (Naik / Turun)
+  function shiftList(type, direction) {
+    let list = type === 'core' ? manpowerData.core : manpowerData.nonCore;
+    if (list.length <= 1) return;
+    if (direction === -1) {
+      // Rotasi naik (elemen pertama pindah ke bawah)
+      list.push(list.shift());
+    } else if (direction === 1) {
+      // Rotasi turun (elemen terakhir pindah ke atas)
+      list.unshift(list.pop());
+    }
+    persistManpower();
+    renderAllLists();
+  }
+
+  function loadExtraConfigs() {
+    document.getElementById('milStdInput').value = localStorage.getItem('milStd_val') || '';
+    document.getElementById('standbyOtInput').value = localStorage.getItem('standbyOt_val') || '';
+    document.getElementById('supportFgInput').value = localStorage.getItem('supportFg_val') || '';
+  }
+
+  function updateDashboardStats() {
+    let validCore = manpowerData.core.filter(i => (typeof i === 'object' ? i.name : i).trim() !== '').length;
+    let validNonCore = manpowerData.nonCore.filter(i => (typeof i === 'object' ? i.name : i).trim() !== '').length;
+    let validLS = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
+
+    document.getElementById('db-core').innerText = validCore;
+    document.getElementById('db-noncore').innerText = validNonCore;
+    document.getElementById('db-ls').innerText = validLS;
+
+    if (state && state.machines) {
+      document.getElementById('db-covered').innerText = state.machines.length;
     }
   }
 
@@ -436,7 +535,6 @@
       let icon = '💡';
       if (msg.includes('SUCCESS')) { type = 'success'; icon = '✅'; }
       else if (msg.includes('PERINGATAN KRITIS')) { type = 'warning'; icon = '🚨'; }
-      else if (msg.includes('WARNING')) { type = 'warning'; icon = '⚠️'; }
 
       const card = document.createElement('div');
       card.className = `alert-card ${type}`;
@@ -452,30 +550,42 @@
     });
   }
 
-  function executePlan(){
-    if(!state) return;
+  function executePlan() {
+    if (!state || !state.machines) {
+      alert("Data mesin running tidak ditemukan!");
+      return;
+    }
 
-    let coreData = getListData(storageKeys.core);
-    let nonCoreData = getListData(storageKeys.nonCore);
+    let coreNames = manpowerData.core.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
+    let nonCoreNames = manpowerData.nonCore.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
+    let qcNames = manpowerData.qcPassed.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
+    
     let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
-    let qcData = getListData(storageKeys.qcPassed);
+    let longshiftNames = Array.from({length: lsCount}, () => "(LS)");
 
     let qcPassedFormatted = "";
-    if(qcData.length === 1) qcPassedFormatted = qcData[0];
-    else if(qcData.length > 1) qcPassedFormatted = qcData.map((n,i)=>`${i+1}. ${n}`).join('\n');
+    if (qcNames.length === 1) qcPassedFormatted = qcNames[0];
+    else if (qcNames.length > 1) qcPassedFormatted = qcNames.map((n,i)=>`${i+1}. ${n}`).join('\n');
 
-    finalConfig = {
-      coreNames: coreData, core: coreData.length > 0 ? coreData.length : 1,
-      nonCoreNames: nonCoreData, nonCore: nonCoreData.length,
-      longshiftNames: Array.from({length: lsCount}, () => "(LS)"), longshift: lsCount, // Langsung mengisi "(LS)" tanpa identifier lain
-      qcPassedNames: qcData, qcPassed: qcPassedFormatted,
-      milStd: document.getElementById('milStd').value,
-      standbyOt: document.getElementById('standbyOt').value,
-      supportFg: document.getElementById('supportFg').value,
-      planMode: planningMode,
-      rawCoreCount: coreData.length,
-      rawNonCoreCount: nonCoreData.length,
-      rawLsCount: lsCount
+    let finalConfig = {
+      coreData: manpowerData.core,
+      coreNames: coreNames,
+      core: coreNames.length > 0 ? coreNames.length : 1,
+      
+      nonCoreData: manpowerData.nonCore,
+      nonCoreNames: nonCoreNames,
+      nonCore: nonCoreNames.length,
+      
+      longshiftData: longshiftNames,
+      longshiftNames: longshiftNames,
+      longshift: lsCount,
+      
+      qcPassed: qcPassedFormatted,
+      qcPassedNames: qcNames,
+      
+      milStd: document.getElementById('milStdInput').value,
+      standbyOt: document.getElementById('standbyOtInput').value,
+      supportFg: document.getElementById('supportFgInput').value
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
@@ -486,77 +596,56 @@
     const planPayload = {
       version: 1,
       updatedAt: new Date().toISOString(),
-      mode: planningMode,
       slots: JSON.parse(JSON.stringify(currentPlan))
     };
+    
     sessionStorage.setItem('active_planning', JSON.stringify(planPayload));
-    sessionStorage.setItem('active_planning_mode', planningMode);
     localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
 
-    updateDashboard();
-    generateTextOutput();
+    generateTextOutput(finalConfig);
 
-    const b = document.getElementById('statusBadge');
-    b.innerText = 'History Generated';
-    b.classList.add('ok');
+    const badge = document.getElementById('statusBadge');
+    badge.innerText = 'Generated Sukses';
+    badge.classList.add('ok');
   }
 
-  function updateDashboard(){
-    let covered=0, mCount=0;
-    currentPlan.forEach(slot => {
-      covered += slot.machines.length;
-      slot.machines.forEach(m => {
-        mCount++;
-      });
-    });
-
-    document.getElementById('db-core').innerText = finalConfig.rawCoreCount || 0;
-    document.getElementById('db-nc').innerText = finalConfig.rawNonCoreCount || 0;
-    document.getElementById('db-ls').innerText = finalConfig.rawLsCount || 0;
-
-    document.getElementById('db-run').innerText = state.machines.length;
-    document.getElementById('db-cov').innerText = covered;
-
-    // Tampilkan sisa pekerja NC Longshift
-    let sisaLs = currentPlan.leftoverLongshifts ? currentPlan.leftoverLongshifts.length : 0;
-    document.getElementById('db-sisa-ls').innerText = sisaLs;
-
-    document.getElementById('db-cqi').innerText = currentPlan.length;
-  }
-
-  function generateTextOutput(){
-    if(currentPlan.length === 0) return;
-    document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, finalConfig);
+  function generateTextOutput(config) {
+    if (!currentPlan || currentPlan.length === 0) return;
+    document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, config);
     updateMeta();
   }
 
-  function validateAndExport(){
-    if(currentPlan.length === 0) return alert("Generate planning dulu!");
+  function updateMeta() {
+    const v = document.getElementById('textOutput').value;
+    document.getElementById('lineMeta').innerText = v ? (v.split('\n').length + ' baris teks') : 'kosong';
+  }
+
+  function validateAndExport() {
+    if (!currentPlan || currentPlan.length === 0) {
+      alert("Silakan klik 'Generate Planning' terlebih dahulu!");
+      return;
+    }
+
     let report = BrainAI.validate(currentPlan, state.machines);
     renderAlerts(report.info, report.violations);
 
-    if(!report.valid){
-      alert("VALIDASI GAGAL! Periksa kembali card alert di layar untuk melihat detail pelanggaran (Cek juga jika ada mesin terlewat).");
+    if (!report.valid) {
+      alert("VALIDASI GAGAL! Periksa catatan pelanggaran pada kotak notifikasi di bawah.");
       return;
     }
 
     currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
-    const validatedPayload = {
-      version: 1,
-      updatedAt: new Date().toISOString(),
-      mode: planningMode,
-      slots: JSON.parse(JSON.stringify(currentPlan))
-    };
-    sessionStorage.setItem('active_planning', JSON.stringify(validatedPayload));
-    sessionStorage.setItem('active_planning_mode', planningMode);
-    localStorage.setItem('last_active_planning', JSON.stringify(validatedPayload));
+    
     navigator.clipboard.writeText(document.getElementById('textOutput').value);
-    alert("Validasi Lulus! Output berhasil dicopy ke Clipboard.");
+    alert("Validasi Lulus! Hasil planning berhasil disalin ke Clipboard.");
   }
 
-  function shareWA(){
+  function shareWA() {
     let text = document.getElementById('textOutput').value;
-    if(!text) return alert("Generate planning dan pastikan text ada isinya!");
+    if (!text) {
+      alert("Belum ada teks planning untuk dibagikan!");
+      return;
+    }
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 
@@ -565,7 +654,7 @@
     if(window.ExcelJS) return Promise.resolve();
     return new Promise((res,rej)=>{
       const s=document.createElement('script');
-      s.src=EXCELJS_CDN; s.onload=res; s.onerror=()=>rej(new Error('Gagal memuat library Excel (cek koneksi internet).'));
+      s.src=EXCELJS_CDN; s.onload=res; s.onerror=()=>rej(new Error('Gagal memuat library Excel.'));
       document.head.appendChild(s);
     });
   }
@@ -574,16 +663,18 @@
   const thin = c => ({ style:'thin', color:{argb:c||XL.line} });
   const boxBorder = c => ({ top:thin(c), left:thin(c), bottom:thin(c), right:thin(c) });
 
-  async function exportExcel(){
-    if(currentPlan.length === 0) return alert("Generate planning dulu!");
+  async function exportExcel() {
+    if (!currentPlan || currentPlan.length === 0) {
+      alert("Generate planning terlebih dahulu sebelum export Excel!");
+      return;
+    }
     try { await loadExcelJS(); } catch(e){ return alert(e.message); }
 
-    const wb = new ExcelJS.Workbook(); wb.creator = 'PLANOS'; wb.created = new Date();
-    const ws = wb.addWorksheet('Planning Liquid 3', {
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Planning Shift', {
       views:[{ state:'frozen', ySplit:0 }],
-      pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2} }
+      pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 }
     });
-    ws.properties.defaultRowHeight = 18;
 
     const headers = ["NO","CQI","CORE","NON CORE","LS","MESIN (WORKSTATION/KODE)","LINE"];
     const rows = currentPlan.map((slot,i)=>{
@@ -627,38 +718,6 @@
         c.border = boxBorder();
         if(i % 2 === 1) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.zebra} };
       });
-    });
-    ws.autoFilter = { from:{ row:headRow.number, column:1 }, to:{ row:headRow.number, column:lastCol } };
-    ws.views = [{ state:'frozen', ySplit:headRow.number }];
-
-    ws.addRow([]);
-    const infoHead = ws.addRow(["INFORMASI TAMBAHAN"]);
-    ws.mergeCells(infoHead.number, 1, infoHead.number, lastCol);
-    const ihCell = ws.getCell(infoHead.number, 1);
-    ihCell.font = { name:'Arial', size:11, bold:true, color:{argb:XL.white} };
-    ihCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accent} };
-    ihCell.alignment = { vertical:'middle', horizontal:'left' };
-    ihCell.border = boxBorder(XL.accentDark);
-    infoHead.height = 20;
-
-    const qcList = (finalConfig.qcPassedNames && finalConfig.qcPassedNames.length) ? finalConfig.qcPassedNames.map((n,i)=>`${i+1}. ${n}`).join("\n") : "-";
-    const infoRows = [ ["QC PASSED", qcList], ["MIL-STD", finalConfig.milStd || "-"], ["STANDBY OT", finalConfig.standbyOt || "-"], ["SUPPORT FG", finalConfig.supportFg || "-"] ];
-    infoRows.forEach(([label,value])=>{
-      const r = ws.addRow([label, value]); ws.mergeCells(r.number, 2, r.number, lastCol);
-      const lc = ws.getCell(r.number,1), vc = ws.getCell(r.number,2);
-      lc.font = { name:'Arial', size:10, bold:true, color:{argb:XL.text} }; lc.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} }; lc.alignment = { vertical:'middle', horizontal:'left' }; lc.border = boxBorder();
-      vc.font = { name:'Arial', size:10, color:{argb:XL.text} }; vc.alignment = { vertical:'top', horizontal:'left', wrapText:true }; vc.border = boxBorder();
-      const lines = String(value).split("\n").length; r.height = Math.max(18, lines * 14);
-    });
-
-    ws.columns.forEach((col, idx)=>{
-      let max = 6;
-      col.eachCell({ includeEmpty:false }, cell=>{
-        if(cell.isMerged) return;
-        const v = cell.value == null ? "" : String(cell.value);
-        v.split("\n").forEach(line=>{ if(line.length > max) max = line.length; });
-      });
-      col.width = Math.min(idx === 5 ? 70 : 34, Math.max(idx === 0 ? 6 : 12, max + 3));
     });
 
     const buf = await wb.xlsx.writeBuffer();
