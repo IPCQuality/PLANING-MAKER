@@ -1,169 +1,175 @@
 {
-  "metadata": {
-    "version": "1.1.0",
-    "exportDate": "2026-08-12",
-    "description": "JSON Pemetaan Lengkap Nama Core dan Non Core"
-
-  },
   "core": [
     {
-      "id": "CWW1",
+      "id": "C1",
       "name": "Jiddan",
-      "cqi_priority": "CQI 24"
+      "cqi_priority": "24",
+      "job_priority": ""
     },
     {
-      "id": "COT1",
+      "id": "C1",
       "name": "Farhan",
-      "cqi_priority": "CQI 19"
+      "cqi_priority": "19",
+      "job_priority": ""
     },
     {
       "id": "C3",
       "name": "Allysa",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
-      "id": "COT2",
+      "id": "C2",
       "name": "Dini",
-      "cqi_priority": "CQI 19"
+      "cqi_priority": "19",
+      "job_priority": ""
     },
     {
       "id": "C5",
       "name": "Thazkia",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C6",
       "name": "Ninda",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C7",
       "name": "gaktau1",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C8",
       "name": "gaktau2",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C9",
       "name": "gaktau3",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C10",
       "name": "gaktau4",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C11",
       "name": "gaktau5",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C12",
       "name": "gaktau6",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "C13",
       "name": "gaktau7",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
-      "id": "CWW2",
+      "id": "C14",
       "name": "Mia",
-      "cqi_priority": "CQI 24"
+      "cqi_priority": "24",
+      "job_priority": ""
     }
   ],
-
-  
-  "noncore": [
+  "nonCore": [
     {
       "id": "NC1",
       "name": "Allen",
-      "cqi_priority": ""
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC2",
-      "name": "Mei",
-      "cqi_priority": ""
+      "name": "Dinda",
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC3",
-      "name": "Dinda",
-      "cqi_priority": ""
+      "name": "Siska",
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC4",
-      "name": "Siska",
-      "cqi_priority": ""
+      "name": "Litha",
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC5",
-      "name": "Litha",
-      "cqi_priority": ""
+      "name": "Wulan",
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC6",
-      "name": "Wulan",
-      "cqi_priority": ""
+      "name": "Syifa",
+      "cqi_priority": "",
+      "job_priority": ""
     },
     {
       "id": "NC7",
-      "name": "Syifa",
-      "cqi_priority": ""
+      "name": "M. Udin",
+      "cqi_priority": "",
+      "job_priority": "qcpassed"
+    },
+    {
+      "id": "NC8",
+      "name": "Alief",
+      "cqi_priority": "",
+      "job_priority": "qcpassed"
+    },
+    {
+      "id": "NC9",
+      "name": "Jalu",
+      "cqi_priority": "",
+      "job_priority": "qcpassed"
+    },
+    {
+      "id": "NC10",
+      "name": "Andi",
+      "cqi_priority": "",
+      "job_priority": "qcpassed"
+    },
+    {
+      "id": "NC11",
+      "name": "Yaya",
+      "cqi_priority": "",
+      "job_priority": "qcpassed"
+    },
+    {
+      "id": "NC12",
+      "name": "Yadi",
+      "cqi_priority": "",
+      "job_priority": "milstd"
+    },
+    {
+      "id": "NC13",
+      "name": "Kirana",
+      "cqi_priority": "",
+      "job_priority": "standbyot"
+    },
+    {
+      "id": "NC14",
+      "name": "Priyya",
+      "cqi_priority": "",
+      "job_priority": "supportfg"
     }
   ],
-
-  
-  "qcPassed": [
-    {
-        "id": "qcPassedList1",
-        "name": "M. Udin",
-        "cqi_priority": ""
-    },
-    {
-        "id": "qcPassedList2",
-        "name": "Alief",
-        "cqi_priority": ""
-    },
-    {
-        "id": "qcPassedList3",
-        "name": "Jalu",
-        "cqi_priority": ""
-    },
-    {
-        "id": "qcPassedList4",
-        "name": "Andi",
-        "cqi_priority": ""
-    },
-    {
-        "id": "qcPassedList5",
-        "name": "Yaya",
-        "cqi_priority": ""
-    }
-  ],
-    "milStd": [
-        {
-        "id": "milStd",
-        "name": "Yadi",
-        "cqi_priority": ""
-        }
-  ],
-    "standbyOt": [
-            {
-            "id": "standbyOt",
-            "name": "Kirana",
-            "cqi_priority": "OT"
-            }
-    ],
-    "supportFg": [
-            {
-            "id": "supportFg",
-            "name": "Priyya",
-            "cqi_priority": ""
-            }
-    ]
+  "longShift": [ ]
 }
