@@ -32,7 +32,6 @@
   .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
   
-  /* Tombol Kembali dengan style sama seperti generate */
   .back-btn { text-decoration: none; color: #fff; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; padding: 9px 18px; border-radius: 6px; background: var(--accent); border: 1px solid var(--accent); transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
   .back-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   
@@ -62,7 +61,7 @@
   .box-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; flex: 1; }
   .count-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); flex-shrink: 0; }
 
-  /* Styling Tombol Rolling (Estetik & Rapi) */
+  /* Styling Tombol Rolling */
   .rolling-group { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
   .rolling-group .icon-btn { border: none; border-radius: 0; background: transparent; height: 26px; width: 26px; display: grid; place-items: center; color: var(--text-muted); font-size: 10px; cursor: pointer; transition: 0.2s; }
   .rolling-group .icon-btn:not(:last-child) { border-right: 1px solid var(--border); }
@@ -84,13 +83,13 @@
   .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; margin-top: 4px; }
   .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
 
-  /* Sub-fields di kolom 3 */
+  /* Sub-fields di kolom */
   .sub-fields-group { display: flex; flex-direction: column; gap: 12px; }
   .field-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
   .field-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
   .field-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-  /* Alert Box di bawah pengaturan manpower */
+  /* Alert Box */
   .alert-container { display: flex; flex-direction: column; gap: 8px; }
   .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
   .alert-card.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
@@ -123,8 +122,8 @@
   <header class="topbar">
     <div class="topbar-left">
       <a class="back-btn" href="index.html">Kembali ke Map</a>
-      <h1>Konfigurasi Planning</h1>
-      <span class="badge" id="statusBadge">Siap Generate</span>
+      <h1>Konfigurasi Planning Liquid 3</h1>
+      <span class="badge" id="statusBadge">Brain.AI</span>
     </div>
     <div>
       <button class="btn btn-primary" onclick="executePlan()">GENERATE</button>
@@ -161,7 +160,7 @@
       </div>
     </section>
 
-    <!-- Pengaturan Manpower 3 Kolom -->
+    <!-- Pengaturan Manpower 3 Kolom (Longshift dipindah ke bawah Non-Core) -->
     <div>
       <div class="cols-3-grid">
         
@@ -179,24 +178,41 @@
           <button class="add-btn" onclick="addManpowerItem('core')">+ Tambah Core</button>
         </div>
 
-        <!-- Kolom 2: Non-Core Manpower -->
-        <div class="config-box">
-          <div class="box-header">
-            <h3>Non-Core Manpower</h3>
-            <div class="rolling-group">
-              <button class="icon-btn" title="Rotasi naik" onclick="shiftList('nonCore', -1)">▲</button>
-              <button class="icon-btn" title="Rotasi turun" onclick="shiftList('nonCore', 1)">▼</button>
+        <!-- Kolom 2: Non-Core Manpower (Di atas) & Longshift (Di bawahnya) -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Non-Core Box -->
+          <div class="config-box">
+            <div class="box-header">
+              <h3>Non-Core Manpower</h3>
+              <div class="rolling-group">
+                <button class="icon-btn" title="Rotasi naik" onclick="shiftList('nonCore', -1)">▲</button>
+                <button class="icon-btn" title="Rotasi turun" onclick="shiftList('nonCore', 1)">▼</button>
+              </div>
+              <span class="count-badge" id="cnt-noncore">0</span>
             </div>
-            <span class="count-badge" id="cnt-noncore">0</span>
+            <div class="list-container" id="nonCoreListContainer"></div>
+            <button class="add-btn" onclick="addManpowerItem('nonCore')">+ Tambah Non-Core</button>
           </div>
-          <div class="list-container" id="nonCoreListContainer"></div>
-          <button class="add-btn" onclick="addManpowerItem('nonCore')">+ Tambah Non-Core</button>
+
+          <!-- Longshift Box (Dipindah ke bawah Non-Core) -->
+          <div class="config-box">
+            <div class="box-header">
+              <h3>Longshift (LS)</h3>
+              <span class="count-badge" id="cnt-ls">0</span>
+            </div>
+            <div class="sub-fields-group">
+              <div class="field-group">
+                <label>Jumlah Longshift</label>
+                <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateDashboardStats();">
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Kolom 3: LS, QC Passed (Max 5, dengan rolling), Mil-Std, Standby OT, Support FG -->
+        <!-- Kolom 3: QC Passed & Tugas Khusus (Mil-Std, Standby OT, Support FG) -->
         <div class="config-box">
           <div class="box-header">
-            <h3>Longshift & Tugas Khusus</h3>
+            <h3>Tugas Khusus</h3>
             <div class="rolling-group">
               <button class="icon-btn" title="Rotasi naik" onclick="shiftList('qcPassed', -1)">▲</button>
               <button class="icon-btn" title="Rotasi turun" onclick="shiftList('qcPassed', 1)">▼</button>
@@ -205,11 +221,7 @@
           </div>
           <div class="sub-fields-group">
             <div class="field-group">
-              <label>Jumlah Longshift (LS)</label>
-              <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateDashboardStats();">
-            </div>
-            <div class="field-group">
-              <label>QC Passed (Maksimal 5)</label>
+              <label>QC Passed</label>
               <div class="list-container" id="qcPassedContainer"></div>
               <button class="add-btn" id="addQcBtn" onclick="addQcItem()">+ Tambah QC Passed</button>
             </div>
@@ -231,17 +243,16 @@
       </div>
     </div>
 
-    <!-- Alert / Notifikasi Validasi dipindah di bawah pengaturan manpower -->
+    <!-- Alert / Notifikasi Validasi di bawah pengaturan manpower -->
     <div id="alertContainer" class="alert-container"></div>
 
     <!-- Output Planning Section -->
     <section class="card">
       <div class="card-head">
         <div>
-          <h2>Output Planning Final</h2>
-          <p>Hasil alokasi otomatis dari Brain AI Engine siap divalidasi atau dibagikan.</p>
+          <h2>Planning LIQUID 3</h2>
         </div>
-        <span class="meta" id="lineMeta">Belum digenerate</span>
+        <span class="meta" id="lineMeta">Brain.AI</span>
       </div>
       <textarea id="textOutput" spellcheck="false" placeholder="Klik tombol 'Generate Planning' di atas untuk memproses alokasi shift..." oninput="updateMeta()"></textarea>
       <div class="actions">
@@ -327,7 +338,6 @@
 
       rawNonCore.forEach(item => {
         let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
-        // Memfilter semua peran khusus agar tidak masuk ke daftar nonCore
         if (jobP === 'qcpassed' || jobP === 'qc' || jobP === 'qc-passed') {
           qcList.push(item);
         } else if (jobP === 'milstd') {
@@ -498,7 +508,6 @@
     }, 50);
   }
 
-  // Fungsi Rolling Manpower (Core, Non-Core, QC Passed)
   function shiftList(type, direction) {
     let list;
     if (type === 'core') list = manpowerData.core;
@@ -529,6 +538,8 @@
     document.getElementById('db-core').innerText = validCore;
     document.getElementById('db-noncore').innerText = validNonCore;
     document.getElementById('db-ls').innerText = validLS;
+
+    document.getElementById('cnt-ls').innerText = validLS;
 
     if (state && state.machines) {
       document.getElementById('db-covered').innerText = state.machines.length;
@@ -654,7 +665,6 @@
     let text = document.getElementById('textOutput').value;
     if (!text) {
       alert("Belum ada teks planning untuk dibagikan!");
-      return;
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
@@ -694,7 +704,7 @@
     });
 
     const lastCol = headers.length;
-    const title = ws.addRow(["KONFIGURASI PLANNING"]);
+    const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]);
     ws.mergeCells(title.number, 1, title.number, lastCol);
     title.height = 28;
     const tCell = ws.getCell(title.number, 1);
@@ -707,7 +717,7 @@
     ws.mergeCells(stamp.number, 1, stamp.number, lastCol);
     const sCell = ws.getCell(stamp.number, 1);
     sCell.font = { name:'Arial', size:9, italic:true, color:{argb:'FF64748B'} };
-    sCell.fill = { type:'pattern', pattern:{argb:XL.soft} };
+    sCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} };
     sCell.alignment = { vertical:'middle', horizontal:'center' };
     ws.addRow([]);
 
