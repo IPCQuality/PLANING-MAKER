@@ -316,7 +316,6 @@
       updateStatsAndButtons();
     }
 
-    // PERBAIKAN 1: updateStatsAndButtons kini menggunakan BrainAI.getWorkstationKey (karena BrainAI.WORKSTATIONS telah dihapus)
     function updateStatsAndButtons(){
       document.getElementById('statMachine').innerText = `${mapData.machines.filter(m=>m.status==='RUNNING').length} / ${mapData.machines.length}`;
       document.getElementById('statCqi').innerText = `${mapData.cqis.filter(c=>c.status==='READY').length} / ${mapData.cqis.length}`;
@@ -327,7 +326,6 @@
       
       for (let k of wsKeys){
         let b = document.getElementById('ws-btn-' + k); if(!b) continue;
-        
         let macs = mapData.machines.filter(m => BrainAI.getWorkstationKey(m.name, mapData.labels) === k);
         if (macs.length === 0) { b.className = 'ws-btn'; continue; }
         
@@ -337,22 +335,42 @@
       }
     }
 
-    // PERBAIKAN 2: toggleWorkstation mengandalkan BrainAI.getWorkstationKey secara dinamis
     function toggleWorkstation(wsKey){
       if (typeof BrainAI === 'undefined') return;
-      
       let macs = mapData.machines.filter(m => BrainAI.getWorkstationKey(m.name, mapData.labels) === wsKey);
       if (macs.length === 0) return;
 
       let tgt = macs.every(m => m.status === 'RUNNING') ? 'OFF' : 'RUNNING';
-      macs.forEach(m=>m.status = tgt); 
+      macs.forEach(m => m.status = tgt); 
       renderGrid();
+      saveInternalStorage();
     }
 
-    function setAllMachinesRunning(){ mapData.machines.forEach(m=>m.status='RUNNING'); renderGrid(); }
-    function setAllMachinesOff(){ mapData.machines.forEach(m=>m.status='OFF'); renderGrid(); }
-    function setAllCqiReady(){ mapData.cqis.forEach(c=>c.status='READY'); renderGrid(); }
-    function setAllCqiOff(){ mapData.cqis.forEach(c=>c.status='OFF'); renderGrid(); }
+    // Fungsi Global Button yang Diperbaiki agar berfungsi & tersimpan
+    function setAllMachinesRunning(){ 
+      mapData.machines.forEach(m => m.status = 'RUNNING'); 
+      renderGrid(); 
+      saveInternalStorage(); 
+    }
+    function setAllMachinesOff(){ 
+      mapData.machines.forEach(m => m.status = 'OFF'); 
+      renderGrid(); 
+      saveInternalStorage(); 
+    }
+    function setAllCqiReady(){ 
+      mapData.cqis.forEach(c => c.status = 'READY'); 
+      renderGrid(); 
+      saveInternalStorage(); 
+    }
+    function setAllCqiOff(){ 
+      mapData.cqis.forEach(c => c.status = 'OFF'); 
+      renderGrid(); 
+      saveInternalStorage(); 
+    }
+
+    function saveInternalStorage() {
+      localStorage.setItem('factory_internal_storage', JSON.stringify({ machines: mapData.machines, cqis: mapData.cqis }));
+    }
 
     function toggleSidePanel(){ 
       const p = document.getElementById('sidePanel'); 
@@ -421,6 +439,7 @@
           node.status = node.status === 'READY' ? 'OFF' : 'READY';
       }
       renderGrid(); 
+      saveInternalStorage();
     }
 
     function renderGrid(){
@@ -704,7 +723,6 @@
       targetObj.name = name;
       targetObj.row = rVal;
       targetObj.col = cVal;
-      
       targetObj.position = { row: rVal, col: cVal };
 
       if (activeModalType === 'line') {

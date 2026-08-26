@@ -114,6 +114,8 @@
   .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
   .btn-ok:hover { background: #bbf7d0; }
+  .btn-github { border-color: #0f172a; background: #0f172a; color: #fff; }
+  .btn-github:hover { background: #1e293b; }
 </style>
 </head>
 <body>
@@ -237,6 +239,7 @@
         <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
         <button class="btn" onclick="shareWA()">💬 Kirim ke WhatsApp</button>
         <button class="btn" onclick="exportExcel()">📊 Export ke Excel</button>
+        <button class="btn btn-github" onclick="exportHistoryForGithub()">🚀 Export History ke GitHub (history/26-08-2026.json)</button>
       </div>
     </section>
   </div>
@@ -266,8 +269,8 @@
     document.getElementById('db-cqi-ready').innerText = state.cqis.length;
     document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
 
-    await loadManpowerData();
     loadExtraConfigs();
+    await loadManpowerData();
     renderAllLists();
     updateDashboardStats();
   };
@@ -282,7 +285,6 @@
         manpowerData.core = savedCore ? JSON.parse(savedCore) : [];
         manpowerData.nonCore = savedNonCore ? JSON.parse(savedNonCore) : [];
         manpowerData.qcPassed = savedQc ? JSON.parse(savedQc) : [];
-        return;
       } catch(e) {}
     }
 
@@ -291,21 +293,25 @@
       if (!res.ok) throw new Error();
       const data = await res.json();
       
-      manpowerData.core = data.core || [];
+      if (!savedCore || manpowerData.core.length === 0) {
+        manpowerData.core = data.core || [];
+      }
+
       let rawNonCore = data.nonCore || data.noncore || [];
-      let qcList = [];
+      let qcList = manpowerData.qcPassed.length > 0 ? manpowerData.qcPassed : [];
       let filteredNonCore = [];
       
       let milstdName = '';
       let standbyotName = '';
       let supportfgName = '';
 
-      // LOGIKA FILTER KETAT (Perintah Config.html)
       rawNonCore.forEach(item => {
         let jobP = item.job_priority ? String(item.job_priority).trim().toLowerCase() : '';
         
         if (jobP === 'qcpassed' || jobP === 'qc' || jobP === 'qc-passed') {
-          qcList.push(item);
+          if (!qcList.some(q => (typeof q === 'object' ? q.name : q) === item.name)) {
+            qcList.push(item);
+          }
         } else if (jobP === 'milstd' || jobP === 'mil-std') {
           milstdName = item.name;
         } else if (jobP === 'standbyot' || jobP === 'standby-ot' || jobP === 'standby') {
@@ -313,32 +319,33 @@
         } else if (jobP === 'supportfg' || jobP === 'support-fg' || jobP === 'support') {
           supportfgName = item.name;
         } else {
-          // Hanya manpower biasa yang masuk ke array nonCore
           filteredNonCore.push(item);
         }
       });
 
-      manpowerData.nonCore = filteredNonCore;
-      manpowerData.qcPassed = qcList;
+      if (!savedNonCore || manpowerData.nonCore.length === 0) {
+        manpowerData.nonCore = filteredNonCore;
+      }
+      if (!savedQc || manpowerData.qcPassed.length === 0) {
+        manpowerData.qcPassed = qcList;
+      }
 
-      // PERBAIKAN: Menyimpan ke localStorage secara sinkron dan instan sehingga tidak tertimpa oleh loadExtraConfigs()
-      if (milstdName && !localStorage.getItem('milStd_val')) {
-          document.getElementById('milStdInput').value = milstdName;
-          localStorage.setItem('milStd_val', milstdName);
+      if (milstdName) {
+        document.getElementById('milStdInput').value = milstdName;
+        localStorage.setItem('milStd_val', milstdName);
       }
-      if (standbyotName && !localStorage.getItem('standbyOt_val')) {
-          document.getElementById('standbyOtInput').value = standbyotName;
-          localStorage.setItem('standbyOt_val', standbyotName);
+      if (standbyotName) {
+        document.getElementById('standbyOtInput').value = standbyotName;
+        localStorage.setItem('standbyOt_val', standbyotName);
       }
-      if (supportfgName && !localStorage.getItem('supportFg_val')) {
-          document.getElementById('supportFgInput').value = supportfgName;
-          localStorage.setItem('supportFg_val', supportfgName);
+      if (supportfgName) {
+        document.getElementById('supportFgInput').value = supportfgName;
+        localStorage.setItem('supportFg_val', supportfgName);
       }
 
       persistManpower();
     } catch(err) {
-      console.warn("Gagal fetch manpower.json, menggunakan data kosong.");
-      manpowerData = { core: [], nonCore: [], qcPassed: [] };
+      console.warn("Gagal fetch manpower.json, menggunakan data lokal.");
     }
   }
 
@@ -456,19 +463,21 @@
     let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
     let longshiftNames = Array.from({length: lsCount}, () => "(LS)");
 
-    // Menyatukan format teks QC Passed agar bisa diserap oleh brain.js
     let qcPassedFormatted = "";
-    if (qcNames.length === 1) qcPassedFormatted = qcNames[0];
-    else if (qcNames.length > 1) qcPassedFormatted = qcNames.map((n,i)=>`${i+1}. ${n}`).join('\n');
+    if (qcNames.length === 1) {
+      qcPassedFormatted = qcNames[0];
+    } else if (qcNames.length > 1) {
+      qcPassedFormatted = qcNames.map((n, i) => `${i + 1}. ${n}`).join('\n');
+    }
 
     let finalConfig = {
       coreData: manpowerData.core, coreNames: coreNames, core: coreNames.length > 0 ? coreNames.length : 1,
       nonCoreData: manpowerData.nonCore, nonCoreNames: nonCoreNames, nonCore: nonCoreNames.length,
       longshiftData: longshiftNames, longshiftNames: longshiftNames, longshift: lsCount,
       qcPassed: qcPassedFormatted,
-      milStd: document.getElementById('milStdInput').value,
-      standbyOt: document.getElementById('standbyOtInput').value,
-      supportFg: document.getElementById('supportFgInput').value
+      milStd: document.getElementById('milStdInput').value.trim(),
+      standbyOt: document.getElementById('standbyOtInput').value.trim(),
+      supportFg: document.getElementById('supportFgInput').value.trim()
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
@@ -482,7 +491,6 @@
     document.getElementById('statusBadge').innerText = 'Generated Sukses'; document.getElementById('statusBadge').classList.add('ok');
   }
 
-  // Teks Output diformat dan dikelola secara mandiri oleh fungsi ini di dalam brain.js
   function generateTextOutput(config) {
     if (!currentPlan || currentPlan.length === 0) return;
     document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, config);
@@ -492,6 +500,33 @@
   function updateMeta() {
     const v = document.getElementById('textOutput').value;
     document.getElementById('lineMeta').innerText = v ? (v.split('\n').length + ' baris teks') : 'kosong';
+  }
+
+  // FITUR BARU: Export History untuk disimpan ke folder history di GitHub (history/26-08-2026.json)
+  function exportHistoryForGithub() {
+    try {
+      const historyRaw = localStorage.getItem('planning_history') || '[]';
+      const activePlan = sessionStorage.getItem('active_planning') || localStorage.getItem('last_active_planning') || '{}';
+      
+      const exportPayload = {
+        date: "26-08-2026",
+        generated_at: new Date().toISOString(),
+        active_planning: JSON.parse(activePlan),
+        history_logs: JSON.parse(historyRaw)
+      };
+
+      const fileName = "26-08-2026.json";
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      
+      alert(`File "${fileName}" berhasil diunduh.\nSilakan letakkan file ini ke dalam folder "history/" di repository GitHub Anda.`);
+    } catch (e) {
+      alert("Gagal melakukan export history: " + e.message);
+    }
   }
 
   function validateAndExport() {
@@ -519,7 +554,6 @@
 
     const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet('Planning Shift', { views:[{ state:'frozen', ySplit:0 }], pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 } });
     
-    // Header excel diperbarui agar sejajar dengan output text yang menggabungkan Non-Core & LS
     const headers = ["NO","CQI","CORE","NON CORE & LS","MESIN (WORKSTATION/KODE)","LINE"];
     const rows = currentPlan.map((slot,i)=>{
       let combinedNc = [];
