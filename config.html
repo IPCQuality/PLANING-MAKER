@@ -116,6 +116,13 @@
   .btn-ok:hover { background: #bbf7d0; }
   .btn-github { border-color: #0f172a; background: #0f172a; color: #fff; }
   .btn-github:hover { background: #1e293b; }
+
+  /* Mode Switcher Toggle */
+  .mode-switch-group { display: inline-flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 4px; }
+  .mode-btn { border: none; background: transparent; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .mode-btn:hover { color: var(--text-main); }
+  .mode-btn.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+  .mode-desc-tag { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -123,10 +130,18 @@
   <header class="topbar">
     <div class="topbar-left">
       <a class="back-btn" href="index.html">Kembali ke Map</a>
-      <h1>Planning Liquid 3 — Konfigurasi & Output</h1>
+      <h1>Konfigurasi Planning</h1>
       <span class="badge" id="statusBadge">Siap Generate</span>
     </div>
-    <div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="mode-switch-group">
+        <button class="mode-btn active" id="btnMode1" onclick="setPlanningMode(1)" title="Mesin running banyak, manpower noncore & LS cukup (Maks 2 Non-Core/CQI)">
+          ⚡ Mode 1 (Kapasitas Penuh)
+        </button>
+        <button class="mode-btn" id="btnMode2" onclick="setPlanningMode(2)" title="Mesin running sedikit, manpower noncore & LS minim (Maks 1 Non-Core/CQI)">
+          🛡️ Mode 2 (Manpower Minim)
+        </button>
+      </div>
       <button class="btn btn-primary" onclick="executePlan()">Generate Planning</button>
     </div>
   </header>
@@ -249,9 +264,21 @@
   let state = null;
   let currentPlan = [];
   let manpowerData = { core: [], nonCore: [], qcPassed: [] };
+  let planningMode = 1; // Default: Mode 1
+
+  function setPlanningMode(mode) {
+    planningMode = parseInt(mode, 10) === 2 ? 2 : 1;
+    localStorage.setItem('planning_mode', planningMode);
+    document.getElementById('btnMode1').classList.toggle('active', planningMode === 1);
+    document.getElementById('btnMode2').classList.toggle('active', planningMode === 2);
+  }
 
   window.onload = async () => {
     try { const rawState = sessionStorage.getItem('planning_state'); if (rawState) state = JSON.parse(rawState); } catch(e) {}
+
+    // Load persisted mode or default 1
+    const savedMode = localStorage.getItem('planning_mode');
+    setPlanningMode(savedMode ? parseInt(savedMode, 10) : 1);
 
     if (!state || !state.machines) {
       try {
@@ -289,9 +316,16 @@
     }
 
     try {
-      const res = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
-      if (!res.ok) throw new Error();
-      const data = await res.json();
+      let data = null;
+      try {
+        const res = await fetch('data/manpower.json');
+        if (res.ok) data = await res.json();
+      } catch(e) {}
+      if (!data) {
+        const res2 = await fetch('https://raw.githubusercontent.com/IPCQuality/PLANING-MAKER/refs/heads/main/data/manpower.json');
+        if (res2.ok) data = await res2.json();
+      }
+      if (!data) throw new Error("Could not load manpower data");
       
       if (!savedCore || manpowerData.core.length === 0) {
         manpowerData.core = data.core || [];
@@ -471,6 +505,7 @@
     }
 
     let finalConfig = {
+      mode: planningMode,
       coreData: manpowerData.core, coreNames: coreNames, core: coreNames.length > 0 ? coreNames.length : 1,
       nonCoreData: manpowerData.nonCore, nonCoreNames: nonCoreNames, nonCore: nonCoreNames.length,
       longshiftData: longshiftNames, longshiftNames: longshiftNames, longshift: lsCount,
@@ -481,14 +516,14 @@
     };
 
     currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-    let validationReport = BrainAI.validate(currentPlan, state.machines);
+    let validationReport = BrainAI.validate(currentPlan, state.machines, planningMode);
     renderAlerts(validationReport.info, validationReport.violations);
 
-    const planPayload = { version: 1, updatedAt: new Date().toISOString(), slots: JSON.parse(JSON.stringify(currentPlan)) };
+    const planPayload = { version: 1, updatedAt: new Date().toISOString(), mode: planningMode, slots: JSON.parse(JSON.stringify(currentPlan)) };
     sessionStorage.setItem('active_planning', JSON.stringify(planPayload)); localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
 
     generateTextOutput(finalConfig);
-    document.getElementById('statusBadge').innerText = 'Generated Sukses'; document.getElementById('statusBadge').classList.add('ok');
+    document.getElementById('statusBadge').innerText = `Generated Sukses (Mode ${planningMode})`; document.getElementById('statusBadge').classList.add('ok');
   }
 
   function generateTextOutput(config) {
@@ -531,7 +566,7 @@
 
   function validateAndExport() {
     if (!currentPlan || currentPlan.length === 0) return alert("Silakan klik 'Generate Planning' terlebih dahulu!");
-    let report = BrainAI.validate(currentPlan, state.machines); renderAlerts(report.info, report.violations);
+    let report = BrainAI.validate(currentPlan, state.machines, planningMode); renderAlerts(report.info, report.violations);
     if (!report.valid) return alert("VALIDASI GAGAL! Periksa catatan pelanggaran.");
     currentPlan.forEach(slot => slot.machines.forEach(m => BrainAI.recordHistory(m.id, slot.cqi.id, true)));
     navigator.clipboard.writeText(document.getElementById('textOutput').value); alert("Validasi Lulus! Hasil planning berhasil disalin ke Clipboard.");
@@ -555,13 +590,14 @@
     const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet('Planning Shift', { views:[{ state:'frozen', ySplit:0 }], pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 } });
     
     const headers = ["NO","CQI","CORE","NON CORE & LS","MESIN (WORKSTATION/KODE)","LINE"];
+    const allRunning = currentPlan.flatMap(s => s.machines || []);
     const rows = currentPlan.map((slot,i)=>{
       let combinedNc = [];
       if (slot.nonCore && slot.nonCore.length > 0) combinedNc.push(...slot.nonCore);
       if (slot.longshift && slot.longshift.length > 0) combinedNc.push(...slot.longshift);
       
       let ncAndLs = combinedNc.length > 0 ? combinedNc.join(", ") : "-";
-      return [ i+1, slot.cqi.name, String(slot.core), ncAndLs, BrainAI.formatMachineList(slot.machines), slot.cqi.line || "-" ];
+      return [ i+1, slot.cqi.name, String(slot.core), ncAndLs, BrainAI.formatMachineList(slot.machines, allRunning), slot.cqi.line || "-" ];
     });
 
     const lastCol = headers.length; const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]); ws.mergeCells(title.number, 1, title.number, lastCol); title.height = 28;
