@@ -1,0 +1,132 @@
+{
+  "planning_history": [
+    {
+      "tanggal": "26-08-2026",
+      "shift": 2,
+      "cqi": [
+        {
+          "nama": "CQI 1",
+          "core": "Ninda",
+          "mesin": [
+            "1A (3)",
+            "A46"
+          ]
+        },
+        {
+          "nama": "CQI 2",
+          "core": "Nurul",
+          "mesin": [
+            "2A",
+            "0A (2)"
+          ]
+        },
+        {
+          "nama": "CQI 3",
+          "core": "Thazkia",
+          "mesin": [
+            "3A (2)",
+            "24",
+            "31-12L",
+            "4A"
+          ]
+        },
+        {
+          "nama": "CQI 5",
+          "core": "Riri",
+          "mesin": [
+            "5A (3)",
+            "23-12L",
+            "6A (3)",
+            "62-12L"
+          ]
+        },
+        {
+          "nama": "CQI 7",
+          "core": "Angel",
+          "mesin": [
+            "7A",
+            "8A"
+          ]
+        },
+        {
+          "nama": "CQI 9",
+          "core": "Allyssa",
+          "mesin": [
+            "9A (3)",
+            "73-12L"
+          ]
+        },
+        {
+          "nama": "CQI 10",
+          "core": "Manda",
+          "mesin": [
+            "10A"
+          ]
+        },
+        {
+          "nama": "CQI 11",
+          "core": "Fira",
+          "mesin": [
+            "2B",
+            "47",
+            "52-16L"
+          ]
+        },
+        {
+          "nama": "CQI 12",
+          "core": "Chalista",
+          "mesin": [
+            "Kh1",
+            "Kh2",
+            "Kh7",
+            "Kh8"
+          ]
+        },
+        {
+          "nama": "CQI 14",
+          "core": "Dwi",
+          "mesin": [
+            "7B (3)",
+            "A15"
+          ]
+        },
+        {
+          "nama": "CQI 25",
+          "core": "Dini",
+          "mesin": [
+            "10B (3)",
+            "A40"
+          ]
+        },
+        {
+          "nama": "CQI 15",
+          "core": "Mia",
+          "mesin": [
+            "A31",
+            "A59",
+            "A63",
+            "A54",
+            "A19"
+          ]
+        },
+        {
+          "nama": "CQI 191",
+          "core": "Farhan",
+          "mesin": [
+            "OT (2)"
+          ]
+        },
+        {
+          "nama": "CQI 24",
+          "core": "Jiddan",
+          "mesin": [
+            "WW (2)",
+            "A32",
+            "A9",
+            "A26"
+          ]
+        }
+      ]
+    }
+  ]
+}
