@@ -8,10 +8,18 @@ const BrainAI = {
   },
 
   /**
-   * Mengambil identitas workstation secara dinamis dari data map.json (labels/node)
+   * Mengambil identitas workstation secara dinamis dari properti objek mesin, label, atau nama string
    */
-  getWorkstationKey(machineName, labels = []) {
-    const normM = this.normalizeName(machineName);
+  getWorkstationKey(machineInput, labels = []) {
+    // Jika input berupa objek mesin dan memiliki properti workstation, langsung gunakan!
+    if (typeof machineInput === 'object' && machineInput !== null) {
+      if (machineInput.workstation) {
+        return String(machineInput.workstation).trim().toUpperCase();
+      }
+      machineInput = machineInput.name || machineInput.id || '';
+    }
+
+    const normM = this.normalizeName(machineInput);
     
     if (Array.isArray(labels)) {
       for (const l of labels) {
@@ -35,7 +43,7 @@ const BrainAI = {
   },
 
   /**
-   * Menhitung jarak lintasan grid (Manhattan Distance) berdasarkan posisi Row & Col pada map.json
+   * Menghitung jarak lintasan grid (Manhattan Distance) berdasarkan posisi Row & Col pada map.json
    */
   calculateDistance(m, cqi) {
     const mRow = m.row || (m.position ? m.position.row : 0);
@@ -178,7 +186,7 @@ const BrainAI = {
   },
 
   /**
-   * Menyusun Teks Output Final (Sesuai Aturan Baru)
+   * Menyusun Teks Output Final
    */
   formatText(slots, config = {}) {
     if (!Array.isArray(slots) || slots.length === 0) return '';
@@ -191,7 +199,6 @@ const BrainAI = {
       const cqiName = s.cqi.name || `CQI-${i+1}`;
       const coreStr = s.coreNames.length > 0 ? s.coreNames.join(', ') : `${s.core} Core`;
       
-      // PERBAIKAN 1: Gabungkan array Non-Core dan (LS) ke dalam satu variabel
       let combinedNcAndLs = [];
       if (s.nonCore && s.nonCore.length > 0) combinedNcAndLs.push(...s.nonCore);
       if (s.longshift && s.longshift.length > 0) combinedNcAndLs.push(...s.longshift);
@@ -201,14 +208,10 @@ const BrainAI = {
 
       out += `${i+1}. *${cqiName}*\n`;
       out += `   - Core     : ${coreStr}\n`;
-      // Baris "LS: (LS)" sudah dihapus karena (LS) sudah menempel ke samping teks Non-Core
       out += `   - Non-Core : ${nonCoreStr}\n`;
       out += `   - Mesin    : ${macList}\n\n`;
     });
 
-    // PERBAIKAN 2: Dihapusnya garis putus-putus dan header "TUGAS KHUSUS & PARAMETER SHIFT"
-    
-    // PERBAIKAN 3: Formatting QC Passed untuk membuat Enter jika terdapat penomoran ganda
     if (config.qcPassed) {
       if (config.qcPassed.includes('\n')) {
         out += `- QC Passed  :\n${config.qcPassed}\n`;
