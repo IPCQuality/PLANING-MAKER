@@ -83,7 +83,6 @@
     .toast{background:white;border-left:4px solid var(--cqi-ready);box-shadow:var(--shadow);padding:12px 16px;border-radius:6px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px}
     .toast.success{border-left-color:var(--running)}
 
-    /* MODE EDIT KUSTOMISASI */
     body.mode-edit .node { cursor: grab; }
     body.mode-edit .node:active { cursor: grabbing; }
     body.mode-edit .factory-grid { padding: 0 100px 100px 0; background:#f8fafc; }
@@ -93,10 +92,9 @@
     .del-btn { position:absolute; top:-8px; right:-8px; background:#ef4444; color:white; border-radius:50%; width:20px; height:20px; font-size:10px; line-height:20px; text-align:center; cursor:pointer; display:none; z-index:15; border: 1px solid white;}
     body.mode-edit .del-btn { display:block; }
     
-    /* MODAL POPUP SETTINGS & NODE EDITOR */
     .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .2s ease}
     .modal-overlay.active{opacity:1;pointer-events:auto}
-    .modal-card{background:white;border-radius:12px;width:380px;padding:24px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);} /* overflow dihapus */
+    .modal-card{background:white;border-radius:12px;width:380px;padding:24px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);}
     .modal-card h3{margin-bottom:16px;color:var(--text-main);font-size:1.1rem;border-bottom:1px solid var(--grid-line);padding-bottom:8px;}
     
     .menu-list{display:flex;flex-direction:column;gap:10px;}
@@ -163,7 +161,7 @@
     </div>
   </div>
 
-  <!-- MODAL PENGATURAN (SETTINGS) -->
+  <!-- MODAL PENGATURAN -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-card">
       <h3>Pengaturan Map</h3>
@@ -181,7 +179,7 @@
     </div>
   </div>
 
-  <!-- MODAL EDITOR / PENAMBAHAN NODE -->
+  <!-- MODAL EDITOR NODE -->
   <div class="modal-overlay" id="nodeModal">
     <div class="modal-card">
       <h3 id="modalTitle">Kustomisasi Object</h3>
@@ -318,29 +316,43 @@
       updateStatsAndButtons();
     }
 
+    // PERBAIKAN 1: updateStatsAndButtons kini menggunakan BrainAI.getWorkstationKey (karena BrainAI.WORKSTATIONS telah dihapus)
     function updateStatsAndButtons(){
       document.getElementById('statMachine').innerText = `${mapData.machines.filter(m=>m.status==='RUNNING').length} / ${mapData.machines.length}`;
       document.getElementById('statCqi').innerText = `${mapData.cqis.filter(c=>c.status==='READY').length} / ${mapData.cqis.length}`;
       
-      if (typeof BrainAI === 'undefined' || typeof BrainAI.WORKSTATIONS === 'undefined') return;
+      if (typeof BrainAI === 'undefined') return;
+
+      const wsKeys = ["0A","1A","2A","3A","4A","5A","6A","7A","8A","9A","10A", "0B","1B","2B","3B","4B","5B","6B","7B","8B","9B","10B","11B", "1C","2C","3C","4C","5C","6C","7C","8C","9C","10C", "WW","OT"];
       
-      for (let k in BrainAI.WORKSTATIONS){
+      for (let k of wsKeys){
         let b = document.getElementById('ws-btn-' + k); if(!b) continue;
-        let macs = mapData.machines.filter(m => BrainAI.WORKSTATIONS[k].some(x => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(x)));
+        
+        let macs = mapData.machines.filter(m => BrainAI.getWorkstationKey(m.name, mapData.labels) === k);
         if (macs.length === 0) { b.className = 'ws-btn'; continue; }
+        
         if (macs.every(m => m.status === 'RUNNING')) b.className = 'ws-btn active-all';
         else if (macs.some(m => m.status === 'RUNNING')) b.className = 'ws-btn active-partial';
         else b.className = 'ws-btn';
       }
     }
 
+    // PERBAIKAN 2: toggleWorkstation mengandalkan BrainAI.getWorkstationKey secara dinamis
     function toggleWorkstation(wsKey){
-      if (typeof BrainAI === 'undefined' || typeof BrainAI.WORKSTATIONS === 'undefined' || !BrainAI.WORKSTATIONS[wsKey]) return;
-      let macs = mapData.machines.filter(m => BrainAI.WORKSTATIONS[wsKey].some(x => BrainAI.normalizeName(m.name) === BrainAI.normalizeName(x)));
+      if (typeof BrainAI === 'undefined') return;
+      
+      let macs = mapData.machines.filter(m => BrainAI.getWorkstationKey(m.name, mapData.labels) === wsKey);
+      if (macs.length === 0) return;
+
       let tgt = macs.every(m => m.status === 'RUNNING') ? 'OFF' : 'RUNNING';
       macs.forEach(m=>m.status = tgt); 
       renderGrid();
     }
+
+    function setAllMachinesRunning(){ mapData.machines.forEach(m=>m.status='RUNNING'); renderGrid(); }
+    function setAllMachinesOff(){ mapData.machines.forEach(m=>m.status='OFF'); renderGrid(); }
+    function setAllCqiReady(){ mapData.cqis.forEach(c=>c.status='READY'); renderGrid(); }
+    function setAllCqiOff(){ mapData.cqis.forEach(c=>c.status='OFF'); renderGrid(); }
 
     function toggleSidePanel(){ 
       const p = document.getElementById('sidePanel'); 
@@ -526,7 +538,6 @@
           d.onclick = (e) => { e.stopPropagation(); deleteNode(node.id, type); };
           div.appendChild(d);
         } else {
-          // Bind fungsi klik secara eksplisit saat tidak dalam mode edit
           if (type === 'machine' || type === 'cqi') {
               div.onclick = (e) => {
                   e.stopPropagation();
@@ -553,7 +564,7 @@
           let tgt = mapData.cqis.find(x => String(x.id || x.name).trim() === String(cqiTarget.id || cqiTarget.name).trim());
           if (!tgt) return;
 
-          let wsKey = (typeof BrainAI !== 'undefined') ? BrainAI.getWorkstationKey(mac.name || mac.id) : null;
+          let wsKey = (typeof BrainAI !== 'undefined') ? BrainAI.getWorkstationKey(mac.name || mac.id, mapData.labels) : null;
           let wl = wsKey ? mapData.labels.find(l => BrainAI.normalizeName(l.name) === BrainAI.normalizeName(wsKey)) : null;
           let pathColor = cqiColorMap[tgt.id] || '#16a34a';
 
@@ -602,9 +613,7 @@
       if(targetObj) {
           targetObj.row = r;
           targetObj.col = c;
-          
           if(targetObj.position) { targetObj.position.row = r; targetObj.position.col = c; }
-          
           renderGrid();
       }
     }

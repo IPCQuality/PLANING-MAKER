@@ -321,9 +321,19 @@
       manpowerData.nonCore = filteredNonCore;
       manpowerData.qcPassed = qcList;
 
-      if (milstdName && !localStorage.getItem('milStd_val')) document.getElementById('milStdInput').value = milstdName;
-      if (standbyotName && !localStorage.getItem('standbyOt_val')) document.getElementById('standbyOtInput').value = standbyotName;
-      if (supportfgName && !localStorage.getItem('supportFg_val')) document.getElementById('supportFgInput').value = supportfgName;
+      // PERBAIKAN: Menyimpan ke localStorage secara sinkron dan instan sehingga tidak tertimpa oleh loadExtraConfigs()
+      if (milstdName && !localStorage.getItem('milStd_val')) {
+          document.getElementById('milStdInput').value = milstdName;
+          localStorage.setItem('milStd_val', milstdName);
+      }
+      if (standbyotName && !localStorage.getItem('standbyOt_val')) {
+          document.getElementById('standbyOtInput').value = standbyotName;
+          localStorage.setItem('standbyOt_val', standbyotName);
+      }
+      if (supportfgName && !localStorage.getItem('supportFg_val')) {
+          document.getElementById('supportFgInput').value = supportfgName;
+          localStorage.setItem('supportFg_val', supportfgName);
+      }
 
       persistManpower();
     } catch(err) {
@@ -472,6 +482,7 @@
     document.getElementById('statusBadge').innerText = 'Generated Sukses'; document.getElementById('statusBadge').classList.add('ok');
   }
 
+  // Teks Output diformat dan dikelola secara mandiri oleh fungsi ini di dalam brain.js
   function generateTextOutput(config) {
     if (!currentPlan || currentPlan.length === 0) return;
     document.getElementById('textOutput').value = BrainAI.formatText(currentPlan, config);
