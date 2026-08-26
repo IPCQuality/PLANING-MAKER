@@ -13,7 +13,6 @@ const BrainAI = {
   getWorkstationKey(machineName, labels = []) {
     const normM = this.normalizeName(machineName);
     
-    // Pencocokan dinamis dengan data label yang berasal dari map.json
     if (Array.isArray(labels)) {
       for (const l of labels) {
         const normL = this.normalizeName(l.name);
@@ -23,7 +22,6 @@ const BrainAI = {
       }
     }
     
-    // Fallback ekstraksi pola nama jika label tidak ditemukan
     const match = normM.match(/(\d+[A-Z]|WW|OT)/);
     return match ? match[0] : 'LAINNYA';
   },
@@ -48,14 +46,13 @@ const BrainAI = {
   },
 
   /**
-   * Engine Utama Perencanaan: Mengalokasikan Mesin -> CQI -> Manpower berdasarkan map.json & config
+   * Engine Utama Perencanaan
    */
   generatePlan(machines, cqis, config = {}, mapData = {}) {
     if (!Array.isArray(machines) || machines.length === 0 || !Array.isArray(cqis) || cqis.length === 0) {
       return [];
     }
 
-    // 1. Inisialisasi Slot Alokasi CQI
     const slots = cqis.map(c => ({
       cqi: c,
       machines: [],
@@ -66,7 +63,6 @@ const BrainAI = {
       totalCapacity: parseInt(c.qtytimbang || 8, 10)
     }));
 
-    // 2. Alokasikan Mesin Running ke CQI Berdasarkan Koordinat Grid map.json & Prioritas
     const sortedMachines = [...machines].sort((a, b) => {
       const qtyA = parseInt(a.qtytimbang || 8, 10);
       const qtyB = parseInt(b.qtytimbang || 8, 10);
@@ -81,11 +77,9 @@ const BrainAI = {
         const currentLoad = slot.machines.length;
         const distance = this.calculateDistance(m, slot.cqi);
 
-        // Cek apakah CQI ini memiliki prioritas mesin dari map.json
         const prioList = Array.isArray(slot.cqi.priority) ? slot.cqi.priority.map(p => this.normalizeName(p)) : [];
         const isPriority = prioList.includes(this.normalizeName(m.name));
         
-        // Bobot skor alokasi: Mengutamakan jarak grid terkecil dan prioritas CQI
         let score = distance + (currentLoad * 10);
         if (isPriority) score -= 50; 
 
@@ -100,7 +94,6 @@ const BrainAI = {
       }
     });
 
-    // 3. Penugasan Core Manpower ke CQI Aktif
     const coreNames = config.coreNames || [];
     slots.forEach((slot, idx) => {
       if (slot.machines.length > 0) {
@@ -111,7 +104,6 @@ const BrainAI = {
       }
     });
 
-    // 4. Pembagian Non-Core Manpower & Kuota Longshift
     const nonCoreNames = [...(config.nonCoreNames || [])];
     const lsCount = config.longshift || 0;
     let lsPool = Array.from({ length: lsCount }, () => "(LS)");
@@ -141,7 +133,7 @@ const BrainAI = {
   },
 
   /**
-   * Engine Validasi Aturan Perencanaan Shift
+   * Engine Validasi Aturan
    */
   validate(slots, machines = []) {
     const violations = [];
@@ -167,25 +159,17 @@ const BrainAI = {
       violations.push(`${emptyCoreSlots.length} CQI aktif tidak memiliki Manpower Core.`);
     }
 
-    return {
-      valid: violations.length === 0,
-      violations,
-      info
-    };
+    return { valid: violations.length === 0, violations, info };
   },
 
   /**
-   * Mencatat log riwayat alokasi ke penyimpanan lokal
+   * Mencatat log riwayat alokasi
    */
   recordHistory(machineId, cqiId) {
     try {
       const raw = localStorage.getItem('planning_history') || '[]';
       const history = JSON.parse(raw);
-      history.push({
-        machineId,
-        cqiId,
-        timestamp: new Date().toISOString()
-      });
+      history.push({ machineId, cqiId, timestamp: new Date().toISOString() });
       if (history.length > 100) history.shift();
       localStorage.setItem('planning_history', JSON.stringify(history));
     } catch (e) {
@@ -194,33 +178,45 @@ const BrainAI = {
   },
 
   /**
-   * Menyusun Teks Output Final Siap Pakai (Clipboard / WA)
+   * Menyusun Teks Output Final (Sesuai Aturan Baru)
    */
   formatText(slots, config = {}) {
     if (!Array.isArray(slots) || slots.length === 0) return '';
 
     let out = `*PLANNING SHIFT LIQUID 3*\n`;
-    out += `Tanggal: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n`;
-    out += `--------------------------------------------------\n\n`;
+    out += `Tanggal: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
 
     slots.forEach((s, i) => {
       if (s.machines.length === 0) return;
       const cqiName = s.cqi.name || `CQI-${i+1}`;
       const coreStr = s.coreNames.length > 0 ? s.coreNames.join(', ') : `${s.core} Core`;
-      const nonCoreStr = s.nonCore.length > 0 ? s.nonCore.join(' & ') : '-';
-      const lsStr = s.longshift.length > 0 ? s.longshift.join(' & ') : '-';
+      
+      // PERBAIKAN 1: Gabungkan array Non-Core dan (LS) ke dalam satu variabel
+      let combinedNcAndLs = [];
+      if (s.nonCore && s.nonCore.length > 0) combinedNcAndLs.push(...s.nonCore);
+      if (s.longshift && s.longshift.length > 0) combinedNcAndLs.push(...s.longshift);
+      
+      const nonCoreStr = combinedNcAndLs.length > 0 ? combinedNcAndLs.join(', ') : '-';
       const macList = this.formatMachineList(s.machines);
 
       out += `${i+1}. *${cqiName}*\n`;
       out += `   - Core     : ${coreStr}\n`;
+      // Baris "LS: (LS)" sudah dihapus karena (LS) sudah menempel ke samping teks Non-Core
       out += `   - Non-Core : ${nonCoreStr}\n`;
-      out += `   - LS       : ${lsStr}\n`;
       out += `   - Mesin    : ${macList}\n\n`;
     });
 
-    out += `--------------------------------------------------\n`;
-    out += `*TUGAS KHUSUS & PARAMETER SHIFT*\n`;
-    if (config.qcPassed) out += `- QC Passed  : ${config.qcPassed}\n`;
+    // PERBAIKAN 2: Dihapusnya garis putus-putus dan header "TUGAS KHUSUS & PARAMETER SHIFT"
+    
+    // PERBAIKAN 3: Formatting QC Passed untuk membuat Enter jika terdapat penomoran ganda
+    if (config.qcPassed) {
+      if (config.qcPassed.includes('\n')) {
+        out += `- QC Passed  :\n${config.qcPassed}\n`;
+      } else {
+        out += `- QC Passed  : ${config.qcPassed}\n`;
+      }
+    }
+    
     if (config.milStd) out += `- Mil-Std    : ${config.milStd}\n`;
     if (config.standbyOt) out += `- Standby OT : ${config.standbyOt}\n`;
     if (config.supportFg) out += `- Support FG : ${config.supportFg}\n`;
