@@ -67,15 +67,18 @@ const BrainAI = {
    * Cek apakah dua cluster diperbolehkan dicampur di 1 CQI berdasarkan aturan:
    * 1. (sosoft, sklsct, 12ljumbo) -> Boleh dicampur.
    * 2. (pouch, botol) -> Boleh dicampur.
-   * 3. CQI 10 -> Khusus boleh mencampur (sklsct, pouch), selain CQI 10 dilarang.
-   * 4. Cluster lain tidak boleh dicampur.
+   * 3. CQI 10 -> Khusus boleh mencampur (sklsct, pouch line C dan 8B), selain CQI 10 dilarang.
+   * 4. (ww, pouch) -> Boleh dicampur hanya di CQI 24.
+   * 5. Cluster lain tidak boleh dicampur.
    * 
    * @param {string} clusterA - Cluster mesin A
    * @param {string} clusterB - Cluster mesin B
    * @param {string} cqiNumber - Nomor CQI (misal: '10', '24', dll.)
+   * @param {Object} machineA - Objek mesin A (opsional untuk verifikasi line/ws)
+   * @param {Object} machineB - Objek mesin B (opsional untuk verifikasi line/ws)
    * @returns {boolean}
    */
-  isClusterMixingAllowed(clusterA, clusterB, cqiNumber = '') {
+  isClusterMixingAllowed(clusterA, clusterB, cqiNumber = '', machineA = null, machineB = null) {
     if (!clusterA || !clusterB || clusterA === clusterB) return true;
     
     const group1 = ['SOSOFT', 'SKLSCT', '12LJUMBO'];
@@ -91,10 +94,14 @@ const BrainAI = {
       return true;
     }
 
-    // Aturan 3: CQI 10 khusus boleh mencampur (sklsct, pouch)
+    // Aturan 3: CQI 10 khusus boleh mencampur (sklsct, pouch line C dan 8B)
     if (String(cqiNumber) === '10') {
-      const allowedPair = ['SKLSCT', 'POUCH'];
-      if (allowedPair.includes(clusterA) && allowedPair.includes(clusterB)) {
+      const isSklAndPouch = (clusterA === 'SKLSCT' && clusterB === 'POUCH') || (clusterA === 'POUCH' && clusterB === 'SKLSCT');
+      if (isSklAndPouch) {
+        if (machineA && machineB) {
+          const pouchM = clusterA === 'POUCH' ? machineA : machineB;
+          return this.isPouchLineCAnd8B(pouchM);
+        }
         return true;
       }
     }
@@ -111,19 +118,52 @@ const BrainAI = {
   },
 
   /**
+   * Cek apakah mesin merupakan kategori Pouch dari Line C atau Workstation 8B
+   * @param {Object} m - Objek Mesin
+   * @returns {boolean}
+   */
+  isPouchLineCAnd8B(m) {
+    if (!m || !this.isPouchMachine(m)) return false;
+    const line = String(m.line || '').toUpperCase();
+    const ws = String(m.workstation || m.ws || '').toUpperCase();
+    return line.includes('LINE C') || line === 'C' || ws.includes('C') || ws === '8B' || ws.includes('8B');
+  },
+
+  /**
    * Cek apakah sebuah mesin dapat dimasukkan ke CQI tanpa melanggar aturan mixing cluster
    * @param {Object} m - Objek Mesin
    * @param {Object} slot - Objek Slot CQI
    * @returns {boolean}
    */
   canAddMachineToSlotCluster(m, slot) {
+    const cqiNum = String(slot.cqiNum || this.getCqiNumber(slot.cqi));
+    const isOt = this.isOtMachine(m);
+    
+    // ATURAN MUTLAK: Mesin M2 & M3 (OT) TIDAK BISA dicek oleh CQI lain, HARUS CQI 19.
+    // CQI 19 HANYA BOLEH MENGECEK MESIN OT (Dilarang keras mengecek Line A, Line B, Line C, ataupun WW).
+    if (isOt && cqiNum !== '19') return false;
+    if (!isOt && cqiNum === '19') return false;
+    if (cqiNum === '19') {
+      const line = String(m.line || '').toUpperCase();
+      const ws = String(m.workstation || m.ws || '').toUpperCase();
+      if (line.includes('LINE A') || line.includes('LINE B') || line.includes('LINE C') || line.includes('WW') ||
+          ws.endsWith('A') || ws.endsWith('B') || ws.endsWith('C') || ws === 'WW') {
+        return false;
+      }
+      return isOt;
+    }
+
+    // CQI 24 khusus WW & Pouch
+    const isWw = this.isWwMachine(m);
+    if (isWw && cqiNum !== '24') return false;
+    if (!isWw && !this.isPouchMachine(m) && cqiNum === '24') return false;
+
     if (!slot.machines || slot.machines.length === 0) return true;
     const mCluster = this.getMachineClusterGroup(m);
-    const cqiNum = slot.cqiNum || this.getCqiNumber(slot.cqi);
 
     for (const existingMachine of slot.machines) {
       const existCluster = this.getMachineClusterGroup(existingMachine);
-      if (!this.isClusterMixingAllowed(mCluster, existCluster, cqiNum)) {
+      if (!this.isClusterMixingAllowed(mCluster, existCluster, cqiNum, m, existingMachine)) {
         return false;
       }
     }
@@ -138,7 +178,7 @@ const BrainAI = {
   isWwMachine(m) {
     if (!m) return false;
     const line = String(m.line || '').toUpperCase();
-    const ws = String(m.workstation || '').toUpperCase();
+    const ws = String(m.workstation || m.ws || '').toUpperCase();
     const name = String(m.name || m.id || '').toUpperCase();
     const cluster = String(m.cluster || '').toUpperCase();
     return line === 'WW' || ws === 'WW' || cluster.includes('WW') || /^C\d+/.test(name);
@@ -152,10 +192,22 @@ const BrainAI = {
   isOtMachine(m) {
     if (!m) return false;
     const line = String(m.line || '').toUpperCase();
-    const ws = String(m.workstation || '').toUpperCase();
+    const ws = String(m.workstation || m.ws || '').toUpperCase();
     const name = String(m.name || m.id || '').toUpperCase();
+    const id = String(m.id || '').toUpperCase();
     const cluster = String(m.cluster || '').toUpperCase();
-    return line === 'OT' || ws === 'OT' || cluster.includes('OT') || name === 'M2' || name === 'M3' || /^M\d+/.test(name);
+    
+    // PERBAIKAN: Gunakan exact match (===) atau regex kata utuh (\b)
+    // Jangan gunakan .includes('OT') karena akan mendeteksi string 'BOTOL'
+    const isClusterOt = cluster === 'OT' || /\bOT\b/.test(cluster);
+
+    return name === 'M2' || name === 'M3' || 
+           id === 'M2' || id === 'M3' || 
+           line === 'OT' || 
+           ws === 'OT' || 
+           isClusterOt || 
+           /^M\d+/.test(name) || 
+           /^M\d+/.test(id);
   },
 
   /**
@@ -214,6 +266,38 @@ const BrainAI = {
     const cRow = cqi.row || (cqi.position ? cqi.position.row : 0);
     const cCol = cqi.col || (cqi.position ? cqi.position.col : 0);
     return Math.abs(mRow - cRow) + Math.abs(mCol - cCol);
+  },
+
+  /**
+   * Menghitung nilai bonus afinitas riwayat penugasan mesin ke CQI
+   * @param {Object} machine - Objek Mesin
+   * @param {Object} cqi - Objek CQI
+   * @param {Array} historyList - Daftar riwayat penugasan (opsional)
+   * @returns {number} Nilai bonus (0 - 30)
+   */
+  getHistoryBonus(machine, cqi, historyList = null) {
+    if (!historyList) {
+      try {
+        const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('planning_history') : null;
+        historyList = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        historyList = [];
+      }
+    }
+    if (!Array.isArray(historyList) || historyList.length === 0) return 0;
+    
+    const mName = this.normalizeName(machine.name || machine.id);
+    const cqiNum = this.getCqiNumber(cqi);
+
+    let matchCount = 0;
+    for (const h of historyList) {
+      const hM = this.normalizeName(h.machineId || h.machine || h.name);
+      const hCqi = this.getCqiNumber(h.cqiId || h.cqi || h.nama);
+      if (hM && (hM === mName || mName.includes(hM) || hM.includes(mName)) && hCqi === cqiNum) {
+        matchCount++;
+      }
+    }
+    return Math.min(matchCount * 10, 30);
   },
 
   /**
@@ -355,38 +439,41 @@ const BrainAI = {
 
     // --- TAHAP 2: SELEKSI CQI AKTIF JIKA CQI READY > JUMLAH CORE ---
     let selectedCQIs = [];
-    if (availableCqis.length <= maxCoreSlots) {
-      selectedCQIs = [...availableCqis];
-    } else {
-      // Prioritas 1: Sertakan CQI 24 jika ada mesin WW running
-      if (wwMachines.length > 0) {
-        const cqi24 = availableCqis.find(c => this.getCqiNumber(c) === '24');
-        if (cqi24 && !selectedCQIs.includes(cqi24)) selectedCQIs.push(cqi24);
-      }
+    const cqi19Obj = availableCqis.find(c => this.getCqiNumber(c) === '19');
+    const cqi24Obj = availableCqis.find(c => this.getCqiNumber(c) === '24');
 
-      // Prioritas 2: Sertakan CQI 19 jika ada mesin OT running
-      if (otMachines.length > 0) {
-        const cqi19 = availableCqis.find(c => this.getCqiNumber(c) === '19');
-        if (cqi19 && !selectedCQIs.includes(cqi19)) selectedCQIs.push(cqi19);
-      }
+    // Prioritas 1: Sertakan CQI 19 jika ada mesin M2 & M3 (OT) running (Wajib di awal)
+    if (otMachines.length > 0 && cqi19Obj) {
+      selectedCQIs.push(cqi19Obj);
+    }
 
-      // Prioritas 3: Pilih sisa CQI yang paling strategis untuk cover generalMachines
-      const remainingCandidates = availableCqis.filter(c => !selectedCQIs.includes(c));
+    // Prioritas 2: Sertakan CQI 24 jika ada mesin WW running
+    if (wwMachines.length > 0 && cqi24Obj && !selectedCQIs.includes(cqi24Obj)) {
+      selectedCQIs.push(cqi24Obj);
+    }
+
+    // Prioritas 3: Pilih sisa CQI yang paling strategis untuk cover generalMachines
+    // CQI 19 dan CQI 24 dieksklusi secara ketat dari kandidat umum
+    const remainingCandidates = availableCqis.filter(c => {
+      const num = this.getCqiNumber(c);
+      if (selectedCQIs.includes(c)) return false;
+      if (num === '19' || num === '24') return false;
+      return true;
+    });
       
-      const scoredCandidates = remainingCandidates.map(c => {
-        let totalDist = 0;
-        generalMachines.forEach(m => {
-          totalDist += this.calculateDistance(m, c);
-        });
-        const avgDist = generalMachines.length > 0 ? (totalDist / generalMachines.length) : 0;
-        return { cqi: c, avgDist };
+    const scoredCandidates = remainingCandidates.map(c => {
+      let totalDist = 0;
+      generalMachines.forEach(m => {
+        totalDist += this.calculateDistance(m, c);
       });
+      const avgDist = generalMachines.length > 0 ? (totalDist / generalMachines.length) : 0;
+      return { cqi: c, avgDist };
+    });
 
-      scoredCandidates.sort((a, b) => a.avgDist - b.avgDist);
+    scoredCandidates.sort((a, b) => a.avgDist - b.avgDist);
 
-      while (selectedCQIs.length < maxCoreSlots && scoredCandidates.length > 0) {
-        selectedCQIs.push(scoredCandidates.shift().cqi);
-      }
+    while (selectedCQIs.length < maxCoreSlots && scoredCandidates.length > 0) {
+      selectedCQIs.push(scoredCandidates.shift().cqi);
     }
 
     // Buat objek Slot Penampung
@@ -411,39 +498,47 @@ const BrainAI = {
 
     // --- TAHAP 3: ALOKASI MESIN RUNNING KE CQI ---
 
-    // A. Aturan Khusus WW -> CQI 24
-    if (wwMachines.length > 0) {
-      if (slot24) {
-        wwMachines.forEach(m => slot24.machines.push(m));
-      } else {
-        const nearestSlot = this.findNearestSlot(wwMachines[0], slots);
-        if (nearestSlot) wwMachines.forEach(m => nearestSlot.machines.push(m));
-      }
-    }
-
-    // B. Aturan Khusus OT -> CQI 19 (HANYA MESIN OT SAJA, MAKSIMAL 2 MESIN)
+    // =========================================================================
+    // PASS 1 (DEDICATED & ISOLATED): MESIN OT (M2 & M3) -> STRICTLY CQI 19 ONLY
+    // Mesin M2 & M3 jika running, HANYA BISA dialokasikan ke CQI 19 (maks 2 mesin).
+    // Selesai tuntas di pass ini, terisolasi 100% dari alokasi mesin umum & slot non-19.
+    // =========================================================================
     if (otMachines.length > 0) {
       if (slot19) {
-        otMachines.slice(0, 2).forEach(m => slot19.machines.push(m));
-        if (otMachines.length > 2) {
-          const overflowOt = otMachines.slice(2);
-          const nearestSlot = this.findNearestSlot(overflowOt[0], slots.filter(s => s.cqiNum !== '19'));
-          if (nearestSlot) overflowOt.forEach(m => nearestSlot.machines.push(m));
-        }
-      } else {
-        const nearestSlot = this.findNearestSlot(otMachines[0], slots);
-        if (nearestSlot) otMachines.forEach(m => nearestSlot.machines.push(m));
+        otMachines.slice(0, 2).forEach(m => {
+          if (!slot19.machines.some(sm => sm.id === m.id || sm.name === m.name)) {
+            slot19.machines.push(m);
+          }
+        });
       }
     }
 
-    // C. Alokasi Mesin Umum (Line A, B, C / Cluster Sosoft, 12Ljumbo, SKLsct, Pouch, Botol)
-    // Slot yang diperbolehkan untuk mesin umum: Semua slot KECUALI CQI 19 dan CQI 24
-    let generalSlots = slots.filter(s => s.cqiNum !== '19' && s.cqiNum !== '24');
-    if (generalSlots.length === 0) {
-      generalSlots = slots;
+    // =========================================================================
+    // PASS 2 (DEDICATED & ISOLATED): MESIN WW -> STRICTLY CQI 24 ONLY
+    // Mesin WW jika running dialokasikan secara dedicated ke CQI 24.
+    // =========================================================================
+    if (wwMachines.length > 0) {
+      if (slot24) {
+        wwMachines.forEach(m => {
+          if (!slot24.machines.some(sm => sm.id === m.id || sm.name === m.name)) {
+            slot24.machines.push(m);
+          }
+        });
+      }
     }
 
-    // Kelompokkan dan urutkan mesin umum
+    // =========================================================================
+    // PASS 3: ALOKASI MESIN UMUM (Line A, B, C / Sosoft, 12Ljumbo, SKLsct, Pouch, Botol)
+    // Slot yang diperbolehkan: Secara EKSPLISIT & MUTLAK hanya generalSlots (Non-19 & Non-24)
+    // Mesin OT/WW yang sudah selesai di Pass 1 & 2 dijamin tidak akan masuk ke generalSlots.
+    // =========================================================================
+    const excludedCqiNums = new Set(['19', '24']);
+    const generalSlots = slots.filter(s => {
+      const num = String(s.cqiNum || this.getCqiNumber(s.cqi) || '').trim();
+      return !excludedCqiNums.has(num);
+    });
+
+    // Kelompokkan dan urutkan mesin umum (hanya memproses generalMachines, OT dan WW sudah dipisahkan)
     const unallocatedGeneralMachines = [];
     const sortedGeneralMachines = [...generalMachines].sort((a, b) => {
       const clusterA = this.getMachineClusterGroup(a);
@@ -481,6 +576,9 @@ const BrainAI = {
         const sameWsCount = slot.machines.filter(sm => String(sm.workstation || sm.ws || '').toUpperCase() === mWs).length;
         const wsBonus = sameWsCount * 20;
 
+        // Bonus riwayat penugasan (History Affinity)
+        const historyBonus = this.getHistoryBonus(m, slot.cqi, config.history || mapData.history);
+
         // Cek prioritas CQI dari data map
         const prioList = Array.isArray(slot.cqi.priority) 
           ? slot.cqi.priority.map(p => this.normalizeName(p)) 
@@ -488,8 +586,8 @@ const BrainAI = {
         const isPriority = prioList.includes(this.normalizeName(m.name || m.id));
         const priorityBonus = isPriority ? 45 : 0;
 
-        // Evaluasi skor komprehensif
-        const score = distance + (currentLoad * 10) - clusterBonus - wsBonus - priorityBonus;
+        // Evaluasi skor komprehensif: Jarak + Beban - Riwayat - Cluster - Workstation - Prioritas
+        const score = distance + (currentLoad * 10) - historyBonus - clusterBonus - wsBonus - priorityBonus;
 
         if (score < minScore) {
           minScore = score;
@@ -505,13 +603,14 @@ const BrainAI = {
     });
 
     // Fallback untuk mesin umum yang belum teralokasi karena restriksi cluster ketat
-    if (unallocatedGeneralMachines.length > 0) {
+    // STRICT: Hanya boleh ke generalSlots yang mematuhi cluster & isolasi CQI 19/24
+    if (unallocatedGeneralMachines.length > 0 && generalSlots.length > 0) {
       unallocatedGeneralMachines.forEach(m => {
         let fallbackSlot = null;
         let minScore = Infinity;
 
         generalSlots.forEach(slot => {
-          if (slot.machines.length < slot.maxAllowedMachines) {
+          if (slot.machines.length < slot.maxAllowedMachines && this.canAddMachineToSlotCluster(m, slot)) {
             const score = this.calculateDistance(m, slot.cqi) + (slot.machines.length * 15);
             if (score < minScore) {
               minScore = score;
@@ -523,8 +622,8 @@ const BrainAI = {
         if (fallbackSlot) {
           fallbackSlot.machines.push(m);
         } else {
-          // Jika seluruh general slot penuh, alokasikan ke slot dengan load terendah
-          const lowestSlot = [...generalSlots].sort((a,b) => a.machines.length - b.machines.length)[0];
+          // Jika seluruh general slot penuh, alokasikan ke general slot yang valid dengan load terendah
+          const lowestSlot = [...generalSlots].filter(s => this.canAddMachineToSlotCluster(m, s)).sort((a,b) => a.machines.length - b.machines.length)[0];
           if (lowestSlot) lowestSlot.machines.push(m);
         }
       });
@@ -737,11 +836,15 @@ const BrainAI = {
       s.machines.forEach(m => clusters.add(this.getMachineClusterGroup(m)));
       const clusterArr = Array.from(clusters);
 
-      if (clusterArr.length > 1) {
-        for (let i = 0; i < clusterArr.length; i++) {
-          for (let j = i + 1; j < clusterArr.length; j++) {
-            if (!this.isClusterMixingAllowed(clusterArr[i], clusterArr[j], cqiNum)) {
-              violations.push(`CQI ${cqiNum} melanggar aturan mixing cluster: mencampur [${clusterArr[i]}] dengan [${clusterArr[j]}].`);
+      if (s.machines.length > 1) {
+        for (let i = 0; i < s.machines.length; i++) {
+          for (let j = i + 1; j < s.machines.length; j++) {
+            const mA = s.machines[i];
+            const mB = s.machines[j];
+            const clusterA = this.getMachineClusterGroup(mA);
+            const clusterB = this.getMachineClusterGroup(mB);
+            if (!this.isClusterMixingAllowed(clusterA, clusterB, cqiNum, mA, mB)) {
+              violations.push(`CQI ${cqiNum} melanggar aturan mixing cluster: mencampur [${clusterA} - ${mA.name || mA.id}] dengan [${clusterB} - ${mB.name || mB.id}].`);
             }
           }
         }
