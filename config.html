@@ -6,123 +6,828 @@
 <title>Planning Shift & Konfigurasi — Liquid 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f8fafc;
+    --bg: #f1f5f9;
     --surface: #ffffff;
-    --surface-hover: #f1f5f9;
+    --surface-hover: #f8fafc;
     --border: #cbd5e1;
+    --border-subtle: #e2e8f0;
     --text-main: #0f172a;
     --text-muted: #475569;
     --text-subtle: #94a3b8;
     --accent: #2563eb;
     --accent-hover: #1d4ed8;
+    --accent-bg: #eff6ff;
     --success: #16a34a;
+    --success-hover: #15803d;
     --success-bg: #dcfce7;
     --warning: #d97706;
+    --warning-bg: #fef3c7;
     --danger: #dc2626;
+    --danger-bg: #fee2e2;
     --radius: 10px;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
   /* Header */
-  .topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 100; }
+  .topbar {
+    height: 62px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
   
-  .back-btn { text-decoration: none; color: #fff; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; padding: 9px 18px; border-radius: 6px; background: var(--accent); border: 1px solid var(--accent); transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
-  .back-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .back-btn {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(37,99,235,0.2);
+  }
+  .back-btn:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37,99,235,0.25);
+  }
+  .back-btn:active { transform: translateY(0); }
   
-  .topbar h1 { font-size: 16px; font-weight: 600; margin: 0; color: var(--accent); border-left: 2px solid var(--border); padding-left: 16px; }
-  .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; color: var(--text-muted); }
-  .badge.ok { background: var(--success-bg); color: var(--success); }
+  .topbar h1 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+    letter-spacing: -0.01em;
+  }
+  .badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+  }
+  .badge.ok {
+    background: var(--success-bg);
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
 
   /* Container */
-  .container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; flex: 1; }
+  .container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+  }
 
   /* Realtime Dashboard */
-  .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-  .stat-card { background: var(--surface); padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; }
-  .stat-card p { margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-  .stat-card span { margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--text-main); }
-  .stat-card.highlight { border-color: var(--accent); background: #eff6ff; }
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    background: var(--surface);
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: #94a3b8;
+  }
+  .stat-card p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  .stat-card span {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.1;
+  }
+  .stat-card.highlight {
+    border-color: #93c5fd;
+    background: #eff6ff;
+  }
   .stat-card.highlight span { color: var(--accent); }
 
   /* Pengaturan Manpower 3 Kolom */
-  .settings-section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
-  .cols-3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
-  @media (max-width: 1024px) { .cols-3-grid { grid-template-columns: 1fr; } }
+  .settings-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cols-3-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 1024px) {
+    .cols-3-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 0 16px; height: auto; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; gap: 12px; }
+  }
 
   /* Kotak Kolom Manpower */
-  .config-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; }
-  .box-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; gap: 8px; }
-  .box-header h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; flex: 1; }
-  .count-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); flex-shrink: 0; }
+  .config-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 10px;
+    gap: 8px;
+  }
+  .box-header h3 {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+  }
+  .count-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
 
   /* Styling Tombol Rolling */
-  .rolling-group { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
-  .rolling-group .icon-btn { border: none; border-radius: 0; background: transparent; height: 26px; width: 26px; display: grid; place-items: center; color: var(--text-muted); font-size: 10px; cursor: pointer; transition: 0.2s; }
+  .rolling-group {
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .rolling-group .icon-btn {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    height: 26px;
+    width: 26px;
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
   .rolling-group .icon-btn:not(:last-child) { border-right: 1px solid var(--border); }
   .rolling-group .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
 
   /* List container memanjang ke bawah */
   .list-container { display: flex; flex-direction: column; gap: 6px; }
   
-  .list-item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; transition: 0.2s; }
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
   .list-item:hover { border-color: #94a3b8; }
-  .list-item .num { width: 22px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-subtle); flex-shrink: 0; }
-  .list-item input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 13px; font-family: inherit; font-weight: 500; }
+  .list-item:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+  .list-item .num {
+    width: 22px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-subtle);
+    flex-shrink: 0;
+  }
+  .list-item input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+  }
   .list-item input::placeholder { color: #cbd5e1; }
 
-  .icon-btn { width: 26px; height: 26px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; flex-shrink: 0; }
+  .icon-btn {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
   .icon-btn:hover { background: #e2e8f0; color: var(--text-main); }
   .icon-btn.del:hover { color: var(--danger); background: #fee2e2; }
 
-  .add-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; margin-top: 4px; }
-  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+  .add-btn {
+    width: 100%;
+    padding: 8px;
+    border: 1px dashed var(--border);
+    background: #f8fafc;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .add-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #eff6ff;
+  }
 
   /* Sub-fields di kolom */
   .sub-fields-group { display: flex; flex-direction: column; gap: 12px; }
-  .field-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
-  .field-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-size: 13px; font-family: inherit; outline: none; transition: 0.2s; }
-  .field-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .field-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-main);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .field-group input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
 
   /* Alert Box */
-  .alert-container { display: flex; flex-direction: column; gap: 8px; }
-  .alert-card { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; display: flex; align-items: flex-start; gap: 10px; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .alert-container { display: flex; flex-direction: column; gap: 10px; }
+  .alert-card {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-sm);
+    line-height: 1.5;
+  }
   .alert-card.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-  .alert-card.success { background: var(--success-bg); border-color: #bbf7d0; color: #166534; }
+  .alert-card.success { background: var(--success-bg); border-color: #bbf7d0; color: #15803d; }
   .alert-card.warning { background: #fef3c7; border-color: #fde68a; color: #92400e; }
   .alert-card.danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
 
   /* Output Planning Section */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
   .card-head { display: flex; align-items: flex-start; justify-content: space-between; }
-  .card-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main); }
+  .card-head h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.01em; }
   .card-head p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
-  .card-head .meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-subtle); background: var(--bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+  .card-head .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
 
-  #textOutput { width: 100%; height: 320px; resize: vertical; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; padding: 16px; color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; transition: 0.2s; }
-  #textOutput:focus { border-color: var(--accent); background: var(--surface); }
+  #textOutput {
+    width: 100%;
+    height: 320px;
+    resize: vertical;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    padding: 16px;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+  #textOutput:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); transition: 0.2s; font-family: inherit; }
-  .btn:hover { background: var(--surface-hover); border-color: #94a3b8; }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); }
-  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-  .btn-ok { border-color: var(--success); background: var(--success-bg); color: #166534; }
-  .btn-ok:hover { background: #bbf7d0; }
-  .btn-github { border-color: #0f172a; background: #0f172a; color: #fff; }
-  .btn-github:hover { background: #1e293b; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-main);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn:hover { background: var(--surface-hover); border-color: #94a3b8; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(37,99,235,0.2);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(37,99,235,0.25);
+  }
+  .btn-ok {
+    border-color: #86efac;
+    background: var(--success-bg);
+    color: #15803d;
+  }
+  .btn-ok:hover { background: #bbf7d0; border-color: #4ade80; color: #166534; }
+  .btn-github {
+    border-color: #0f172a;
+    background: #0f172a;
+    color: #ffffff;
+  }
+  .btn-github:hover { background: #1e293b; border-color: #1e293b; color: #ffffff; }
 
   /* Mode Switcher Toggle */
-  .mode-switch-group { display: inline-flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 4px; }
-  .mode-btn { border: none; background: transparent; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .mode-switch-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+  }
+  .mode-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
   .mode-btn:hover { color: var(--text-main); }
-  .mode-btn.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+    font-weight: 700;
+  }
   .mode-desc-tag { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-left: 8px; }
+
+  /* Lock background scrolling when any modal is open */
+  html:has(.modal-overlay.active),
+  body:has(.modal-overlay.active),
+  html.modal-open,
+  body.modal-open {
+    overflow: hidden !important;
+    height: 100% !important;
+    touch-action: none;
+  }
+
+  /* Modal Resolusi Kapasitas Overflow */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    place-items: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .modal-overlay.active { display: grid; }
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fffbeb;
+  }
+  .modal-title-box { display: flex; align-items: center; gap: 12px; }
+  .warning-badge-icon { font-size: 24px; }
+  .modal-title { margin: 0; font-size: 15.5px; font-weight: 700; color: #92400e; letter-spacing: -0.01em; }
+  .modal-subtitle { margin: 2px 0 0; font-size: 12px; color: #b45309; }
+  .modal-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .modal-close-btn:hover { background: rgba(0,0,0,0.06); color: var(--text-main); }
+  .modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 65vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .overflow-info-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: #991b1b;
+    line-height: 1.5;
+  }
+  .overflow-section-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .overflow-machines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .uncovered-machine-pill {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .uncovered-machine-pill .m-name { font-weight: 700; font-size: 13px; color: #0f172a; }
+  .uncovered-machine-pill .m-detail { font-size: 11px; color: #64748b; font-family: 'JetBrains Mono', monospace; }
+  .overflow-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+  .slot-capacity-pill {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #1e40af;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-history { background: #0f766e; border-color: #0f766e; color: #ffffff; }
+  .btn-history:hover { background: #115e59; border-color: #115e59; color: #ffffff; }
+
+  /* Modal Tambah Manpower & Master Selector */
+  .add-mp-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 22px;
+    align-items: stretch;
+  }
+  @media (max-width: 768px) {
+    .add-mp-grid { grid-template-columns: 1fr; gap: 18px; }
+  }
+  .add-mp-form-col {
+    display: flex;
+    flex-direction: column;
+  }
+  .add-mp-master-col {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .unused-master-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 290px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .unused-master-card {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .unused-master-card:hover {
+    border-color: var(--accent);
+    background: #eff6ff;
+    box-shadow: var(--shadow-sm);
+  }
+  .unused-master-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .unused-master-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .unused-master-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .mp-id-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .mp-id-badge.core {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+  .mp-id-badge.noncore {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .mode-tab-btn {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .mode-tab-btn.active {
+    background: #eff6ff;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(37,99,235,0.15);
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .topbar {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+      gap: 16px;
+    }
+    .topbar-left {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .topbar > div:last-child {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 12px !important;
+    }
+    .mode-switch-group {
+      display: flex;
+    }
+    .mode-btn {
+      flex: 1;
+      justify-content: center;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+    .topbar > div:last-child .btn {
+      width: 100%;
+    }
+    .container {
+      padding: 16px;
+      gap: 16px;
+    }
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .card-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .actions {
+      flex-direction: column;
+      width: 100%;
+    }
+    .actions .btn {
+      width: 100%;
+    }
+    .modal-card {
+      margin: 16px;
+      width: calc(100% - 32px);
+      max-height: 85vh;
+    }
+    .modal-header, .modal-body, .modal-footer {
+      padding: 16px;
+    }
+    .modal-footer {
+      flex-direction: column;
+    }
+    .modal-footer .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .box-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .rolling-group {
+      width: 100%;
+    }
+    .rolling-group .icon-btn {
+      flex: 1;
+    }
+    .stat-card {
+      padding: 12px;
+    }
+    .stat-card span {
+      font-size: 20px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -157,9 +862,6 @@
     </section>
 
     <div>
-      <div class="settings-section-title">
-        <span>Pengaturan Sumber Daya Manusia & Parameter Shift</span>
-      </div>
       <div class="cols-3-grid">
         
         <!-- Kolom 1: Core -->
@@ -198,7 +900,7 @@
             </div>
             <div class="sub-fields-group">
               <div class="field-group">
-                <label>Jumlah Kuota Longshift</label>
+                <label>Jumlah Longshift</label>
                 <input type="number" id="ncLongshiftCount" min="0" value="0" placeholder="0" oninput="localStorage.setItem('ncls_count', this.value); updateDashboardStats();">
               </div>
             </div>
@@ -217,7 +919,7 @@
           </div>
           <div class="sub-fields-group">
             <div class="field-group">
-              <label>QC Passed (Maksimal 5)</label>
+              <label>QC Passed</label>
               <div class="list-container" id="qcPassedContainer"></div>
               <button class="add-btn" id="addQcBtn" onclick="addQcItem()">+ Tambah QC Passed</button>
             </div>
@@ -252,11 +954,139 @@
       <textarea id="textOutput" spellcheck="false" placeholder="Klik tombol 'Generate Planning' di atas untuk memproses alokasi shift..." oninput="updateMeta()"></textarea>
       <div class="actions">
         <button class="btn btn-ok" onclick="validateAndExport()">✓ Validasi &amp; Copy</button>
-        <button class="btn" onclick="shareWA()">💬 Kirim ke WhatsApp</button>
+        <button class="btn btn-wa" style="background:#16a34a; color:#ffffff; border-color:#16a34a;" onclick="shareWA()">Kirim ke WhatsApp</button>
         <button class="btn" onclick="exportExcel()">📊 Export ke Excel</button>
-        <button class="btn btn-github" onclick="exportHistoryForGithub()">🚀 Export History ke GitHub (history/26-08-2026.json)</button>
+        <button class="btn btn-github" onclick="exportHistoryForGithub()">Download JSON</button>
       </div>
     </section>
+  </div>
+
+  <!-- Modal Resolusi Kapasitas Overflow Mesin -->
+  <div id="overflowModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <span class="warning-badge-icon">⚠️</span>
+          <div>
+            <h3 class="modal-title">Kapasitas Maksimal CQI Terlampaui</h3>
+            <p class="modal-subtitle">Ditemukan mesin running yang belum tercover karena pembatasan kapasitas atau cluster</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeOverflowModal()" title="Tutup">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="overflow-info-banner">
+          Mesin-mesin berikut sementara tidak dimasukkan ke CQI untuk menjaga kepatuhan batas maksimal. Anda dapat memilih strategi optimasi lanjutan untuk mendistribusikan mesin ini ke CQI yang belum mencapai batas maksimal.
+        </div>
+        
+        <div>
+          <div class="overflow-section-title">Mesin Belum Tercover (<span id="overflowUncoveredCount">0</span> Mesin):</div>
+          <div class="overflow-machines-grid" id="overflowMachinesList"></div>
+        </div>
+
+        <div>
+          <div class="overflow-section-title">CQI dengan Slot Tersisa:</div>
+          <div class="overflow-slots-grid" id="overflowSlotsList"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="handlePaksaMasukCqi()" title="Brain.js akan mencari CQI yang belum maks, menggeser mesin sesuai aturan untuk memaksimalkan hingga 8 mesin per CQI (Line A -> Line B -> Line C)">
+          ⚡ Paksa Masuk CQI
+        </button>
+        <button class="btn" onclick="handleLanjutkanManual()" title="Lanjutkan dengan menampilkan sisa mesin belum tercover di output planning">
+          📝 Lanjutkan Manual
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Manpower (Core / Non-Core) & Pulihkan Master Data -->
+  <div id="addManpowerModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header" style="background: #eff6ff;">
+        <div class="modal-title-box">
+          <span style="font-size: 24px;">👤</span>
+          <div>
+            <h3 class="modal-title" style="color: var(--accent);" id="addManpowerModalTitle">Tambah Manpower</h3>
+            <p class="modal-subtitle" style="color: #475569;">Isi detail manpower baru atau pulihkan dari data master manpower.json</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeAddManpowerModal()" title="Tutup">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="add-mp-grid">
+          
+          <!-- Kolom Kiri: Form Input -->
+          <div class="add-mp-form-col">
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+              <button type="button" id="mpTabCore" class="mode-tab-btn active" onclick="switchAddManpowerType('core')">
+                🔵 Core Manpower
+              </button>
+              <button type="button" id="mpTabNonCore" class="mode-tab-btn" onclick="switchAddManpowerType('nonCore')">
+                🟢 Non-Core Manpower
+              </button>
+            </div>
+
+            <form id="addManpowerForm" onsubmit="event.preventDefault(); submitAddManpower();" style="display:flex; flex-direction:column; gap:12px;">
+              <div class="field-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <label style="margin-bottom:0;">ID Manpower</label>
+                  <span style="font-size:10.5px; color:var(--text-muted); font-style:italic;" id="mpIdHelp">Dinamis dari master</span>
+                </div>
+                <input type="text" id="mpInputId" required placeholder="Contoh: C15 atau NC15" style="font-family:'JetBrains Mono', monospace; font-weight:700; background:#f8fafc;">
+              </div>
+
+              <div class="field-group">
+                <label>Nama Manpower <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="mpInputName" required placeholder="Masukkan nama..." autocomplete="off">
+              </div>
+
+              <div class="field-group">
+                <label>CQI Priority (Opsional)</label>
+                <input type="text" id="mpInputCqiPriority" placeholder="Contoh: 19 atau 24..." list="cqiPriorityList">
+                <datalist id="cqiPriorityList">
+                  <option value="19">CQI 19 (OT Standby)</option>
+                  <option value="24">CQI 24 (Prioritas)</option>
+                </datalist>
+              </div>
+
+              <div class="field-group">
+                <label>Job Priority (Opsional)</label>
+                <input type="text" id="mpInputJobPriority" placeholder="Contoh: qc-passed, milstd, standbyot, supportfg..." list="jobPriorityList">
+                <datalist id="jobPriorityList">
+                  <option value="qc-passed">QC-Passed</option>
+                  <option value="milstd">Mil-Std</option>
+                  <option value="standbyot">Standby OT</option>
+                  <option value="supportfg">Support FG</option>
+                </datalist>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;">
+                  ✓ Simpan &amp; Tambahkan
+                </button>
+                <button type="button" class="btn" onclick="closeAddManpowerModal()">
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Kolom Kanan: Master Data Tersedia / Terhapus di manpower.json -->
+          <div class="add-mp-master-col">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <h4 style="margin:0; font-size:12px; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">
+                📋 Tersedia di data sistem (<span id="unusedMasterCount">0</span>)
+              </h4>
+            </div>
+            <input type="text" id="searchMasterInput" placeholder="Cari nama atau ID..." oninput="filterUnusedMasterList()" style="width:100%; padding:6px 10px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; outline:none; background:#ffffff;">
+
+            <div class="unused-master-container" id="unusedMasterList"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
 
 <script src="brain.js"></script>
@@ -264,37 +1094,57 @@
   let state = null;
   let currentPlan = [];
   let manpowerData = { core: [], nonCore: [], qcPassed: [] };
+  let masterManpowerData = { core: [], nonCore: [] };
   let planningMode = 1; // Default: Mode 1
+  let lastFinalConfig = null;
+  let currentAddType = 'core';
 
   function setPlanningMode(mode) {
     planningMode = parseInt(mode, 10) === 2 ? 2 : 1;
-    localStorage.setItem('planning_mode', planningMode);
-    document.getElementById('btnMode1').classList.toggle('active', planningMode === 1);
-    document.getElementById('btnMode2').classList.toggle('active', planningMode === 2);
+    try { localStorage.setItem('planning_mode', planningMode); } catch(e) {}
+    const b1 = document.getElementById('btnMode1');
+    const b2 = document.getElementById('btnMode2');
+    if (b1) b1.classList.toggle('active', planningMode === 1);
+    if (b2) b2.classList.toggle('active', planningMode === 2);
   }
+  window.setPlanningMode = setPlanningMode;
 
   window.onload = async () => {
     try { const rawState = sessionStorage.getItem('planning_state'); if (rawState) state = JSON.parse(rawState); } catch(e) {}
 
     // Load persisted mode or default 1
-    const savedMode = localStorage.getItem('planning_mode');
+    let savedMode = 1;
+    try { savedMode = localStorage.getItem('planning_mode'); } catch(e) {}
     setPlanningMode(savedMode ? parseInt(savedMode, 10) : 1);
 
-    if (!state || !state.machines) {
+    if (!state || !state.machines || state.machines.length === 0) {
       try {
         const fallback = JSON.parse(localStorage.getItem('factory_internal_storage'));
-        if (fallback) state = { machines: (fallback.machines || []).filter(m => m.status === 'RUNNING'), cqis: (fallback.cqis || []).filter(c => c.status === 'READY'), labels: [] };
+        if (fallback && fallback.machines) {
+          state = { machines: (fallback.machines || []).filter(m => m.status === 'RUNNING'), cqis: (fallback.cqis || []).filter(c => c.status === 'READY'), labels: fallback.labels || [] };
+        }
       } catch(e) {}
     }
 
     if (!state || !state.machines || state.machines.length === 0) {
-      alert("Tidak ada mesin RUNNING dari Map.");
-      window.location.href = 'index.html'; return;
+      try {
+        const res = await fetch('data/map.json');
+        if (res.ok) {
+          const mapData = await res.json();
+          state = {
+            machines: (mapData.machines || []).filter(m => m.status === 'RUNNING'),
+            cqis: (mapData.cqis || []).filter(c => c.status === 'READY'),
+            labels: mapData.labels || []
+          };
+        }
+      } catch(e) {}
     }
 
-    document.getElementById('db-running').innerText = state.machines.length;
-    document.getElementById('db-cqi-ready').innerText = state.cqis.length;
-    document.getElementById('ncLongshiftCount').value = localStorage.getItem('ncls_count') || 0;
+    if (!state) state = { machines: [], cqis: [], labels: [] };
+
+    const dbRun = document.getElementById('db-running'); if (dbRun) dbRun.innerText = (state.machines || []).length;
+    const dbCqi = document.getElementById('db-cqi-ready'); if (dbCqi) dbCqi.innerText = (state.cqis || []).length;
+    const ncLs = document.getElementById('ncLongshiftCount'); if (ncLs) ncLs.value = localStorage.getItem('ncls_count') || 0;
 
     loadExtraConfigs();
     await loadManpowerData();
@@ -316,6 +1166,11 @@
     }
 
     try {
+      const savedMaster = localStorage.getItem('master_manpower_data');
+      if (savedMaster) masterManpowerData = JSON.parse(savedMaster);
+    } catch(e) {}
+
+    try {
       let data = null;
       try {
         const res = await fetch('data/manpower.json');
@@ -327,6 +1182,12 @@
       }
       if (!data) throw new Error("Could not load manpower data");
       
+      masterManpowerData = {
+        core: data.core || [],
+        nonCore: (data.nonCore || data.noncore || [])
+      };
+      try { localStorage.setItem('master_manpower_data', JSON.stringify(masterManpowerData)); } catch(e) {}
+
       if (!savedCore || manpowerData.core.length === 0) {
         manpowerData.core = data.core || [];
       }
@@ -403,12 +1264,35 @@
       const input = document.createElement('input'); input.type = 'text';
       input.value = typeof item === 'object' ? (item.name || '') : item; input.placeholder = 'Nama manpower...';
       input.oninput = (e) => {
-        if (typeof listArray[index] === 'object') listArray[index].name = e.target.value; else listArray[index] = e.target.value;
+        if (typeof listArray[index] === 'object') {
+          listArray[index].name = e.target.value;
+        } else {
+          listArray[index] = { id: getNextDynamicId(type), name: e.target.value, cqi_priority: '', job_priority: '' };
+        }
         persistManpower(); updateDashboardStats();
       };
+
+      const rightGroup = document.createElement('div');
+      rightGroup.style.display = 'flex';
+      rightGroup.style.alignItems = 'center';
+      rightGroup.style.gap = '6px';
+
+      if (typeof item === 'object' && item.id) {
+        const idBadge = document.createElement('span');
+        idBadge.className = `mp-id-badge ${type === 'core' ? 'core' : 'noncore'}`;
+        idBadge.style.fontSize = '10px';
+        idBadge.style.padding = '1px 5px';
+        idBadge.title = `ID: ${item.id}${item.cqi_priority ? ' | CQI: ' + item.cqi_priority : ''}${item.job_priority ? ' | Job: ' + item.job_priority : ''}`;
+        idBadge.innerText = item.id;
+        rightGroup.appendChild(idBadge);
+      }
+
       const delBtn = document.createElement('button'); delBtn.className = 'icon-btn del'; delBtn.innerHTML = '✕';
+      delBtn.title = 'Hapus dari konfigurasi (ID tetap tersimpan di master data)';
       delBtn.onclick = () => { listArray.splice(index, 1); persistManpower(); renderAllLists(); };
-      row.appendChild(num); row.appendChild(input); row.appendChild(delBtn); container.appendChild(row);
+      rightGroup.appendChild(delBtn);
+
+      row.appendChild(num); row.appendChild(input); row.appendChild(rightGroup); container.appendChild(row);
     });
     let badgeId = type === 'core' ? 'cnt-core' : type === 'nonCore' ? 'cnt-noncore' : null;
     if (badgeId && document.getElementById(badgeId)) document.getElementById(badgeId).innerText = listArray.length;
@@ -434,13 +1318,222 @@
   }
 
   function addManpowerItem(type) {
-    let newItem = { id: type.toUpperCase().substring(0,2) + Date.now(), name: '', job_priority: '' };
-    if (type === 'core') manpowerData.core.push(newItem); else if (type === 'nonCore') manpowerData.nonCore.push(newItem);
-    persistManpower(); renderAllLists();
+    openAddManpowerModal(type);
+  }
+
+  function openAddManpowerModal(type = 'core') {
+    currentAddType = type;
+    switchAddManpowerType(type);
+    document.getElementById('addManpowerModal').classList.add('active');
     setTimeout(() => {
-      let inputs = document.querySelectorAll(`#${type === 'core' ? 'coreListContainer' : 'nonCoreListContainer'} input`);
-      if (inputs.length > 0) inputs[inputs.length - 1].focus();
-    }, 50);
+      const nameInput = document.getElementById('mpInputName');
+      if (nameInput) nameInput.focus();
+    }, 100);
+  }
+
+  function closeAddManpowerModal() {
+    document.getElementById('addManpowerModal').classList.remove('active');
+  }
+
+  function switchAddManpowerType(type) {
+    currentAddType = type;
+    const tabCore = document.getElementById('mpTabCore');
+    const tabNonCore = document.getElementById('mpTabNonCore');
+    if (tabCore) tabCore.classList.toggle('active', type === 'core');
+    if (tabNonCore) tabNonCore.classList.toggle('active', type === 'nonCore');
+
+    const titleEl = document.getElementById('addManpowerModalTitle');
+    if (titleEl) {
+      titleEl.innerText = type === 'core' ? 'Tambah Core Manpower' : 'Tambah Non-Core Manpower';
+    }
+
+    const nextId = getNextDynamicId(type);
+    document.getElementById('mpInputId').value = nextId;
+    document.getElementById('mpInputName').value = '';
+    document.getElementById('mpInputCqiPriority').value = '';
+    document.getElementById('mpInputJobPriority').value = '';
+
+    const searchInput = document.getElementById('searchMasterInput');
+    if (searchInput) searchInput.value = '';
+
+    renderUnusedMasterList();
+  }
+
+  function getNextDynamicId(type) {
+    const prefix = type === 'core' ? 'C' : 'NC';
+    const masterList = (masterManpowerData && masterManpowerData[type === 'core' ? 'core' : 'nonCore']) || [];
+    const currentList = manpowerData[type === 'core' ? 'core' : 'nonCore'] || [];
+    const qcList = manpowerData.qcPassed || [];
+    const allItems = [...masterList, ...currentList, ...qcList];
+    
+    let maxNum = 0;
+    allItems.forEach(item => {
+      if (!item) return;
+      const id = typeof item === 'object' ? item.id : '';
+      if (typeof id === 'string') {
+        const match = id.match(new RegExp(`^${prefix}(\\d+)$`, 'i'));
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+    });
+    
+    return `${prefix}${maxNum + 1}`;
+  }
+
+  function getUnusedMasterManpower(type) {
+    const masterList = (masterManpowerData && masterManpowerData[type === 'core' ? 'core' : 'nonCore']) || [];
+    
+    const activeCore = (manpowerData.core || []).map(i => (typeof i === 'object' ? i.name : i).trim().toLowerCase());
+    const activeNonCore = (manpowerData.nonCore || []).map(i => (typeof i === 'object' ? i.name : i).trim().toLowerCase());
+    const activeQc = (manpowerData.qcPassed || []).map(i => (typeof i === 'object' ? i.name : i).trim().toLowerCase());
+    const milstd = (document.getElementById('milStdInput') ? document.getElementById('milStdInput').value : '').trim().toLowerCase();
+    const standbyot = (document.getElementById('standbyOtInput') ? document.getElementById('standbyOtInput').value : '').trim().toLowerCase();
+    const supportfg = (document.getElementById('supportFgInput') ? document.getElementById('supportFgInput').value : '').trim().toLowerCase();
+    
+    const allActiveNames = new Set([...activeCore, ...activeNonCore, ...activeQc, milstd, standbyot, supportfg].filter(Boolean));
+    
+    return masterList.filter(item => {
+      if (!item || !item.name) return false;
+      return !allActiveNames.has(item.name.trim().toLowerCase());
+    });
+  }
+
+  function renderUnusedMasterList(searchQuery = '') {
+    const container = document.getElementById('unusedMasterList');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    let unused = getUnusedMasterManpower(currentAddType);
+    if (searchQuery) {
+      const q = searchQuery.trim().toLowerCase();
+      unused = unused.filter(item => 
+        (item.name && item.name.toLowerCase().includes(q)) || 
+        (item.id && item.id.toLowerCase().includes(q))
+      );
+    }
+    
+    const countEl = document.getElementById('unusedMasterCount');
+    if (countEl) countEl.innerText = unused.length;
+
+    if (unused.length === 0) {
+      container.innerHTML = `
+        <div style="padding: 24px 10px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.5;">
+          ${searchQuery ? 'Tidak ada data master yang cocok dengan kata kunci pencarian.' : 'Semua manpower dari master data sudah aktif di konfigurasi.'}
+        </div>
+      `;
+      return;
+    }
+
+    unused.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'unused-master-card';
+      
+      const isCore = currentAddType === 'core';
+      let metaDetails = [];
+      if (item.cqi_priority) metaDetails.push(`CQI ${item.cqi_priority}`);
+      if (item.job_priority) metaDetails.push(item.job_priority);
+      const metaStr = metaDetails.length > 0 ? ` • ${metaDetails.join(' | ')}` : '';
+
+      card.innerHTML = `
+        <div class="unused-master-info">
+          <div class="unused-master-name">
+            <span class="mp-id-badge ${isCore ? 'core' : 'noncore'}">${item.id || '-'}</span>
+            <span>${item.name}</span>
+          </div>
+          <div class="unused-master-meta">${item.id}${metaStr}</div>
+        </div>
+        <div style="display: flex; gap: 4px; flex-shrink: 0;">
+          <button type="button" class="btn btn-choose" style="padding: 4px 8px; font-size: 11px;" title="Isi form dengan data ini">
+            Pilih
+          </button>
+          <button type="button" class="btn btn-primary btn-restore" style="padding: 4px 8px; font-size: 11px;" title="Langsung tambahkan ke list konfigurasi">
+            + Pulihkan
+          </button>
+        </div>
+      `;
+
+      card.querySelector('.btn-choose').onclick = (e) => {
+        e.stopPropagation();
+        fillFormWithMasterItem(item);
+      };
+
+      card.querySelector('.btn-restore').onclick = (e) => {
+        e.stopPropagation();
+        restoreMasterItemDirectly(item);
+      };
+
+      card.onclick = () => fillFormWithMasterItem(item);
+
+      container.appendChild(card);
+    });
+  }
+
+  function filterUnusedMasterList() {
+    const q = document.getElementById('searchMasterInput') ? document.getElementById('searchMasterInput').value : '';
+    renderUnusedMasterList(q);
+  }
+
+  function fillFormWithMasterItem(item) {
+    if (!item) return;
+    document.getElementById('mpInputId').value = item.id || '';
+    document.getElementById('mpInputName').value = item.name || '';
+    document.getElementById('mpInputCqiPriority').value = item.cqi_priority || '';
+    document.getElementById('mpInputJobPriority').value = item.job_priority || '';
+    const nameInput = document.getElementById('mpInputName');
+    if (nameInput) nameInput.focus();
+  }
+
+  function restoreMasterItemDirectly(item) {
+    if (!item) return;
+    const newItem = {
+      id: item.id || getNextDynamicId(currentAddType),
+      name: item.name,
+      cqi_priority: item.cqi_priority || '',
+      job_priority: item.job_priority || ''
+    };
+    
+    if (currentAddType === 'core') {
+      manpowerData.core.push(newItem);
+    } else {
+      manpowerData.nonCore.push(newItem);
+    }
+
+    persistManpower();
+    renderAllLists();
+    closeAddManpowerModal();
+  }
+
+  function submitAddManpower() {
+    const id = (document.getElementById('mpInputId').value || '').trim();
+    const name = (document.getElementById('mpInputName').value || '').trim();
+    const cqiPriority = (document.getElementById('mpInputCqiPriority').value || '').trim();
+    const jobPriority = (document.getElementById('mpInputJobPriority').value || '').trim();
+
+    if (!name) {
+      alert("Silakan masukkan nama manpower!");
+      return;
+    }
+
+    const newItem = {
+      id: id || getNextDynamicId(currentAddType),
+      name: name,
+      cqi_priority: cqiPriority,
+      job_priority: jobPriority
+    };
+
+    if (currentAddType === 'core') {
+      manpowerData.core.push(newItem);
+    } else {
+      manpowerData.nonCore.push(newItem);
+    }
+
+    persistManpower();
+    renderAllLists();
+    closeAddManpowerModal();
   }
 
   function addQcItem() {
@@ -489,41 +1582,168 @@
     });
   }
 
-  function executePlan() {
-    if (!state || !state.machines) return alert("Data mesin running tidak ditemukan!");
-    let coreNames = manpowerData.core.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
-    let nonCoreNames = manpowerData.nonCore.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
-    let qcNames = manpowerData.qcPassed.map(i => typeof i === 'object' ? i.name : i).filter(n => n.trim() !== '');
-    let lsCount = parseInt(document.getElementById('ncLongshiftCount').value) || 0;
-    let longshiftNames = Array.from({length: lsCount}, () => "(LS)");
+  function showOverflowModal(uncovered, plan) {
+    if (!uncovered || uncovered.length === 0) return;
+    document.getElementById('overflowUncoveredCount').innerText = uncovered.length;
+    
+    // Render uncovered machines
+    const macContainer = document.getElementById('overflowMachinesList');
+    macContainer.innerHTML = '';
+    uncovered.forEach(m => {
+      const el = document.createElement('div');
+      el.className = 'uncovered-machine-pill';
+      const name = m.name || m.id;
+      const ws = m.workstation || m.ws || '-';
+      const cluster = BrainAI.getMachineClusterGroup(m);
+      el.innerHTML = `
+        <span class="m-name">${name}</span>
+        <span class="m-detail">WS: ${ws} | Cl: ${cluster}</span>
+      `;
+      macContainer.appendChild(el);
+    });
 
-    let qcPassedFormatted = "";
-    if (qcNames.length === 1) {
-      qcPassedFormatted = qcNames[0];
-    } else if (qcNames.length > 1) {
-      qcPassedFormatted = qcNames.map((n, i) => `${i + 1}. ${n}`).join('\n');
+    // Render available slots with remaining capacity
+    const slotContainer = document.getElementById('overflowSlotsList');
+    slotContainer.innerHTML = '';
+    const availableSlots = plan.filter(s => {
+      const cqiNum = BrainAI.getCqiNumber(s.cqi);
+      if (cqiNum === '19') return false; // Strictly 2 OT
+      return s.machines.length < s.maxAllowedMachines;
+    });
+
+    if (availableSlots.length === 0) {
+      slotContainer.innerHTML = '<div style="font-size:12px; color:var(--text-muted); font-style:italic;">Semua CQI aktif saat ini sudah mencapai kapasitas maksimal. Mode AI/History akan mengevaluasi pertimbangan kapasitas dan smart-swap.</div>';
+    } else {
+      availableSlots.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'slot-capacity-pill';
+        const cqiName = s.cqi.name || `CQI-${s.cqiNum}`;
+        const remainingCap = s.maxAllowedMachines - s.machines.length;
+        el.innerHTML = `
+          <strong>${cqiName}</strong>
+          <span>Sisa ${remainingCap} slot (${s.machines.length}/${s.maxAllowedMachines})</span>
+        `;
+        slotContainer.appendChild(el);
+      });
     }
 
-    let finalConfig = {
-      mode: planningMode,
-      coreData: manpowerData.core, coreNames: coreNames, core: coreNames.length > 0 ? coreNames.length : 1,
-      nonCoreData: manpowerData.nonCore, nonCoreNames: nonCoreNames, nonCore: nonCoreNames.length,
-      longshiftData: longshiftNames, longshiftNames: longshiftNames, longshift: lsCount,
-      qcPassed: qcPassedFormatted,
-      milStd: document.getElementById('milStdInput').value.trim(),
-      standbyOt: document.getElementById('standbyOtInput').value.trim(),
-      supportFg: document.getElementById('supportFgInput').value.trim()
-    };
+    document.getElementById('overflowModal').classList.add('active');
+  }
 
-    currentPlan = BrainAI.generatePlan(state.machines, state.cqis, finalConfig);
-    let validationReport = BrainAI.validate(currentPlan, state.machines, planningMode);
+  function closeOverflowModal() {
+    document.getElementById('overflowModal').classList.remove('active');
+  }
+
+  function handlePaksaMasukCqi() {
+    if (!currentPlan) return;
+    const uncovered = currentPlan.uncoveredMachines || currentPlan.unassignedMachines || [];
+    const mapData = state ? (state.mapData || {}) : {};
+    currentPlan = BrainAI.forceFitUnassignedMachines(currentPlan, uncovered, lastFinalConfig, mapData);
+    
+    let validationReport = BrainAI.validate(currentPlan, state.machines, planningMode, lastFinalConfig);
     renderAlerts(validationReport.info, validationReport.violations);
 
     const planPayload = { version: 1, updatedAt: new Date().toISOString(), mode: planningMode, slots: JSON.parse(JSON.stringify(currentPlan)) };
-    sessionStorage.setItem('active_planning', JSON.stringify(planPayload)); localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
+    sessionStorage.setItem('active_planning', JSON.stringify(planPayload));
+    localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
 
-    generateTextOutput(finalConfig);
-    document.getElementById('statusBadge').innerText = `Generated Sukses (Mode ${planningMode})`; document.getElementById('statusBadge').classList.add('ok');
+    generateTextOutput(lastFinalConfig);
+    document.getElementById('statusBadge').innerText = `Paksa Masuk CQI Sukses (Mode ${planningMode})`;
+    document.getElementById('statusBadge').classList.add('ok');
+
+    closeOverflowModal();
+  }
+
+  function handleLanjutkanManual() {
+    closeOverflowModal();
+    if (lastFinalConfig) {
+      generateTextOutput(lastFinalConfig);
+    }
+  }
+
+  function applyOverflowResolution(mode) {
+    handlePaksaMasukCqi();
+  }
+
+  function executePlan() {
+    try {
+      if (!state || !state.machines || state.machines.length === 0) {
+        try { const rawState = sessionStorage.getItem('planning_state'); if (rawState) state = JSON.parse(rawState); } catch(e) {}
+      }
+      if (!state || !state.machines || state.machines.length === 0) {
+        try {
+          const fallback = JSON.parse(localStorage.getItem('factory_internal_storage'));
+          if (fallback) state = { machines: (fallback.machines || []).filter(m => m.status === 'RUNNING'), cqis: (fallback.cqis || []).filter(c => c.status === 'READY'), labels: fallback.labels || [] };
+        } catch(e) {}
+      }
+
+      const machinesToUse = (state && Array.isArray(state.machines)) ? state.machines : [];
+      const cqisToUse = (state && Array.isArray(state.cqis)) ? state.cqis : [];
+
+      if (machinesToUse.length === 0) {
+        return alert("Tidak ada mesin RUNNING! Silakan aktifkan mesin di Map (index.html) terlebih dahulu.");
+      }
+
+      let coreNames = manpowerData.core.map(i => typeof i === 'object' ? i.name : i).filter(n => n && n.trim() !== '');
+      let nonCoreNames = manpowerData.nonCore.map(i => typeof i === 'object' ? i.name : i).filter(n => n && n.trim() !== '');
+      let qcNames = manpowerData.qcPassed.map(i => typeof i === 'object' ? i.name : i).filter(n => n && n.trim() !== '');
+      let lsCount = parseInt(document.getElementById('ncLongshiftCount') ? document.getElementById('ncLongshiftCount').value : 0) || 0;
+      let longshiftNames = Array.from({length: lsCount}, () => "(LS)");
+
+      let qcPassedFormatted = "";
+      if (qcNames.length === 1) {
+        qcPassedFormatted = qcNames[0];
+      } else if (qcNames.length > 1) {
+        qcPassedFormatted = qcNames.map((n, i) => `${i + 1}. ${n}`).join('\n');
+      }
+
+      let finalConfig = {
+        mode: planningMode,
+        coreData: manpowerData.core, coreNames: coreNames, core: coreNames.length > 0 ? coreNames.length : 1,
+        nonCoreData: manpowerData.nonCore, nonCoreNames: nonCoreNames, nonCore: nonCoreNames.length,
+        longshiftData: longshiftNames, longshiftNames: longshiftNames, longshift: lsCount,
+        qcPassed: qcPassedFormatted,
+        milStd: (document.getElementById('milStdInput') ? document.getElementById('milStdInput').value : '').trim(),
+        standbyOt: (document.getElementById('standbyOtInput') ? document.getElementById('standbyOtInput').value : '').trim(),
+        supportFg: (document.getElementById('supportFgInput') ? document.getElementById('supportFgInput').value : '').trim()
+      };
+      lastFinalConfig = finalConfig;
+
+      const mapData = state ? (state.mapData || {}) : {};
+      currentPlan = BrainAI.generatePlan(machinesToUse, cqisToUse, finalConfig, mapData);
+      let validationReport = BrainAI.validate(currentPlan, machinesToUse, planningMode);
+      renderAlerts(validationReport.info, validationReport.violations);
+
+      const uncovered = currentPlan ? (currentPlan.uncoveredMachines || currentPlan.unassignedMachines || []) : [];
+
+      const planPayload = {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        mode: planningMode,
+        slots: JSON.parse(JSON.stringify(currentPlan)),
+        uncoveredMachines: uncovered
+      };
+      try {
+        sessionStorage.setItem('active_planning', JSON.stringify(planPayload));
+        localStorage.setItem('last_active_planning', JSON.stringify(planPayload));
+      } catch(e) {}
+
+      generateTextOutput(finalConfig);
+
+      const statusBadge = document.getElementById('statusBadge');
+      if (statusBadge) {
+        statusBadge.innerText = `Generated Sukses (Mode ${planningMode})`;
+        statusBadge.classList.add('ok');
+      }
+
+      // Cek jika ada mesin lebih / uncovered dan semua CQI maks -> Munculkan Pop Up
+      if (uncovered.length > 0) {
+        showOverflowModal(uncovered, currentPlan);
+      }
+    } catch(err) {
+      console.error("Error executing plan:", err);
+      alert("Terjadi kesalahan saat membuat planning: " + (err.message || err));
+    }
   }
 
   function generateTextOutput(config) {
@@ -537,20 +1757,81 @@
     document.getElementById('lineMeta').innerText = v ? (v.split('\n').length + ' baris teks') : 'kosong';
   }
 
-  // FITUR BARU: Export History untuk disimpan ke folder history di GitHub (history/26-08-2026.json)
+  // FITUR: Download Data Planning dalam format JSON terstruktur & rapi
   function exportHistoryForGithub() {
     try {
-      const historyRaw = localStorage.getItem('planning_history') || '[]';
-      const activePlan = sessionStorage.getItem('active_planning') || localStorage.getItem('last_active_planning') || '{}';
+      let activeSlots = currentPlan;
+      if (!activeSlots || activeSlots.length === 0) {
+        const stored = sessionStorage.getItem('active_planning') || localStorage.getItem('last_active_planning');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            activeSlots = parsed.slots || parsed;
+          } catch(e) {}
+        }
+      }
+
+      if (!activeSlots || activeSlots.length === 0) {
+        return alert("Silakan klik 'Generate Planning' terlebih dahulu sebelum mengunduh JSON!");
+      }
       
+      const now = new Date();
+      const dateStr = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+      const fileName = `planning-${dateStr}.json`;
+      
+      const allRunning = activeSlots.flatMap(s => s.machines || []);
+      const totalMachines = allRunning.length;
+
+      // Ambil data penugasan khusus
+      const qcPassedList = (manpowerData.qcPassed || []).map(i => typeof i === 'object' ? i.name : i).filter(Boolean);
+      const milStdVal = document.getElementById('milStdInput') ? document.getElementById('milStdInput').value.trim() : '';
+      const standbyOtVal = document.getElementById('standbyOtInput') ? document.getElementById('standbyOtInput').value.trim() : '';
+      const supportFgVal = document.getElementById('supportFgInput') ? document.getElementById('supportFgInput').value.trim() : '';
+
+      // Format data slot perencanaan dengan rapi
+      const structuredPlanning = activeSlots.map((slot, idx) => {
+        const cqiName = slot.cqi ? (slot.cqi.name || slot.cqi.id) : `CQI-${idx + 1}`;
+        const coreNames = slot.coreNames || [];
+        const nonCoreNames = slot.nonCore || [];
+        const longshiftNames = slot.longshift || [];
+        const machines = (slot.machines || []).map(m => m.name || m.id || m);
+        const machinesFormatted = BrainAI.formatMachineList(slot.machines, allRunning);
+
+        return {
+          no: idx + 1,
+          cqi: cqiName,
+          cqi_line: slot.cqi ? (slot.cqi.line || '-') : '-',
+          core: coreNames,
+          non_core: nonCoreNames,
+          longshift: longshiftNames,
+          total_manpower: coreNames.length + nonCoreNames.length + longshiftNames.length,
+          total_machines: machines.length,
+          machines: machines,
+          machines_formatted: machinesFormatted
+        };
+      });
+
       const exportPayload = {
-        date: "26-08-2026",
-        generated_at: new Date().toISOString(),
-        active_planning: JSON.parse(activePlan),
-        history_logs: JSON.parse(historyRaw)
+        meta: {
+          app: "MAP LIQUID 3 - Production View",
+          date: dateStr,
+          generated_at: now.toISOString(),
+          total_cqi: structuredPlanning.length,
+          total_machines_running: totalMachines,
+          total_core: manpowerData.core ? manpowerData.core.length : 0,
+          total_non_core: manpowerData.nonCore ? manpowerData.nonCore.length : 0,
+          total_longshift: parseInt(document.getElementById('lsInput') ? document.getElementById('lsInput').value : 0, 10) || 0
+        },
+        special_assignments: {
+          qc_passed: qcPassedList,
+          mil_std: milStdVal || null,
+          standby_ot: standbyOtVal || null,
+          support_fg: supportFgVal || null
+        },
+        planning: structuredPlanning,
+        raw_slots: activeSlots
       };
 
-      const fileName = "26-08-2026.json";
       const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -558,9 +1839,9 @@
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       
-      alert(`File "${fileName}" berhasil diunduh.\nSilakan letakkan file ini ke dalam folder "history/" di repository GitHub Anda.`);
+      alert(`File "${fileName}" berhasil diunduh dengan format JSON yang rapi.`);
     } catch (e) {
-      alert("Gagal melakukan export history: " + e.message);
+      alert("Gagal melakukan unduh JSON: " + e.message);
     }
   }
 
@@ -572,9 +1853,16 @@
     navigator.clipboard.writeText(document.getElementById('textOutput').value); alert("Validasi Lulus! Hasil planning berhasil disalin ke Clipboard.");
   }
 
-  function shareWA() {
+  function shareWA(customPhone) {
     let text = document.getElementById('textOutput').value;
-    if (!text) alert("Belum ada teks planning untuk dibagikan!"); else window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    if (!text) return alert("Belum ada teks planning untuk dibagikan! Silakan klik 'Generate Planning' terlebih dahulu.");
+    
+    let phone = customPhone || "";
+    phone = phone.replace(/[^0-9]/g, '');
+    if (phone.startsWith('0')) {
+      phone = '62' + phone.substring(1);
+    }
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
   }
 
   const EXCELJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
@@ -587,28 +1875,154 @@
     if (!currentPlan || currentPlan.length === 0) return alert("Generate planning terlebih dahulu!");
     try { await loadExcelJS(); } catch(e){ return alert(e.message); }
 
-    const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet('Planning Shift', { views:[{ state:'frozen', ySplit:0 }], pageSetup:{ orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0 } });
+    const wb = new ExcelJS.Workbook(); 
+    const ws = wb.addWorksheet("Planning Shift", { 
+      views:[{ state:"frozen", xSplit: 0, ySplit: 4 }], 
+      pageSetup:{ orientation:"landscape", fitToPage:true, fitToWidth:1, fitToHeight:0 } 
+    });
     
-    const headers = ["NO","CQI","CORE","NON CORE & LS","MESIN (WORKSTATION/KODE)","LINE"];
+    ws.columns = [
+      { width: 6 },  
+      { width: 15 }, 
+      { width: 28 }, 
+      { width: 28 }, 
+      { width: 65 }
+    ];
+
+    const headers = ["NO", "CQI", "CORE", "NON-CORE & LS", "MESIN"];
     const allRunning = currentPlan.flatMap(s => s.machines || []);
+
     const rows = currentPlan.map((slot,i)=>{
       let combinedNc = [];
       if (slot.nonCore && slot.nonCore.length > 0) combinedNc.push(...slot.nonCore);
       if (slot.longshift && slot.longshift.length > 0) combinedNc.push(...slot.longshift);
       
+      let coreStr = slot.coreNames && slot.coreNames.length > 0 ? slot.coreNames.join(", ") : String(slot.core);
       let ncAndLs = combinedNc.length > 0 ? combinedNc.join(", ") : "-";
-      return [ i+1, slot.cqi.name, String(slot.core), ncAndLs, BrainAI.formatMachineList(slot.machines, allRunning), slot.cqi.line || "-" ];
+      let macList = BrainAI.formatMachineList(slot.machines, allRunning);
+      return [ i+1, slot.cqi.name, coreStr, ncAndLs, macList ];
     });
 
-    const lastCol = headers.length; const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]); ws.mergeCells(title.number, 1, title.number, lastCol); title.height = 28;
-    const tCell = ws.getCell(title.number, 1); tCell.font = { name:'Arial', size:14, bold:true, color:{argb:XL.white} }; tCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accentDark} }; tCell.alignment = { vertical:'middle', horizontal:'center' };
-    const stampText = "Dibuat: " + new Date().toLocaleString('id-ID') + "   |   Total CQI: " + currentPlan.length + "   |   Total Mesin: " + currentPlan.reduce((a,s)=>a+s.machines.length,0);
-    const stamp = ws.addRow([stampText]); ws.mergeCells(stamp.number, 1, stamp.number, lastCol);
-    const sCell = ws.getCell(stamp.number, 1); sCell.font = { name:'Arial', size:9, italic:true, color:{argb:'FF64748B'} }; sCell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.soft} }; sCell.alignment = { vertical:'middle', horizontal:'center' }; ws.addRow([]);
-    const headRow = ws.addRow(headers); headRow.height = 22; headRow.eachCell(c=>{ c.font = { name:'Arial', size:11, bold:true, color:{argb:XL.white} }; c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.accent} }; c.alignment = { vertical:'middle', horizontal:'center', wrapText:true }; c.border = boxBorder(XL.accentDark); });
-    rows.forEach((r,i)=>{ const row = ws.addRow(r); row.eachCell({ includeEmpty:true }, (c,col)=>{ c.font = { name:'Arial', size:10, color:{argb:XL.text} }; c.alignment = { vertical:'middle', wrapText:true, horizontal:(col===1||col===3||col===6)?'center':'left' }; c.border = boxBorder(); if(i % 2 === 1) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XL.zebra} }; }); });
-    const buf = await wb.xlsx.writeBuffer(); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); a.download = "Planning_Liquid_3.xlsx"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    const lastCol = headers.length; 
+    const title = ws.addRow(["PLANNING SHIFT — LIQUID 3"]); 
+    ws.mergeCells(title.number, 1, title.number, lastCol); 
+    title.height = 30;
+    
+    const tCell = ws.getCell(title.number, 1); 
+    tCell.font = { name:"Inter", size:14, bold:true, color:{argb:XL.white} }; 
+    tCell.fill = { type:"pattern", pattern:"solid", fgColor:{argb:XL.accentDark} }; 
+    tCell.alignment = { vertical:"middle", horizontal:"center" };
+    
+    const stampText = "Dibuat: " + new Date().toLocaleString("id-ID") + "   |   Total CQI: " + currentPlan.length + "   |   Total Mesin: " + currentPlan.reduce((a,s)=>a+s.machines.length,0);
+    const stamp = ws.addRow([stampText]); 
+    ws.mergeCells(stamp.number, 1, stamp.number, lastCol);
+    stamp.height = 20;
+    
+    const sCell = ws.getCell(stamp.number, 1); 
+    sCell.font = { name:"Inter", size:10, italic:true, color:{argb:"FF475569"} }; 
+    sCell.fill = { type:"pattern", pattern:"solid", fgColor:{argb:XL.soft} }; 
+    sCell.alignment = { vertical:"middle", horizontal:"center" }; 
+    
+    ws.addRow([]);
+    
+    const headRow = ws.addRow(headers); 
+    headRow.height = 26; 
+    headRow.eachCell(c=>{ 
+      c.font = { name:"Inter", size:11, bold:true, color:{argb:XL.white} }; 
+      c.fill = { type:"pattern", pattern:"solid", fgColor:{argb:XL.accent} }; 
+      c.alignment = { vertical:"middle", horizontal:"center", wrapText:true }; 
+      c.border = boxBorder(XL.accentDark); 
+    });
+
+    rows.forEach((r,i)=>{ 
+      const row = ws.addRow(r); 
+      let maxLen = Math.max(String(r[2]).length, String(r[3]).length, String(r[4]).length);
+      row.height = Math.max(22, Math.ceil(maxLen / 45) * 16); 
+      
+      row.eachCell({ includeEmpty:true }, (c,col)=>{ 
+        c.font = { name:"Inter", size:10, color:{argb:XL.text} }; 
+        c.alignment = { vertical:"middle", wrapText:true, horizontal:(col===1||col===2)?"center":"left" }; 
+        c.border = boxBorder(); 
+        if(i % 2 === 1) c.fill = { type:"pattern", pattern:"solid", fgColor:{argb:XL.zebra} }; 
+      }); 
+    });
+
+    let qcNames = typeof manpowerData !== 'undefined' ? manpowerData.qcPassed.map(i => typeof i === 'object' ? i.name : i).filter(n => n && n.trim() !== '') : [];
+    let qcPassed = "";
+    if (qcNames.length === 1) qcPassed = qcNames[0];
+    else if (qcNames.length > 1) qcPassed = qcNames.map((n, i) => `${i + 1}. ${n}`).join('\n');
+
+    if (qcPassed) {
+      ws.addRow([]);
+      const qcRow = ws.addRow(["QC PASSED:"]);
+      qcRow.getCell(1).font = { name:"Inter", size:11, bold:true, color:{argb:XL.text} };
+      
+      const qcContentRow = ws.addRow([qcPassed]);
+      ws.mergeCells(qcContentRow.number, 1, qcContentRow.number, lastCol);
+      qcContentRow.height = Math.max(22, (qcPassed.split("\n").length * 16));
+      const qcCell = qcContentRow.getCell(1);
+      qcCell.font = { name:"Inter", size:10, color:{argb:XL.text} };
+      qcCell.alignment = { vertical:"top", horizontal:"left", wrapText:true };
+      qcCell.border = boxBorder();
+    }
+
+    const buf = await wb.xlsx.writeBuffer(); 
+    const a = document.createElement("a"); 
+    a.href = URL.createObjectURL(new Blob([buf], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); 
+    a.download = "Planning_Liquid_3.xlsx"; 
+    a.click(); 
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
   }
+
+  // Universal Modal Scroll Lock Manager & Backdrop handlers
+  function updateModalScrollLock() {
+    const hasActiveModal = document.querySelector('.modal-overlay.active') !== null;
+    if (hasActiveModal) {
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('modal-open');
+    } else {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  // Observer to automatically catch any modal open/close
+  const modalObserver = new MutationObserver(updateModalScrollLock);
+  document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modalObserver.observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
+    
+    // Prevent wheel and touch bubbling to body when interacting with modal backdrop
+    modal.addEventListener('wheel', (e) => {
+      if (e.target === modal) e.preventDefault();
+    }, { passive: false });
+    
+    modal.addEventListener('touchmove', (e) => {
+      if (e.target === modal) e.preventDefault();
+    }, { passive: false });
+  });
+
+  // Explicit global exports for inline event handlers
+  window.executePlan = executePlan;
+  window.setPlanningMode = setPlanningMode;
+  window.showOverflowModal = showOverflowModal;
+  window.closeOverflowModal = closeOverflowModal;
+  window.handlePaksaMasukCqi = handlePaksaMasukCqi;
+  window.handleLanjutkanManual = handleLanjutkanManual;
+  window.applyOverflowResolution = applyOverflowResolution;
+  window.addManpowerItem = addManpowerItem;
+  window.openAddManpowerModal = openAddManpowerModal;
+  window.closeAddManpowerModal = closeAddManpowerModal;
+  window.switchAddManpowerType = switchAddManpowerType;
+  window.filterUnusedMasterList = filterUnusedMasterList;
+  window.submitAddManpower = submitAddManpower;
+  window.fillFormWithMasterItem = fillFormWithMasterItem;
+  window.restoreMasterItemDirectly = restoreMasterItemDirectly;
+  window.addQcItem = addQcItem;
+  window.shiftList = shiftList;
+  window.exportHistoryForGithub = exportHistoryForGithub;
+  window.validateAndExport = validateAndExport;
+  window.shareWA = shareWA;
+  window.exportExcel = exportExcel;
 </script>
 </body>
 </html>
