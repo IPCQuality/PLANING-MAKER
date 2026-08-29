@@ -2,86 +2,86 @@
   "core": [
     {
       "id": "C1",
-      "name": "Jiddan",
-      "cqi_priority": "24",
+      "name": "Angel",
+      "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C1",
-      "name": "Farhan",
-      "cqi_priority": "19",
-      "job_priority": ""
-    },
-    {
-      "id": "C3",
       "name": "Allyssa",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
+      "id": "C3",
+      "name": "Amanda",
+      "cqi_priority": "",
+      "job_priority": ""
+    },
+    {
       "id": "C2",
-      "name": "Dini",
-      "cqi_priority": "19",
+      "name": "Fira",
+      "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C5",
-      "name": "Thazkia",
+      "name": "Chalista",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C6",
-      "name": "Ninda",
+      "name": "Dwi",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C7",
-      "name": "gaktau1",
-      "cqi_priority": "",
+      "name": "Dini",
+      "cqi_priority": "19",
       "job_priority": ""
     },
     {
       "id": "C8",
-      "name": "gaktau2",
-      "cqi_priority": "",
+      "name": "Mia",
+      "cqi_priority": "24",
       "job_priority": ""
     },
     {
       "id": "C9",
-      "name": "gaktau3",
-      "cqi_priority": "",
+      "name": "Jiddan",
+      "cqi_priority": "24",
       "job_priority": ""
     },
     {
       "id": "C10",
-      "name": "gaktau4",
+      "name": "Ninda",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C11",
-      "name": "gaktau5",
+      "name": "Nurul",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C12",
-      "name": "gaktau6",
+      "name": "Thazkia",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C13",
-      "name": "gaktau7",
+      "name": "Riri",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "C14",
-      "name": "Mia",
-      "cqi_priority": "24",
+      "name": "Farhan",
+      "cqi_priority": "19",
       "job_priority": ""
     }
   ],

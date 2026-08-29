@@ -14,19 +14,6 @@
       }
     },
     {
-      "id": "M-0A-2",
-      "name": "AST 63-16L",
-      "line": "LINE A",
-      "status": "OFF",
-      "cluster": "Sosoft",
-      "qtytimbang": "8",
-      "workstation": "0A",
-      "position": {
-        "row": 8,
-        "col": 24
-      }
-    },
-    {
       "id": "M-0A-3",
       "name": "AST 14-12L",
       "line": "LINE A",
@@ -431,6 +418,19 @@
     },
     {
       "id": "M-9A-1",
+      "name": "AST 63-16L",
+      "line": "LINE A",
+      "status": "OFF",
+      "cluster": "SKLsct",
+      "qtytimbang": "16",
+      "workstation": "9A",
+      "position": {
+        "row": 8,
+        "col": 24
+      }
+    },
+    {
+      "id": "M-9A-2",
       "name": "AST 15-16L",
       "line": "LINE A",
       "status": "OFF",
@@ -443,7 +443,7 @@
       }
     },
     {
-      "id": "M-9A-2",
+      "id": "M-9A-3",
       "name": "AST 16-16L",
       "line": "LINE A",
       "status": "OFF",
@@ -456,7 +456,7 @@
       }
     },
     {
-      "id": "M-9A-3",
+      "id": "M-9A-4",
       "name": "AST 17-16L",
       "line": "LINE A",
       "status": "OFF",
