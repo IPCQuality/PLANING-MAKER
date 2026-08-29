@@ -46,7 +46,7 @@ const BrainAI = {
     "cqi 12": ["11B", "1C", "2C", "3C"],
     "cqi 13": ["3B", "2B", "1B", "4B", "5B", "0B", "3A", "4A"],
     "cqi 14": ["5B", "6B", "7B", "4B", "0B", "10B", "6A", "7A"],
-    "cqi 15": ["7B", "8B", "9B", "6B", "10B", "7A", "8A"],
+    "cqi 15": ["7B", "8B", "9B", "6B", "10B", "11B", "1C", "2C", "7A", "8A"],
     "cqi 16": ["8B", "9B", "10B", "7B", "11B", "8A", "9A"],
     "cqi 17": ["3C", "4C", "5C", "8C", "10B", "11B", "1C", "2C"],
     "cqi 18": ["6C", "5C", "4C", "3C", "2C", "1C", "7C"],
@@ -318,6 +318,20 @@ const BrainAI = {
     const cluster = String(m.cluster || '').toUpperCase();
     const name = String(m.name || m.id || '').toUpperCase();
     return cluster.includes('POUCH') || name.startsWith('APK');
+  },
+
+  /**
+   * Cek apakah sebuah mesin berada di Line C
+   * @param {Object} m - Objek Mesin
+   * @param {Array} labels - Label map (opsional)
+   * @returns {boolean}
+   */
+  isMachineLineC(m, labels = []) {
+    if (!m) return false;
+    const line = String(m.line || '').toUpperCase();
+    const ws = this.getWorkstationKey(m, labels).toUpperCase();
+    const col = m.col || (m.position ? m.position.col : 0);
+    return line.includes('LINE C') || line === 'C' || ws.endsWith('C') || ws.includes('C') || col >= 32;
   },
 
   /**
@@ -925,7 +939,23 @@ const BrainAI = {
       else if (prioIdx >= 2) score -= Math.max(300, (750 - prioIdx * 80));
 
       // 2. Keselarasan Line & Rekomendasi Pengurangan Cross-Line Walking
-      if (block.line === 'LINE C') {
+      if (cqiNum === '15') {
+        // Aturan Khusus CQI 15:
+        // Prioritaskan mengambil mesin di Line B.
+        // Jika mengambil mesin Line C, hanya ambil yang terdekat seperti 1C/2C (C1/C2) dan hindari Line C yang jauh.
+        if (block.line === 'LINE B') {
+          score -= 2800; // Prioritas utama: Line B
+        } else if (block.line === 'LINE C') {
+          const wsUpper = wsKey.toUpperCase();
+          if (wsUpper === '1C' || wsUpper === '2C') {
+            score += 600; // Toleransi jika terpaksa mengambil Line C terdekat
+          } else {
+            score += 4800; // Penalti berat untuk Line C yang jauh (3C-10C)
+          }
+        } else {
+          score += 3200; // Penalti untuk Line A
+        }
+      } else if (block.line === 'LINE C') {
         if (slotPrimaryLine === 'LINE C') {
           score -= 4000; // Prioritas mutlak: Mesin Line C ke CQI Line C
         } else {
@@ -1120,7 +1150,8 @@ const BrainAI = {
       }
     });
 
-    // Pengecekan Khusus CQI 24 (WW) Pouch Overflow:
+    // Pengecekan Khusus CQI 24 (WW) Pouch Overflow & Tambahan Mesin:
+    // "jika keadaan terpaksa mengharuskan ww mengambil mesin tambahan maka prioritaskan mesin yang ada di line C."
     if (slot24) {
       let pouchCandidates = [];
       const overloadThreshold = mode === 1 ? 6 : 4;
@@ -1143,7 +1174,13 @@ const BrainAI = {
       }
 
       if (pouchCandidates.length > 0) {
-        pouchCandidates.sort((a, b) => this.calculateDistance(a, slot24.cqi, labels) - this.calculateDistance(b, slot24.cqi, labels));
+        // Prioritaskan mesin yang ada di Line C terlebih dahulu, lalu jarak terdekat ke WW
+        pouchCandidates.sort((a, b) => {
+          const isLineCA = this.isMachineLineC(a, labels) ? 1 : 0;
+          const isLineCB = this.isMachineLineC(b, labels) ? 1 : 0;
+          if (isLineCA !== isLineCB) return isLineCB - isLineCA; // Line C duluan
+          return this.calculateDistance(a, slot24.cqi, labels) - this.calculateDistance(b, slot24.cqi, labels);
+        });
         const available = slot24.maxAllowedMachines - slot24.machines.length;
         if (available > 0) {
           const addedPouches = pouchCandidates.slice(0, Math.min(4, available));
@@ -1156,25 +1193,96 @@ const BrainAI = {
     // Saring slot aktif yang memiliki mesin
     const activeSlots = slots.filter(s => s.machines.length > 0);
 
-    // --- TAHAP 4: PEMASANGAN CORE MANPOWER SESUAI "cqi_priority" & URUTAN ---
+    // --- TAHAP 4: PEMASANGAN CORE MANPOWER SESUAI HIERARKI PRIORITAS CQI ---
     const availableCores = [...coreList];
 
-    // Prioritas 1: Pasangkan Core yang memiliki "cqi_priority" cocok dengan nomor CQI
+    // Helper pencarian Core berdasarkan kriteria ID / Nama
+    const pickCoreByQuery = (predicate) => {
+      const idx = availableCores.findIndex(predicate);
+      if (idx !== -1) {
+        return availableCores.splice(idx, 1)[0];
+      }
+      return null;
+    };
+
+    // 1. Prioritas Khusus CQI 19:
+    // "1. prioritas cqi 19 adalah C14 jika C14 tidak ada maka gunakan C7"
+    const slot19Active = activeSlots.find(s => s.cqiNum === '19');
+    if (slot19Active && slot19Active.core === 0) {
+      let chosenCore = pickCoreByQuery(c => {
+        const id = String(c.id || '').toUpperCase();
+        const name = this.normalizeName(c.name || '');
+        return id === 'C14' || name === 'FARHAN';
+      });
+
+      if (!chosenCore) {
+        chosenCore = pickCoreByQuery(c => {
+          const id = String(c.id || '').toUpperCase();
+          const name = this.normalizeName(c.name || '');
+          return id === 'C7' || name === 'DINI';
+        });
+      }
+
+      if (!chosenCore) {
+        chosenCore = pickCoreByQuery(c => {
+          const p = String(c.cqi_priority || '').trim();
+          return p === '19' || this.getCqiNumber(p) === '19';
+        });
+      }
+
+      if (chosenCore) {
+        slot19Active.core = 1;
+        slot19Active.coreNames = [chosenCore.name];
+      }
+    }
+
+    // 2. Prioritas Khusus CQI 24 (WW):
+    // "2. prioritas cqi 24 adalah C9 jika C9 tidak ada maka gunakan C8"
+    const slot24Active = activeSlots.find(s => s.cqiNum === '24');
+    if (slot24Active && slot24Active.core === 0) {
+      let chosenCore = pickCoreByQuery(c => {
+        const id = String(c.id || '').toUpperCase();
+        const name = this.normalizeName(c.name || '');
+        return id === 'C9' || name === 'JIDDAN';
+      });
+
+      if (!chosenCore) {
+        chosenCore = pickCoreByQuery(c => {
+          const id = String(c.id || '').toUpperCase();
+          const name = this.normalizeName(c.name || '');
+          return id === 'C8' || name === 'MIA';
+        });
+      }
+
+      if (!chosenCore) {
+        chosenCore = pickCoreByQuery(c => {
+          const p = String(c.cqi_priority || '').trim();
+          return p === '24' || this.getCqiNumber(p) === '24';
+        });
+      }
+
+      if (chosenCore) {
+        slot24Active.core = 1;
+        slot24Active.coreNames = [chosenCore.name];
+      }
+    }
+
+    // 3. Pasangkan Core yang memiliki "cqi_priority" cocok dengan nomor CQI lainnya
     activeSlots.forEach(slot => {
-      const matchedCoreIdx = availableCores.findIndex(c => {
+      if (slot.core > 0) return;
+      const matchedCore = pickCoreByQuery(c => {
         if (!c || !c.cqi_priority) return false;
         const prioNum = String(c.cqi_priority).trim();
         return prioNum === slot.cqiNum || this.getCqiNumber(c.cqi_priority) === slot.cqiNum;
       });
 
-      if (matchedCoreIdx !== -1) {
-        const matchedCore = availableCores.splice(matchedCoreIdx, 1)[0];
+      if (matchedCore) {
         slot.core = 1;
         slot.coreNames = [matchedCore.name];
       }
     });
 
-    // Prioritas 2: Pasangkan sisa Core sesuai urutan ke slot aktif yang belum terisi
+    // 4. Pasangkan sisa Core sesuai urutan ke slot aktif yang belum terisi
     activeSlots.forEach(slot => {
       if (slot.core === 0 && availableCores.length > 0) {
         const nextCore = availableCores.shift();
@@ -1345,6 +1453,14 @@ const BrainAI = {
         progress = false;
         for (let i = 0; i < remaining.length; i++) {
           const m = remaining[i];
+          // Khusus CQI 15: Jika mengambil mesin Line C, prioritaskan Line B dan hanya boleh 1C/2C untuk Line C
+          if (slot.cqiNum === '15' && this.isMachineLineC(m, labels)) {
+            const ws = this.getWorkstationKey(m, labels).toUpperCase();
+            if (ws !== '1C' && ws !== '2C') {
+              continue;
+            }
+          }
+
           if (this.canAddMachineToSlotCluster(m, slot)) {
             slot.machines.push(m);
             remaining.splice(i, 1);
@@ -1363,6 +1479,11 @@ const BrainAI = {
         if (targetSlot.machines.length >= 8) continue;
 
         const unassignedM = remaining[0];
+
+        if (targetSlot.cqiNum === '15' && this.isMachineLineC(unassignedM, labels)) {
+          const ws = this.getWorkstationKey(unassignedM, labels).toUpperCase();
+          if (ws !== '1C' && ws !== '2C') continue;
+        }
 
         // Cari slot pendukung (donorSlot) yang mau menerima salah satu mesin dari targetSlot
         for (const donorSlot of candidates) {
