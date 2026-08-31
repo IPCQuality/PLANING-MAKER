@@ -567,6 +567,56 @@ const BrainAI = {
   },
 
   /**
+   * Menghitung batas maksimal mesin yang BISA ditambahkan ke CQI secara aman,
+   * mempertimbangkan ketersediaan sisa manpower Non-Core / Longshift.
+   * @param {Object} slot - Slot CQI
+   * @param {number} mode - Mode Beban (1 atau 2)
+   * @param {number} totalNcPool - Total ketersediaan Non-Core + Longshift (angka)
+   * @param {Array} allSlots - Seluruh slot aktif
+   * @returns {number} Limit dinamis mesin (misal: 4, 6, 8, atau 10)
+   */
+  getDynamicSlotLimit(slot, mode, totalNcPool, allSlots) {
+    const rule = this.getClusterCapacityRule(slot);
+    // CQI Khusus punya aturan fix
+    if (slot.cqiNum === "19") return 2;
+    if (slot.cqiNum === "24") return 8; // WW sudah diamankan di force expansion
+
+    const currentCount = slot.machines.length;
+    let limit = rule.maxCoreOnly;
+
+    // Hitung berapa NC yang sudah terpakai/direserve oleh SEMUA slot sejauh ini
+    let globalNeeded = 0;
+    allSlots.forEach((s) => {
+      if (s.cqiNum === "19") return;
+      if (s.cqiNum === "24") {
+        globalNeeded += s.machines.length > 4 ? 1 : 0;
+        return;
+      }
+      globalNeeded += this.getClusterCapacityRule(s).getNeededNc(s.machines.length, mode);
+    });
+
+    const availableNc = totalNcPool - globalNeeded;
+
+    // Jika belum butuh extra NC (atau mau nambah di batas 1 Core), aman
+    if (availableNc <= 0) return Math.max(currentCount, limit);
+
+    // Hitung kebutuhan NC saat ini vs untuk batas berikutnya
+    const currentSlotNeeded = rule.getNeededNc(currentCount, mode);
+    const neededForMax1 = rule.getNeededNc(rule.max1Nc, mode) - currentSlotNeeded;
+    
+    if (neededForMax1 > 0 && availableNc >= neededForMax1) {
+      limit = rule.max1Nc;
+      
+      const neededForMax2 = rule.getNeededNc(rule.max2Nc, mode) - currentSlotNeeded - neededForMax1;
+      if (neededForMax2 > 0 && (availableNc - neededForMax1) >= neededForMax2) {
+        limit = rule.max2Nc;
+      }
+    }
+    
+    return Math.max(currentCount, limit);
+  },
+
+  /**
    * Cek apakah sebuah mesin merupakan kategori Wet Wipes (WW)
    * @param {Object} m - Objek Mesin
    * @returns {boolean}
@@ -1007,6 +1057,16 @@ const BrainAI = {
     const maxNcPerCqi = mode === 1 ? 2 : 1;
     const maxSlotCapacity = mode === 1 ? 10 : 8;
     const labels = mapData.labels || [];
+    
+    // Parse total Non-Core + LS resources for dynamic slot limits
+    let ncCount = 0;
+    if (Array.isArray(config.nonCoreData) && config.nonCoreData.length > 0) {
+       ncCount = config.nonCoreData.length;
+    } else if (Array.isArray(config.nonCoreNames)) {
+       ncCount = config.nonCoreNames.length;
+    }
+    const lsCount = parseInt(config.longshift || 0, 10);
+    const totalNcPool = ncCount + lsCount;
 
     // --- TAHAP 1: FILTER KATEGORI MESIN & HITUNG KAPASITAS CORE ---
     const runningMachines = [...machines];
@@ -1037,14 +1097,19 @@ const BrainAI = {
     }
 
     // Kelompokkan mesin umum running menjadi Workstation Blocks (Zonasi Alami Lapangan)
+    // Diperbarui: Pengelompokan berdasarkan Workstation + Cluster agar tidak terjadi block mixing failure
     const wsBlocks = {};
     generalMachines.forEach((m) => {
       const ws = this.getWorkstationKey(m, labels);
-      if (!wsBlocks[ws]) {
-        wsBlocks[ws] = {
+      const clusterGroup = this.getMachineClusterGroup(m);
+      const wsClusterKey = `${ws}_${clusterGroup}`;
+      
+      if (!wsBlocks[wsClusterKey]) {
+        wsBlocks[wsClusterKey] = {
           ws,
+          wsClusterKey,
           machines: [],
-          cluster: this.getMachineClusterGroup(m),
+          cluster: clusterGroup,
           line: ws.endsWith("A")
             ? "LINE A"
             : ws.endsWith("B")
@@ -1055,23 +1120,24 @@ const BrainAI = {
           col: 99,
           row: 99,
         };
+
         const lbl = labels.find(
           (l) =>
             l.name === ws ||
             this.normalizeName(l.name) === this.normalizeName(ws),
         );
         if (lbl) {
-          wsBlocks[ws].col = lbl.col;
-          wsBlocks[ws].row = lbl.row;
+          wsBlocks[wsClusterKey].col = lbl.col;
+          wsBlocks[wsClusterKey].row = lbl.row;
         } else if (m.position) {
-          wsBlocks[ws].col = m.position.col || 99;
-          wsBlocks[ws].row = m.position.row || 99;
+          wsBlocks[wsClusterKey].col = m.position.col || 99;
+          wsBlocks[wsClusterKey].row = m.position.row || 99;
         } else if (m.col) {
-          wsBlocks[ws].col = m.col;
-          wsBlocks[ws].row = m.row || 99;
+          wsBlocks[wsClusterKey].col = m.col;
+          wsBlocks[wsClusterKey].row = m.row || 99;
         }
       }
-      wsBlocks[ws].machines.push(m);
+      wsBlocks[wsClusterKey].machines.push(m);
     });
 
     const activeWsKeys = Object.keys(wsBlocks);
@@ -1446,10 +1512,11 @@ const BrainAI = {
       );
 
       let remainingInBlock = [...blockMachines];
+
       for (const targetSlot of validSlots) {
         if (remainingInBlock.length === 0) break;
         const availableSpace =
-          targetSlot.maxAllowedMachines - targetSlot.machines.length;
+          this.getDynamicSlotLimit(targetSlot, mode, totalNcPool, slots) - targetSlot.machines.length;
         if (availableSpace <= 0) continue;
 
         const validToInsert = remainingInBlock.filter((m) =>
@@ -1475,7 +1542,7 @@ const BrainAI = {
 
         for (const fb of fallbacks) {
           if (stillRemaining.length === 0) break;
-          const available = fb.maxAllowedMachines - fb.machines.length;
+          const available = this.getDynamicSlotLimit(fb, mode, totalNcPool, slots) - fb.machines.length;
           if (available <= 0) continue;
 
           const validToInsert = stillRemaining.filter((m) =>
@@ -1530,7 +1597,7 @@ const BrainAI = {
           const group = wsMapInMax[wsKey];
           const groupSize = group.length;
 
-          if (minSlot.machines.length + groupSize > minSlot.maxAllowedMachines)
+          if (minSlot.machines.length + groupSize > this.getDynamicSlotLimit(minSlot, mode, totalNcPool, slots))
             continue;
           if (
             maxSlot.machines.length - groupSize <
@@ -1591,7 +1658,7 @@ const BrainAI = {
         for (const wsKey of wsKeysInMax) {
           const group = wsMapInMax[wsKey];
           for (const m of group) {
-            if (minSlot.machines.length >= minSlot.maxAllowedMachines) break;
+            if (minSlot.machines.length >= this.getDynamicSlotLimit(minSlot, mode, totalNcPool, slots)) break;
             if (maxSlot.machines.length - 1 < minSlot.machines.length + 1)
               break;
 
@@ -1796,7 +1863,6 @@ const BrainAI = {
     }
     const nonCorePool = [...nonCoreNames];
 
-    const lsCount = parseInt(config.longshift || 0, 10);
     const lsPool = Array.from({ length: lsCount }, () => "(LS)");
 
     // Aturan Khusus CQI 24: Jika ada tambahan Pouch, wajib diberi 1 Non-Core / (LS)
@@ -1952,6 +2018,16 @@ const BrainAI = {
     const labels = mapData.labels || [];
     const lineOrder = { "LINE C": 1, "LINE A": 2, "LINE B": 3, OTHER: 4 };
 
+    const mode = parseInt(config.mode || 1, 10) === 2 ? 2 : 1;
+    let ncCount = 0;
+    if (Array.isArray(config.nonCoreData) && config.nonCoreData.length > 0) {
+       ncCount = config.nonCoreData.length;
+    } else if (Array.isArray(config.nonCoreNames)) {
+       ncCount = config.nonCoreNames.length;
+    }
+    const lsCount = parseInt(config.longshift || 0, 10);
+    const totalNcPool = ncCount + lsCount;
+
     // Filter CQI calon (kecuali CQI 19 OT & CQI 24 WW)
     const candidates = slots.filter(
       (s) => s.cqiNum !== "19" && s.cqiNum !== "24",
@@ -1970,9 +2046,8 @@ const BrainAI = {
     // STEP 1: Direct insertion ke CQI yang belum mencapai batas kapasitas cluster dan kompatibel
     for (const slot of candidates) {
       if (remaining.length === 0) break;
-      const rule = this.getClusterCapacityRule(slot);
-      slot.maxAllowedMachines = rule.absoluteMax;
-      const slotLimit = rule.absoluteMax;
+      const slotLimit = this.getDynamicSlotLimit(slot, mode, totalNcPool, slots);
+      slot.maxAllowedMachines = slotLimit;
 
       let progress = true;
       while (slot.machines.length < slotLimit && remaining.length > 0 && progress) {
@@ -2001,9 +2076,9 @@ const BrainAI = {
     if (remaining.length > 0) {
       for (const targetSlot of candidates) {
         if (remaining.length === 0) break;
-        const targetRule = this.getClusterCapacityRule(targetSlot);
-        targetSlot.maxAllowedMachines = targetRule.absoluteMax;
-        if (targetSlot.machines.length >= targetRule.absoluteMax) continue;
+        const targetLimit = this.getDynamicSlotLimit(targetSlot, mode, totalNcPool, slots);
+        targetSlot.maxAllowedMachines = targetLimit;
+        if (targetSlot.machines.length >= targetLimit) continue;
 
         const unassignedM = remaining[0];
 
@@ -2017,8 +2092,8 @@ const BrainAI = {
 
         // Cari slot pendukung (donorSlot) yang mau menerima salah satu mesin dari targetSlot
         for (const donorSlot of candidates) {
-          const donorRule = this.getClusterCapacityRule(donorSlot);
-          if (donorSlot === targetSlot || donorSlot.machines.length >= donorRule.absoluteMax)
+          const donorLimit = this.getDynamicSlotLimit(donorSlot, mode, totalNcPool, slots);
+          if (donorSlot === targetSlot || donorSlot.machines.length >= donorLimit)
             continue;
 
           for (let i = 0; i < targetSlot.machines.length; i++) {
