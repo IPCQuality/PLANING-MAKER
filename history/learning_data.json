@@ -1,0 +1,4007 @@
+[
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.474Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.474Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.474Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-3C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-7B-4",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.475Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.741Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-7B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-3C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-9B-4",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:30.742Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9B-4",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-OT-1",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.009Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-3C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-9B-4",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.229Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7B-4",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.479Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9B-4",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-OT-1",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.685Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:31.928Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6A-3",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9A-1",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7B-4",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-OT-1",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-7B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-9B-4",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-6B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.195Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-8A-3",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1B-1",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-11B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-8C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-5B-2",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.420Z"
+  },
+  {
+    "machineId": "M-0A-1",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-0A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1A-4",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1A-3",
+    "cqiId": "CQI-1",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2A-3",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2A-1",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2A-4",
+    "cqiId": "CQI-2",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3A-3",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3A-2",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3A-1",
+    "cqiId": "CQI-3",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4A-4",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4A-3",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4A-1",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4A-2",
+    "cqiId": "CQI-4",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5A-4",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5A-2",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5A-3",
+    "cqiId": "CQI-5",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6A-4",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6A-1",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7A-2",
+    "cqiId": "CQI-6",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7A-1",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7A-3",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8A-4",
+    "cqiId": "CQI-7",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8A-1",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9A-4",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9A-2",
+    "cqiId": "CQI-8",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10A-2",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10A-3",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10A-4",
+    "cqiId": "CQI-9",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5A-1",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1A-2",
+    "cqiId": "CQI-10",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1B-4",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1B-2",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1B-3",
+    "cqiId": "CQI-11",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10C-2",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10C-1",
+    "cqiId": "CQI-12",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2B-2",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2B-3",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3B-4",
+    "cqiId": "CQI-13",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5B-3",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5B-4",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5B-1",
+    "cqiId": "CQI-14",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-0B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-0B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4B-1",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4B-2",
+    "cqiId": "CQI-15",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9B-3",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9B-2",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-9B-1",
+    "cqiId": "CQI-16",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1C-2",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-1C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3C-3",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3C-1",
+    "cqiId": "CQI-17",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-4C-3",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5C-1",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-5C-2",
+    "cqiId": "CQI-18",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-OT-1",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-OT-2",
+    "cqiId": "CQI-19",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7C-2",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8C-1",
+    "cqiId": "CQI-20",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3B-2",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-3B-1",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7B-3",
+    "cqiId": "CQI-21",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-2B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-7B-1",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10B-2",
+    "cqiId": "CQI-22",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10B-3",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-10B-1",
+    "cqiId": "CQI-23",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-WW-2",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-WW-1",
+    "cqiId": "CQI-24",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-6B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8B-2",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  },
+  {
+    "machineId": "M-8B-1",
+    "cqiId": "CQI-25",
+    "timestamp": "2026-08-31T11:21:32.673Z"
+  }
+]
