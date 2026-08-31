@@ -19,7 +19,7 @@
       "job_priority": ""
     },
     {
-      "id": "C2",
+      "id": "C4",
       "name": "Fira",
       "cqi_priority": "",
       "job_priority": ""
@@ -100,13 +100,13 @@
     },
     {
       "id": "NC3",
-      "name": "Siska",
+      "name": "Litha",
       "cqi_priority": "",
       "job_priority": ""
     },
     {
       "id": "NC4",
-      "name": "Litha",
+      "name": "Siska",
       "cqi_priority": "",
       "job_priority": ""
     },
@@ -156,13 +156,13 @@
       "id": "NC12",
       "name": "Yadi",
       "cqi_priority": "",
-      "job_priority": "milstd"
+      "job_priority": "milstd,qc-passed"
     },
     {
       "id": "NC13",
       "name": "Kirana",
       "cqi_priority": "",
-      "job_priority": "standbyot"
+      "job_priority": ""
     },
     {
       "id": "NC14",
