@@ -959,6 +959,127 @@
         box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
       }
 
+      /* Style Khusus Modal History AI & GitHub Manager */
+      .history-modal-card {
+        max-width: 820px !important;
+        width: 90% !important;
+      }
+      .history-nav-tabs {
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+      }
+      .history-nav-tab {
+        background: #f1f5f9;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .history-nav-tab:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+      }
+      .history-nav-tab.active {
+        background: #0f766e;
+        border-color: #0f766e;
+        color: #ffffff;
+      }
+      .history-stat-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: var(--radius-sm);
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .history-stat-val {
+        font-size: 18px;
+        font-weight: 800;
+        color: #166534;
+      }
+      .history-stat-lbl {
+        font-size: 11px;
+        color: #15803d;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .history-terminal {
+        background: #0f172a;
+        color: #38bdf8;
+        border-radius: var(--radius-sm);
+        padding: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        position: relative;
+        overflow-x: auto;
+        margin-top: 12px;
+      }
+      .history-terminal code {
+        color: #4ade80;
+      }
+      .copy-git-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #334155;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .copy-git-btn:hover {
+        background: #475569;
+      }
+      .affinity-table-wrap {
+        max-height: 280px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+      }
+      .affinity-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .affinity-table th {
+        background: #f8fafc;
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      .affinity-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .affinity-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
       /* Mobile Responsiveness */
       @media (max-width: 768px) {
         .topbar {
@@ -1279,6 +1400,9 @@
           <button class="btn btn-github" onclick="exportHistoryForGithub()">
             Download JSON
           </button>
+          <button class="btn btn-history" onclick="openHistoryModal()">
+            🧠 History AI &amp; GitHub
+          </button>
         </div>
       </section>
     </div>
@@ -1543,7 +1667,140 @@
       </div>
     </div>
 
+    <!-- Modal History AI & GitHub Manager -->
+    <div id="historyModal" class="modal-overlay">
+      <div class="modal-card history-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span style="font-size: 24px">🧠</span>
+            <div>
+              <h3 class="modal-title">AI History Generator &amp; GitHub Manager</h3>
+              <p class="modal-subtitle">
+                Hasilkan &amp; kelola dataset riwayat alokasi (60–90 mesin) untuk pembelajaran cerdas Brain AI.
+              </p>
+            </div>
+          </div>
+          <button class="modal-close-btn" onclick="closeHistoryModal()" title="Tutup">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="history-nav-tabs">
+            <button class="history-nav-tab active" id="tabGenBtn" onclick="switchHistoryTab('generate')">⚡ Generator Otomatis (60-90 Mesin)</button>
+            <button class="history-nav-tab" id="tabStatBtn" onclick="switchHistoryTab('status')">📊 Matriks Pembelajaran AI</button>
+            <button class="history-nav-tab" id="tabGitBtn" onclick="switchHistoryTab('git')">🚀 Panduan Commit GitHub</button>
+          </div>
+
+          <!-- TAB 1: Generator Otomatis -->
+          <div id="histTabGenerate">
+            <div class="history-stat-box">
+              <div>
+                <div class="history-stat-val" id="activeDatasetFiles">Memuat...</div>
+                <div class="history-stat-lbl">File History Tersedia di /history/</div>
+              </div>
+              <div>
+                <div class="history-stat-val" id="activeDatasetPoints">Memuat...</div>
+                <div class="history-stat-lbl">Titik Data Pembelajaran Aktif</div>
+              </div>
+              <button class="btn btn-history" onclick="refreshHistoryStatus()" style="font-size: 11px; padding: 6px 12px;">
+                🔄 Refresh Status
+              </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Jumlah File Simulasi (Sesi)
+                </label>
+                <input type="number" id="histCountInput" value="10" min="1" max="50" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm);" />
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Tanggal Awal File
+                </label>
+                <input type="date" id="histDateInput" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm);" />
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Min Mesin Running
+                </label>
+                <input type="number" id="histMinInput" value="60" min="30" max="100" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm);" />
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Max Mesin Running
+                </label>
+                <input type="number" id="histMaxInput" value="90" min="30" max="102" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm);" />
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+              💡 <strong>Cara Kerja:</strong> Engine BrainAI akan mensimulasikan alokasi mesin running secara acak (60–90 mesin) sesuai seluruh aturan pabrik &amp; cluster, lalu otomatis menulis file JSON ke direktori <code>history/</code> dan memperbarui model pembelajaran AI.
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-history" id="btnRunServerGen" onclick="runHistoryGenerator()" style="flex: 1; padding: 10px 16px; font-weight: 700;">
+                ⚡ Generate &amp; Simpan ke Folder /history/
+              </button>
+              <button class="btn btn-github" onclick="downloadHistoryBatch()" style="padding: 10px 16px;">
+                📥 Generate &amp; Unduh Batch (JSON)
+              </button>
+            </div>
+            <div id="genFeedback" style="margin-top: 12px; font-size: 12px;"></div>
+          </div>
+
+          <!-- TAB 2: Matriks Pembelajaran AI -->
+          <div id="histTabStatus" style="display: none;">
+            <div style="margin-bottom: 12px; font-size: 13px; color: var(--text-main); font-weight: 600;">
+              Top Afinitas Mesin ➔ CQI yang Dipelajari AI:
+            </div>
+            <div class="affinity-table-wrap">
+              <table class="affinity-table">
+                <thead>
+                  <tr>
+                    <th>Mesin</th>
+                    <th>CQI Tujuan Terpilih</th>
+                    <th>Frekuensi Historis</th>
+                    <th>Bonus Skor Afinitas</th>
+                  </tr>
+                </thead>
+                <tbody id="affinityTableBody">
+                  <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Memuat data afinitas...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: Panduan GitHub -->
+          <div id="histTabGit" style="display: none;">
+            <p style="font-size: 13px; color: var(--text-main); margin-bottom: 8px;">
+              Setelah men-generate file history, Anda tinggal memasukkannya ke repositori GitHub dengan 3 perintah sederhana berikut:
+            </p>
+            <div class="history-terminal">
+              <button class="copy-git-btn" onclick="copyGitCommands()">📋 Salin Perintah</button>
+              <code>git add history/<br>git commit -m "feat(history): update AI training dataset"<br>git push origin main</code>
+            </div>
+            <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+              ✔️ Semua file <code>planning-*.json</code>, <code>learning_data.json</code>, dan <code>manifest.json</code> di dalam folder <code>history/</code> akan tersimpan di GitHub.<br>
+              ✔️ Saat aplikasi dibuka di browser atau device lain, BrainAI akan otomatis membaca dataset ini dari folder <code>history/</code>.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" onclick="closeHistoryModal()">Tutup</button>
+        </div>
+      </div>
+    </div>
+
     <script src="brain.js"></script>
+    <script>
+      // Inisialisasi data history & model pembelajaran AI
+      if (window.BrainAI && typeof BrainAI.loadAllHistory === "function") {
+        BrainAI.loadAllHistory()
+          .then((data) => {
+            console.log("BrainAI Learning Matrix aktif:", data.length, "data points");
+          })
+          .catch((e) => console.warn("Load history error:", e));
+      }
+    </script>
     <script>
       let state = null;
       let currentPlan = [];
@@ -3266,6 +3523,299 @@
         );
       });
 
+      // FITUR MODAL HISTORY AI & GITHUB MANAGER
+      function openHistoryModal() {
+        const modal = document.getElementById("historyModal");
+        if (modal) modal.classList.add("active");
+
+        // Auto set default date jika kosong
+        const dateInput = document.getElementById("histDateInput");
+        if (dateInput && !dateInput.value) {
+          const tom = new Date();
+          tom.setDate(tom.getDate() + 1);
+          dateInput.value = tom.toISOString().split("T")[0];
+        }
+
+        refreshHistoryStatus();
+      }
+
+      function closeHistoryModal() {
+        const modal = document.getElementById("historyModal");
+        if (modal) modal.classList.remove("active");
+      }
+
+      function switchHistoryTab(tab) {
+        const tGen = document.getElementById("histTabGenerate");
+        const tStat = document.getElementById("histTabStatus");
+        const tGit = document.getElementById("histTabGit");
+
+        if (tGen) tGen.style.display = tab === "generate" ? "block" : "none";
+        if (tStat) tStat.style.display = tab === "status" ? "block" : "none";
+        if (tGit) tGit.style.display = tab === "git" ? "block" : "none";
+
+        const bGen = document.getElementById("tabGenBtn");
+        const bStat = document.getElementById("tabStatBtn");
+        const bGit = document.getElementById("tabGitBtn");
+
+        if (bGen) bGen.classList.toggle("active", tab === "generate");
+        if (bStat) bStat.classList.toggle("active", tab === "status");
+        if (bGit) bGit.classList.toggle("active", tab === "git");
+
+        if (tab === "status") {
+          renderAffinityMatrix();
+        }
+      }
+
+      async function refreshHistoryStatus() {
+        try {
+          const filesEl = document.getElementById("activeDatasetFiles");
+          const pointsEl = document.getElementById("activeDatasetPoints");
+          if (filesEl) filesEl.innerText = "Memuat...";
+          if (pointsEl) pointsEl.innerText = "Memuat...";
+
+          const pairs = await BrainAI.loadAllHistory();
+          const stats = BrainAI.getHistoryStats();
+
+          // Fetch API info jika di backend
+          let serverFilesCount = "10+ file";
+          try {
+            const resp = await fetch("/api/history");
+            if (resp.ok) {
+              const info = await resp.json();
+              if (info.files) serverFilesCount = `${info.files.length} file`;
+            }
+          } catch (e) {}
+
+          if (filesEl) filesEl.innerText = serverFilesCount;
+          if (pointsEl) pointsEl.innerText = `${pairs.length} riwayat`;
+
+          renderAffinityMatrix();
+        } catch (e) {
+          console.warn("Gagal refresh history status:", e);
+        }
+      }
+
+      function renderAffinityMatrix() {
+        const tbody = document.getElementById("affinityTableBody");
+        if (!tbody) return;
+
+        const stats = BrainAI.getHistoryStats();
+        if (!stats.topAffinities || stats.topAffinities.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Belum ada riwayat pembelajaran yang tercatat.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = stats.topAffinities
+          .map(
+            (a) => `
+          <tr>
+            <td style="font-weight: 600; color: var(--text-main); font-family: 'JetBrains Mono', monospace;">${a.machine}</td>
+            <td style="color: #0f766e; font-weight: 600;">${a.cqi}</td>
+            <td><span class="affinity-badge">${a.frequency}x alokasi</span></td>
+            <td style="font-weight: 700; color: #16a34a;">+${a.bonus} pts</td>
+          </tr>
+        `,
+          )
+          .join("");
+      }
+
+      async function runHistoryGenerator() {
+        const btn = document.getElementById("btnRunServerGen");
+        const fb = document.getElementById("genFeedback");
+        const count =
+          parseInt(document.getElementById("histCountInput").value, 10) || 10;
+        const minM =
+          parseInt(document.getElementById("histMinInput").value, 10) || 60;
+        const maxM =
+          parseInt(document.getElementById("histMaxInput").value, 10) || 90;
+        const startDate =
+          document.getElementById("histDateInput").value ||
+          new Date().toISOString().split("T")[0];
+
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = "⏳ Sedang Men-generate Planning...";
+        }
+        if (fb)
+          fb.innerHTML = `<span style="color: #0f766e;">Sedang memproses ${count} sesi simulasi (${minM}–${maxM} mesin)...</span>`;
+
+        try {
+          const resp = await fetch("/api/history/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              count,
+              minMachines: minM,
+              maxMachines: maxM,
+              mode: planningMode || 1,
+              startDate,
+            }),
+          });
+
+          if (!resp.ok) {
+            throw new Error(`HTTP error ${resp.status}`);
+          }
+
+          const res = await resp.json();
+          if (res.success) {
+            if (fb) {
+              fb.innerHTML = `
+                <div style="background: #f0fdf4; border: 1px solid #86efac; color: #166534; padding: 10px; border-radius: 6px; margin-top: 8px;">
+                  ✅ <strong>Berhasil!</strong> ${res.message || "File history berhasil dibuat."}<br>
+                  📁 File tersimpan di folder <code>history/</code> dan siap di-push ke GitHub!
+                </div>
+              `;
+            }
+            await BrainAI.loadAllHistory();
+            refreshHistoryStatus();
+          } else {
+            throw new Error(res.error || "Gagal generate");
+          }
+        } catch (err) {
+          if (fb) {
+            fb.innerHTML = `<span style="color: #dc2626;">Gagal generate via backend: ${err.message}. Mengalihkan ke unduh file batch di browser...</span>`;
+          }
+          downloadHistoryBatch();
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = "⚡ Generate & Simpan ke Folder /history/";
+          }
+        }
+      }
+
+      async function downloadHistoryBatch() {
+        const count =
+          parseInt(document.getElementById("histCountInput").value, 10) || 10;
+        const minM =
+          parseInt(document.getElementById("histMinInput").value, 10) || 60;
+        const maxM =
+          parseInt(document.getElementById("histMaxInput").value, 10) || 90;
+        const startDate =
+          document.getElementById("histDateInput").value ||
+          new Date().toISOString().split("T")[0];
+
+        if (!state || !state.machines || state.machines.length === 0) {
+          return alert(
+            "Data denah mesin belum siap. Silakan buka halaman utama denah terlebih dahulu.",
+          );
+        }
+
+        const allMachines = state.machines;
+        const allCqis = state.cqis;
+        const generatedList = [];
+        const pairsList = [];
+
+        let curDate = new Date(startDate);
+        const shifts = ["Pagi", "Siang", "Malam"];
+
+        for (let i = 0; i < count; i++) {
+          const shift = shifts[i % shifts.length];
+          const dStr = curDate.toISOString().split("T")[0];
+          const targetRunning = Math.min(
+            allMachines.length,
+            Math.max(
+              minM,
+              Math.floor(Math.random() * (maxM - minM + 1)) + minM,
+            ),
+          );
+
+          const shuffled = [...allMachines].sort(() => Math.random() - 0.5);
+          const selM = shuffled
+            .slice(0, targetRunning)
+            .map((m) => ({ ...m, status: "RUNNING" }));
+          const selC = allCqis.map((c) => ({ ...c, status: "READY" }));
+
+          const plan = BrainAI.generatePlan(
+            selM,
+            selC,
+            {
+              mode: planningMode || 1,
+              core: (manpowerData.core || []).length,
+              coreData: manpowerData.core || [],
+              nonCoreData: manpowerData.nonCore || [],
+              longshift: 0,
+            },
+            state,
+          );
+
+          const allR = plan.flatMap((s) => s.machines || []);
+          const structuredPlanning = plan.map((slot, sIdx) => {
+            const cqiName = slot.cqi
+              ? slot.cqi.name || slot.cqi.id
+              : `CQI-${sIdx + 1}`;
+            (slot.machines || []).forEach((m) => {
+              pairsList.push({
+                machineId: m.id || m.name,
+                machineName: m.name || m.id,
+                cqiId: slot.cqi ? slot.cqi.id || slot.cqi.name : cqiName,
+                cqiName: cqiName,
+                cqiNum: String(BrainAI.getCqiNumber(cqiName) || "").trim(),
+                timestamp: curDate.toISOString(),
+              });
+            });
+            return {
+              no: sIdx + 1,
+              cqi: cqiName,
+              core: slot.coreNames || [],
+              non_core: slot.nonCore || [],
+              longshift: slot.longshift || [],
+              machines: (slot.machines || []).map((m) => m.name || m.id),
+            };
+          });
+
+          generatedList.push({
+            date: dStr,
+            shift,
+            total_machines: allR.length,
+            planning: structuredPlanning,
+          });
+
+          curDate.setDate(curDate.getDate() + 1);
+        }
+
+        const consolidated = {
+          meta: {
+            app: "MAP LIQUID 3 - Production View",
+            total_sessions: count,
+            generated_at: new Date().toISOString(),
+          },
+          sessions: generatedList,
+          pairs: pairsList,
+        };
+
+        const blob = new Blob([JSON.stringify(consolidated, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `dataset-history-${count}-sesi.json`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+
+        // Langsung masukkan ke memori pembelajaran Brain AI
+        BrainAI.initHistoryMemory(pairsList, true);
+        refreshHistoryStatus();
+        alert(
+          `Berhasil membuat & mengunduh ${count} sesi riwayat alokasi! Model pembelajaran Brain AI telah diperbarui.`,
+        );
+      }
+
+      function copyGitCommands() {
+        const text =
+          'git add history/\ngit commit -m "feat(history): update AI training dataset"\ngit push origin main';
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            alert(
+              "Perintah git berhasil disalin ke clipboard! Tinggal paste di terminal Anda.",
+            );
+          })
+          .catch(() => {
+            prompt("Salin perintah git berikut:", text);
+          });
+      }
+
       // Explicit global exports for inline event handlers
       window.executePlan = executePlan;
       window.setPlanningMode = setPlanningMode;
@@ -3288,6 +3838,13 @@
       window.validateAndExport = validateAndExport;
       window.shareWA = shareWA;
       window.exportExcel = exportExcel;
+      window.openHistoryModal = openHistoryModal;
+      window.closeHistoryModal = closeHistoryModal;
+      window.switchHistoryTab = switchHistoryTab;
+      window.refreshHistoryStatus = refreshHistoryStatus;
+      window.runHistoryGenerator = runHistoryGenerator;
+      window.downloadHistoryBatch = downloadHistoryBatch;
+      window.copyGitCommands = copyGitCommands;
     </script>
   </body>
 </html>

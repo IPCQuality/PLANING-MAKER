@@ -1006,6 +1006,14 @@
 
     <script src="brain.js"></script>
     <script>
+      // Inisialisasi data history & model pembelajaran AI
+      if (window.BrainAI && typeof BrainAI.loadAllHistory === "function") {
+        BrainAI.loadAllHistory().then((data) => {
+          console.log("BrainAI Learning Matrix aktif:", data.length, "data points");
+        }).catch((e) => console.warn("Load history warning:", e));
+      }
+    </script>
+    <script>
       let mapData = { machines: [], cqis: [], labels: [], lines: [] };
       let currentZoom = null,
         initialFitZoom = null,
