@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "title": "Contoh Riwayat Alokasi Mesin",
+    "date": "2026-09-01",
+    "shift": "Pagi"
+  },
+  "planning": [
+    {
+      "cqi": "CQI 1",
+      "core": ["ANDI"],
+      "machines": ["1A1", "1A2", "2A1", "2A2"]
+    },
+    {
+      "cqi": "CQI 2",
+      "core": ["BUDI"],
+      "machines": ["3A1", "3A2", "4A1", "4A2"]
+    },
+    {
+      "cqi": "CQI 15",
+      "core": ["CHANDRA"],
+      "machines": ["10B1", "10B2", "11B1"]
+    },
+    {
+      "cqi": "CQI 18",
+      "core": ["DINI"],
+      "machines": ["1C", "2C", "3C"]
+    },
+    {
+      "cqi": "CQI 19",
+      "core": ["FARHAN"],
+      "machines": ["M2", "M3"]
+    },
+    {
+      "cqi": "CQI 24",
+      "core": ["JIDDAN"],
+      "machines": ["WW1", "WW2"]
+    }
+  ]
+}
