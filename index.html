@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MAP LIQUID 3 - Factory UI</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PlanMaker" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -261,21 +268,21 @@
         padding-bottom: 3px;
       }
       .ws-group-buttons {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 5px;
       }
       .ws-btn {
         background: #ffffff;
         color: var(--text-main);
         border: 1px solid var(--border);
-        padding: 5px 6px;
-        border-radius: 4px;
+        padding: 6px 4px;
+        border-radius: var(--radius-sm);
         cursor: pointer;
         font-size: 0.73rem;
         font-weight: 600;
         font-family: "JetBrains Mono", monospace;
-        flex: 1 1 calc(33.333% - 5px);
+        width: 100%;
         text-align: center;
         transition: all 0.15s ease;
       }
@@ -499,33 +506,47 @@
         bottom: 24px;
         right: 24px;
         display: flex;
-        gap: 8px;
+        align-items: center;
+        gap: 6px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        padding: 5px 8px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
         z-index: 1000;
       }
       .zoom-btn {
-        background: #ffffff;
+        background: #f8fafc;
         border: 1px solid var(--border);
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 1.3rem;
+        font-size: 1.05rem;
         font-weight: bold;
         color: var(--text-main);
-        box-shadow: var(--shadow);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         transition: all 0.15s ease;
       }
       .zoom-btn:hover {
-        background: #f8fafc;
-        border-color: #94a3b8;
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
+        background: #eff6ff;
+        border-color: #93c5fd;
+        color: var(--cqi-ready);
       }
       .zoom-btn:active {
-        transform: translateY(0);
+        transform: translateY(1px);
+      }
+      .zoom-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding: 0 6px;
+        min-width: 48px;
+        text-align: center;
+        user-select: none;
       }
 
       /* Toast */
@@ -865,8 +886,12 @@
         </div>
       </div>
       <div class="controls">
-        <button id="settingsBtn" class="btn" onclick="handleSettingsClick()">
-          ⚙️
+        <span id="offlineIndicator" style="display:none; font-size:11px; padding:4px 8px; background:#d97706; color:#fff; border-radius:4px; font-weight:700;">⚡ Offline</span>
+        <button id="pwaInstallBtn" class="btn btn-primary" style="display:none;" onclick="installPWA()">
+          📱 Install App
+        </button>
+        <button id="settingsBtn" class="btn" onclick="handleSettingsClick()" title="Pengaturan & Menu Map">
+          ⚙️ Setelan
         </button>
         <button
           id="menuHeatmapBtn"
@@ -891,37 +916,44 @@
       <div class="side-panel control-landing" id="sidePanel">
         <div class="panel-header"><h3>Filter & Status</h3></div>
         <div class="panel-body">
-          <div style="display: flex; gap: 8px">
-            <button
-              class="btn btn-success"
-              style="flex: 1; font-size: 0.75rem"
-              onclick="setAllMachinesRunning()"
-            >
-              Run All
-            </button>
-            <button
-              class="btn btn-danger"
-              style="flex: 1; font-size: 0.75rem"
-              onclick="setAllMachinesOff()"
-            >
-              All Off
-            </button>
+          <div>
+            <div class="ws-group-title" style="margin-bottom: 6px">KONTROL MESIN</div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="btn btn-success"
+                style="flex: 1; font-size: 0.75rem"
+                onclick="setAllMachinesRunning()"
+              >
+                Run All
+              </button>
+              <button
+                class="btn btn-danger"
+                style="flex: 1; font-size: 0.75rem"
+                onclick="setAllMachinesOff()"
+              >
+                All Off
+              </button>
+            </div>
           </div>
-          <div style="display: flex; gap: 8px; margin-top: 6px">
-            <button
-              class="btn btn-primary"
-              style="flex: 1; font-size: 0.75rem"
-              onclick="setAllCqiReady()"
-            >
-              Ready All
-            </button>
-            <button
-              class="btn btn-danger"
-              style="flex: 1; font-size: 0.75rem"
-              onclick="setAllCqiOff()"
-            >
-              All Off
-            </button>
+
+          <div>
+            <div class="ws-group-title" style="margin-bottom: 6px">KONTROL CQI</div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="btn btn-primary"
+                style="flex: 1; font-size: 0.75rem"
+                onclick="setAllCqiReady()"
+              >
+                Ready All
+              </button>
+              <button
+                class="btn btn-danger"
+                style="flex: 1; font-size: 0.75rem"
+                onclick="setAllCqiOff()"
+              >
+                All Off
+              </button>
+            </div>
           </div>
 
           <div class="stats-box">
@@ -950,11 +982,27 @@
           class="zoom-btn"
           id="zoomOutBtn"
           onclick="zoomOut()"
-          style="display: none"
+          title="Zoom Out"
         >
           -
         </button>
-        <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+        <span class="zoom-badge" id="zoomBadge">100%</span>
+        <button
+          class="zoom-btn"
+          id="zoomInBtn"
+          onclick="zoomIn()"
+          title="Zoom In"
+        >
+          +
+        </button>
+        <button
+          class="zoom-btn"
+          id="zoomResetBtn"
+          onclick="resetZoom()"
+          title="Reset Zoom Ke Ukuran Fit Peta"
+        >
+          ↺
+        </button>
       </div>
     </div>
 
@@ -1004,10 +1052,10 @@
       </div>
     </div>
 
-    <script src="brain.js"></script>
-    <script>
-      // Inisialisasi data history & model pembelajaran AI
-      if (window.BrainAI && typeof BrainAI.loadAllHistory === "function") {
+    <script type="module">
+      import BrainAI from './src/brain/index.js';
+      window.BrainAI = BrainAI;
+      if (typeof BrainAI.loadAllHistory === "function") {
         BrainAI.loadAllHistory().then((data) => {
           console.log("BrainAI Learning Matrix aktif:", data.length, "data points");
         }).catch((e) => console.warn("Load history warning:", e));
@@ -2037,13 +2085,20 @@
       }
 
       function updateZoomButtons() {
-        const outBtn = document.getElementById("zoomOutBtn");
-        if (!outBtn) return;
-        if (initialFitZoom !== null && currentZoom > initialFitZoom + 0.01) {
-          outBtn.style.display = "inline-flex";
-        } else {
-          outBtn.style.display = "none";
+        const badge = document.getElementById("zoomBadge");
+        if (badge) {
+          badge.innerText = `${Math.round((currentZoom || 1) * 100)}%`;
         }
+      }
+
+      function resetZoom() {
+        if (initialFitZoom) {
+          currentZoom = initialFitZoom;
+        } else {
+          currentZoom = 1;
+        }
+        applyZoom();
+        showToast("Zoom dikembalikan ke ukuran fit peta", "info");
       }
 
       function zoomIn() {
@@ -2123,11 +2178,53 @@
         );
       });
 
+      // PWA & Service Worker Manager
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[PWA] Service Worker Registered:', reg.scope))
+            .catch(err => console.log('[PWA] Service Worker registration failed:', err));
+        });
+      }
+
+      let deferredPWAInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPWAInstallPrompt = e;
+        const btn = document.getElementById('pwaInstallBtn');
+        if (btn) btn.style.display = 'inline-flex';
+      });
+
+      function installPWA() {
+        if (deferredPWAInstallPrompt) {
+          deferredPWAInstallPrompt.prompt();
+          deferredPWAInstallPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              const btn = document.getElementById('pwaInstallBtn');
+              if (btn) btn.style.display = 'none';
+            }
+            deferredPWAInstallPrompt = null;
+          });
+        }
+      }
+
+      function updateOnlineStatus() {
+        const badge = document.getElementById('offlineIndicator');
+        if (badge) {
+          badge.style.display = navigator.onLine ? 'none' : 'inline-block';
+        }
+      }
+
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      document.addEventListener('DOMContentLoaded', updateOnlineStatus);
+
       loadMap();
 
       window.goToConfig = goToConfig;
       window.zoomIn = zoomIn;
       window.zoomOut = zoomOut;
+      window.resetZoom = resetZoom;
     </script>
   </body>
 </html>

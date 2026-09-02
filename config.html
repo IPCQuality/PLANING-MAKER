@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Planning Shift & Konfigurasi — Liquid 3</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PlanMaker" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -349,38 +356,80 @@
       }
       .list-item select,
       .qc-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
         flex: 1;
         min-width: 0;
-        background: transparent;
-        border: none;
-        outline: none;
+        padding: 6px 28px 6px 10px;
+        border-radius: var(--radius-sm);
+        border: 1px solid #cbd5e1;
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%25232563eb' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 13px 13px;
         color: var(--text-main);
         font-size: 13px;
         font-family: inherit;
-        font-weight: 500;
+        font-weight: 600;
+        outline: none;
         cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .list-item select:hover,
+      .qc-select:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+      }
+      .list-item select:focus,
+      .qc-select:focus {
+        border-color: var(--accent);
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
       }
       .config-select,
       .field-group select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
         width: 100%;
-        padding: 8px 12px;
+        padding: 8px 32px 8px 12px;
         border-radius: var(--radius-sm);
-        border: 1px solid var(--border);
-        background: var(--surface);
+        border: 1px solid #cbd5e1;
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%25232563eb' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 14px 14px;
         color: var(--text-main);
         font-size: 13px;
         font-family: inherit;
-        font-weight: 500;
+        font-weight: 600;
         outline: none;
         cursor: pointer;
-        transition:
-          border-color 0.15s ease,
-          box-shadow 0.15s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      }
+      .config-select:hover,
+      .field-group select:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
       }
       .config-select:focus,
       .field-group select:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+      select option,
+      .config-select option,
+      .qc-select option {
+        background-color: #ffffff;
+        color: #0f172a;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 500;
       }
 
       .icon-btn {
@@ -566,6 +615,181 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        align-items: center;
+      }
+      .actions .btn {
+        flex: 1 1 auto;
+        min-width: 140px;
+      }
+
+      /* Drag & Drop Board Styles */
+      .plan-board-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+      }
+      .empty-board-notice {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 32px;
+        color: var(--text-muted);
+        font-size: 13.5px;
+        background: #f8fafc;
+        border: 1px dashed var(--border);
+        border-radius: var(--radius-sm);
+      }
+      .slot-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+      }
+      .slot-card.drag-over {
+        border-color: var(--accent);
+        background: #eff6ff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        transform: scale(1.01);
+      }
+      .slot-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 8px;
+      }
+      .slot-cqi-title {
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .slot-badge-line {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .slot-capacity-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: var(--success-bg);
+        color: #15803d;
+      }
+      .slot-capacity-badge.warn {
+        background: var(--warning-bg);
+        color: #b45309;
+      }
+      .slot-capacity-badge.over {
+        background: var(--danger-bg);
+        color: #b91c1c;
+      }
+      .slot-manpower-box {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .person-pill {
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: #f1f5f9;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        cursor: grab;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .person-pill.core {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+      }
+      .person-pill.noncore {
+        background: #fef3c7;
+        border-color: #fde68a;
+        color: #b45309;
+      }
+      .person-pill.dragging {
+        opacity: 0.4;
+      }
+      .slot-machines-container {
+        min-height: 52px;
+        background: #f8fafc;
+        border: 1px dashed var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-content: flex-start;
+      }
+      .machine-pill {
+        font-size: 11.5px;
+        font-weight: 600;
+        font-family: "JetBrains Mono", monospace;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: var(--success-bg);
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        cursor: grab;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
+      .machine-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      }
+      .machine-pill:active {
+        cursor: grabbing;
+      }
+      .machine-pill.dragging {
+        opacity: 0.4;
+      }
+      .machine-remove-btn {
+        background: transparent;
+        border: none;
+        color: #991b1b;
+        font-size: 11px;
+        cursor: pointer;
+        padding: 0 2px;
+        line-height: 1;
+        border-radius: 2px;
+      }
+      .machine-remove-btn:hover {
+        background: #fee2e2;
+      }
+      .unassigned-pool-card {
+        border-color: #fde68a;
+        background: #fffbeb;
+        grid-column: 1 / -1;
+      }
+      .unassigned-pool-card .slot-machines-container {
+        background: #fef3c7;
+        border-color: #fcd34d;
+      }
+      .unassigned-pill {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
       }
       .btn {
         display: inline-flex;
@@ -1163,6 +1387,20 @@
         }
       }
     </style>
+    <script>
+      // Early declaration to guarantee inline onclick attributes can never fail before full script loads
+      window.planningMode = 1;
+      window.setPlanningMode = function (mode) {
+        window.planningMode = parseInt(mode, 10) === 2 ? 2 : 1;
+        try {
+          localStorage.setItem("planning_mode", window.planningMode);
+        } catch (e) {}
+        const b1 = document.getElementById("btnMode1");
+        const b2 = document.getElementById("btnMode2");
+        if (b1) b1.classList.toggle("active", window.planningMode === 1);
+        if (b2) b2.classList.toggle("active", window.planningMode === 2);
+      };
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -1172,6 +1410,10 @@
         <span class="badge" id="statusBadge">Siap Generate</span>
       </div>
       <div style="display: flex; align-items: center; gap: 16px">
+        <span id="offlineIndicator" style="display:none; font-size:11px; padding:4px 8px; background:#d97706; color:#fff; border-radius:4px; font-weight:700;">⚡ Offline</span>
+        <button id="pwaInstallBtn" class="btn btn-sm" style="display:none; background:#2563eb; color:#fff; border-color:#2563eb;" onclick="installPWA()">
+          📱 Install App
+        </button>
         <div class="mode-switch-group">
           <button
             class="mode-btn active"
@@ -1336,17 +1578,12 @@
               </div>
               <div class="field-group">
                 <label>Mil-Std</label>
-                <input
-                  type="text"
-                  id="milStdInput"
-                  placeholder="Nama Mil-Std..."
-                  oninput="
-                    localStorage.setItem('milStd_val', this.value);
-                    renderQcList();
-                    renderSupportFgOptions();
-                    updateDashboardStats();
-                  "
-                />
+                <select
+                  id="milStdSelect"
+                  class="config-select"
+                  onchange="onMilStdSelectChange(this.value)"
+                >
+                </select>
               </div>
               <div class="field-group">
                 <label>Support FG</label>
@@ -1368,6 +1605,26 @@
       </div>
 
       <div id="alertContainer" class="alert-container"></div>
+
+      <!-- PAPAN ALOKASI INTERAKTIF (DRAG & DROP RE-ASSIGNMENT) -->
+      <section class="card" id="planBoardSection" style="margin-bottom: 24px;">
+        <div class="card-head">
+          <div>
+            <h2>Papan Alokasi Interaktif (Drag &amp; Drop Re-assignment)</h2>
+            <p>Geser (drag &amp; drop) mesin atau manpower antar slot CQI untuk penyesuaian langsung secara visual.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="meta" id="boardMeta">Belum digenerate</span>
+            <button class="btn btn-sm" onclick="resetBoardToAutoGenerated()" title="Kembalikan ke hasil generate otomatis">↺ Reset Alokasi</button>
+          </div>
+        </div>
+        
+        <div id="interactivePlanBoard" class="plan-board-grid">
+          <div class="empty-board-notice">
+            Klik "Generate Planning" untuk menampilkan papan alokasi interaktif drag &amp; drop.
+          </div>
+        </div>
+      </section>
 
       <section class="card">
         <div class="card-head">
@@ -1790,10 +2047,10 @@
       </div>
     </div>
 
-    <script src="brain.js"></script>
-    <script>
-      // Inisialisasi data history & model pembelajaran AI
-      if (window.BrainAI && typeof BrainAI.loadAllHistory === "function") {
+    <script type="module">
+      import BrainAI from './src/brain/index.js';
+      window.BrainAI = BrainAI;
+      if (typeof BrainAI.loadAllHistory === "function") {
         BrainAI.loadAllHistory()
           .then((data) => {
             console.log("BrainAI Learning Matrix aktif:", data.length, "data points");
@@ -1935,24 +2192,38 @@
             manpowerData.qcPassed.length > 0 ? manpowerData.qcPassed : [];
           let filteredNonCore = [];
 
-          let milstdName = "";
-          let supportfgName = "";
+          let milstdName = localStorage.getItem("milStd_val") || "";
+          let supportfgName = localStorage.getItem("supportFg_val") || "";
+
+          if (!milstdName) {
+            const milItem = rawNonCore.find((item) =>
+              itemHasJobPriority(item, "milstd"),
+            );
+            if (milItem) milstdName = milItem.name;
+          }
+          if (!supportfgName) {
+            const sItem = rawNonCore.find((item) =>
+              itemHasJobPriority(item, "supportfg"),
+            );
+            if (sItem) supportfgName = sItem.name;
+          }
 
           rawNonCore.forEach((item) => {
             const isQc = itemHasJobPriority(item, "qc-passed");
             const isMil = itemHasJobPriority(item, "milstd");
             const isSupport = itemHasJobPriority(item, "supportfg");
 
-            if (isMil && !milstdName) {
-              milstdName = item.name;
-            }
-            if (isSupport && !supportfgName) {
-              supportfgName = item.name;
-            }
-            if (isQc) {
+            // Jika nama di milstd sudah ada, jangan masukan ke qcpassed walaupun double job
+            const matchesMilstd =
+              milstdName &&
+              item.name.trim().toLowerCase() === milstdName.trim().toLowerCase();
+
+            if (isQc && !matchesMilstd) {
               if (
                 !qcList.some(
-                  (q) => (typeof q === "object" ? q.name : q) === item.name,
+                  (q) =>
+                    (typeof q === "object" ? q.name : q).trim().toLowerCase() ===
+                    item.name.trim().toLowerCase(),
                 )
               ) {
                 qcList.push(item);
@@ -1964,6 +2235,23 @@
             }
           });
 
+          // Filter out milstdName from qcList & manpowerData.qcPassed if present
+          if (milstdName) {
+            const milLower = milstdName.trim().toLowerCase();
+            qcList = qcList.filter(
+              (q) =>
+                (typeof q === "object" ? q.name : q).trim().toLowerCase() !==
+                milLower,
+            );
+            if (manpowerData.qcPassed.length > 0) {
+              manpowerData.qcPassed = manpowerData.qcPassed.filter(
+                (q) =>
+                  (typeof q === "object" ? q.name : q).trim().toLowerCase() !==
+                  milLower,
+              );
+            }
+          }
+
           if (!savedNonCore || manpowerData.nonCore.length === 0) {
             manpowerData.nonCore = filteredNonCore;
           }
@@ -1971,13 +2259,13 @@
             manpowerData.qcPassed = qcList;
           }
 
-          if (milstdName) {
-            document.getElementById("milStdInput").value = milstdName;
+          if (milstdName && !localStorage.getItem("milStd_val")) {
             localStorage.setItem("milStd_val", milstdName);
           }
           if (supportfgName && !localStorage.getItem("supportFg_val")) {
             localStorage.setItem("supportFg_val", supportfgName);
           }
+          renderMilStdOptions();
           renderSupportFgOptions();
 
           persistManpower();
@@ -2005,6 +2293,8 @@
         renderList("coreListContainer", manpowerData.core, "core");
         renderList("nonCoreListContainer", manpowerData.nonCore, "nonCore");
         renderQcList();
+        renderMilStdOptions();
+        renderSupportFgOptions();
         updateDashboardStats();
       }
 
@@ -2034,6 +2324,9 @@
             }
             persistManpower();
             updateDashboardStats();
+            renderMilStdOptions();
+            renderSupportFgOptions();
+            renderQcList();
           };
 
           const rightGroup = document.createElement("div");
@@ -2163,6 +2456,132 @@
         return Array.from(candidatesMap.values());
       }
 
+      function getMilStdCandidates() {
+        const candidatesMap = new Map();
+        const scanItem = (item, isPriority) => {
+          if (!item || !item.name) return;
+          const name = String(item.name).trim();
+          if (!name) return;
+          const id = item.id ? String(item.id).trim() : "";
+          if (!candidatesMap.has(name.toLowerCase())) {
+            candidatesMap.set(name.toLowerCase(), {
+              id: id,
+              name: name,
+              job_priority: item.job_priority || "",
+              cqi_priority: item.cqi_priority || "",
+              isMilStdPriority: isPriority || itemHasJobPriority(item, "milstd"),
+            });
+          }
+        };
+
+        const scanMilOnly = (item) => {
+          if (itemHasJobPriority(item, "milstd")) scanItem(item, true);
+        };
+
+        if (masterManpowerData) {
+          (masterManpowerData.nonCore || []).forEach(scanMilOnly);
+          (masterManpowerData.core || []).forEach(scanMilOnly);
+        }
+        if (manpowerData) {
+          (manpowerData.nonCore || []).forEach(scanMilOnly);
+          (manpowerData.core || []).forEach(scanMilOnly);
+        }
+
+        if (masterManpowerData) {
+          (masterManpowerData.nonCore || []).forEach((i) => scanItem(i, false));
+          (masterManpowerData.core || []).forEach((i) => scanItem(i, false));
+        }
+        if (manpowerData) {
+          (manpowerData.nonCore || []).forEach((i) => scanItem(i, false));
+          (manpowerData.core || []).forEach((i) => scanItem(i, false));
+        }
+
+        return Array.from(candidatesMap.values());
+      }
+
+      function getAllAssignedNames(exclude = {}) {
+        const set = new Set();
+        if (!exclude.core && manpowerData.core) {
+          manpowerData.core.forEach((i) => {
+            const n = (typeof i === "object" ? i.name : i || "").trim().toLowerCase();
+            if (n) set.add(n);
+          });
+        }
+        if (!exclude.nonCore && manpowerData.nonCore) {
+          manpowerData.nonCore.forEach((i) => {
+            const n = (typeof i === "object" ? i.name : i || "").trim().toLowerCase();
+            if (n) set.add(n);
+          });
+        }
+        if (manpowerData.qcPassed) {
+          manpowerData.qcPassed.forEach((i, idx) => {
+            if (exclude.excludeQcIndex !== undefined && exclude.excludeQcIndex === idx) return;
+            const n = (typeof i === "object" ? i.name : i || "").trim().toLowerCase();
+            if (n) set.add(n);
+          });
+        }
+        if (!exclude.milStd) {
+          const mVal = (
+            localStorage.getItem("milStd_val") ||
+            (document.getElementById("milStdSelect")
+              ? document.getElementById("milStdSelect").value
+              : "")
+          ).trim().toLowerCase();
+          if (mVal) set.add(mVal);
+        }
+        if (!exclude.supportFg) {
+          const sVal = (
+            localStorage.getItem("supportFg_val") ||
+            (document.getElementById("supportFgSelect")
+              ? document.getElementById("supportFgSelect").value
+              : "")
+          ).trim().toLowerCase();
+          if (sVal) set.add(sVal);
+        }
+        return set;
+      }
+
+      function renderMilStdOptions() {
+        const select = document.getElementById("milStdSelect");
+        if (!select) return;
+
+        const savedVal = (localStorage.getItem("milStd_val") || "").trim();
+        select.innerHTML = '<option value="">-- Tidak Ada / Kosong --</option>';
+
+        const candidates = getMilStdCandidates();
+        let hasSelected = false;
+
+        const assignedSet = getAllAssignedNames({ milStd: true });
+
+        candidates.forEach((cand) => {
+          const candLower = cand.name.toLowerCase();
+          const isSelected =
+            savedVal && candLower === savedVal.toLowerCase();
+
+          // Sembunyikan nama jika sudah diinput di job lain
+          if (!isSelected && assignedSet.has(candLower)) {
+            return;
+          }
+
+          const opt = document.createElement("option");
+          opt.value = cand.name;
+          opt.innerText = cand.name;
+          if (isSelected) {
+            opt.selected = true;
+            hasSelected = true;
+          }
+          select.appendChild(opt);
+        });
+
+        if (savedVal && !hasSelected) {
+          const customOpt = document.createElement("option");
+          customOpt.value = savedVal;
+          customOpt.innerText = savedVal;
+          customOpt.selected = true;
+          select.appendChild(customOpt);
+        }
+      }
+
       function renderSupportFgOptions() {
         const select = document.getElementById("supportFgSelect");
         if (!select) return;
@@ -2173,32 +2592,15 @@
         const candidates = getSupportFgCandidates();
         let hasSelected = false;
 
-        const qcAndMilAssigned = new Set();
-        (manpowerData.qcPassed || []).forEach((item) => {
-          const name = (
-            typeof item === "object" ? item.name : item || ""
-          )
-            .trim()
-            .toLowerCase();
-          if (name) qcAndMilAssigned.add(name);
-        });
-        const milStdVal = (
-          localStorage.getItem("milStd_val") ||
-          (document.getElementById("milStdInput")
-            ? document.getElementById("milStdInput").value
-            : "")
-        )
-          .trim()
-          .toLowerCase();
-        if (milStdVal) qcAndMilAssigned.add(milStdVal);
+        const assignedSet = getAllAssignedNames({ supportFg: true });
 
         candidates.forEach((cand) => {
           const candLower = cand.name.toLowerCase();
           const isSelected =
             savedVal && candLower === savedVal.toLowerCase();
 
-          // Sembunyikan nama jika sudah diinput di QC Passed atau Mil-Std (agar tidak double)
-          if (!isSelected && qcAndMilAssigned.has(candLower)) {
+          // Sembunyikan nama jika sudah diinput di job lain
+          if (!isSelected && assignedSet.has(candLower)) {
             return;
           }
 
@@ -2228,24 +2630,6 @@
 
         const candidates = getQcPassedCandidates();
 
-        const milStdVal = (
-          localStorage.getItem("milStd_val") ||
-          (document.getElementById("milStdInput")
-            ? document.getElementById("milStdInput").value
-            : "")
-        )
-          .trim()
-          .toLowerCase();
-
-        const supportFgVal = (
-          localStorage.getItem("supportFg_val") ||
-          (document.getElementById("supportFgSelect")
-            ? document.getElementById("supportFgSelect").value
-            : "")
-        )
-          .trim()
-          .toLowerCase();
-
         manpowerData.qcPassed.forEach((item, index) => {
           const row = document.createElement("div");
           row.className = "list-item";
@@ -2258,8 +2642,6 @@
             typeof item === "object"
               ? (item.name || "").trim()
               : String(item || "").trim();
-          const currentId =
-            typeof item === "object" ? (item.id || "").trim() : "";
 
           const select = document.createElement("select");
           select.className = "qc-select";
@@ -2270,17 +2652,7 @@
           defaultOpt.innerText = "-- Pilih Personil QC Passed --";
           select.appendChild(defaultOpt);
 
-          const alreadySelectedOtherQc = new Set();
-          manpowerData.qcPassed.forEach((otherItem, otherIdx) => {
-            if (otherIdx !== index) {
-              const oName = (
-                typeof otherItem === "object" ? otherItem.name : otherItem || ""
-              )
-                .trim()
-                .toLowerCase();
-              if (oName) alreadySelectedOtherQc.add(oName);
-            }
-          });
+          const assignedSet = getAllAssignedNames({ excludeQcIndex: index });
 
           let hasCurrentInCandidates = false;
           candidates.forEach((cand) => {
@@ -2288,11 +2660,9 @@
             const isSelectedHere =
               currentName && candLower === currentName.toLowerCase();
 
-            // Sembunyikan nama jika sudah terinput di slot QC lain, Mil-Std, atau Support FG (agar tidak double)
-            if (!isSelectedHere) {
-              if (alreadySelectedOtherQc.has(candLower)) return;
-              if (milStdVal && candLower === milStdVal) return;
-              if (supportFgVal && candLower === supportFgVal) return;
+            // Sembunyikan nama jika sudah terinput di job lain
+            if (!isSelectedHere && assignedSet.has(candLower)) {
+              return;
             }
 
             const opt = document.createElement("option");
@@ -2314,7 +2684,24 @@
           }
 
           select.onchange = (e) => {
-            const selName = e.target.value;
+            const selName = (e.target.value || "").trim();
+            const milStdVal = (
+              localStorage.getItem("milStd_val") ||
+              (document.getElementById("milStdSelect")
+                ? document.getElementById("milStdSelect").value
+                : "")
+            ).trim();
+
+            if (
+              selName &&
+              milStdVal &&
+              selName.toLowerCase() === milStdVal.toLowerCase()
+            ) {
+              const milSelect = document.getElementById("milStdSelect");
+              if (milSelect) milSelect.value = "";
+              localStorage.setItem("milStd_val", "");
+            }
+
             const found = candidates.find(
               (c) => c.name.toLowerCase() === selName.toLowerCase(),
             );
@@ -2342,6 +2729,7 @@
             }
             persistManpower();
             renderAllLists();
+            renderMilStdOptions();
             renderSupportFgOptions();
           };
 
@@ -2359,6 +2747,7 @@
             manpowerData.qcPassed.splice(index, 1);
             persistManpower();
             renderAllLists();
+            renderMilStdOptions();
             renderSupportFgOptions();
           };
           rightGroup.appendChild(delBtn);
@@ -2389,35 +2778,9 @@
         }
 
         const candidates = getQcPassedCandidates();
-        const assignedNames = new Set(
-          manpowerData.qcPassed
-            .map((i) =>
-              (typeof i === "object" ? i.name : i).trim().toLowerCase(),
-            )
-            .filter(Boolean),
-        );
+        const assignedNames = getAllAssignedNames();
 
-        const milStdVal = (
-          localStorage.getItem("milStd_val") ||
-          (document.getElementById("milStdInput")
-            ? document.getElementById("milStdInput").value
-            : "")
-        )
-          .trim()
-          .toLowerCase();
-        if (milStdVal) assignedNames.add(milStdVal);
-
-        const supportFgVal = (
-          localStorage.getItem("supportFg_val") ||
-          (document.getElementById("supportFgSelect")
-            ? document.getElementById("supportFgSelect").value
-            : "")
-        )
-          .trim()
-          .toLowerCase();
-        if (supportFgVal) assignedNames.add(supportFgVal);
-
-        // Cari kandidat pertama yang belum dipilih
+        // Cari kandidat pertama yang belum dipilih di job manapun
         const availableCand = candidates.find(
           (c) => !assignedNames.has(c.name.toLowerCase()),
         );
@@ -2440,6 +2803,7 @@
 
         persistManpower();
         renderAllLists();
+        renderMilStdOptions();
         renderSupportFgOptions();
       }
 
@@ -2534,9 +2898,9 @@
           (typeof i === "object" ? i.name : i).trim().toLowerCase(),
         );
         const milstd = (
-          document.getElementById("milStdInput")
-            ? document.getElementById("milStdInput").value
-            : ""
+          document.getElementById("milStdSelect")
+            ? document.getElementById("milStdSelect").value
+            : localStorage.getItem("milStd_val") || ""
         )
           .trim()
           .toLowerCase();
@@ -2793,11 +3157,55 @@
       }
       window.sortListById = sortListById;
 
-      function loadExtraConfigs() {
-        const milStdInput = document.getElementById("milStdInput");
-        if (milStdInput) {
-          milStdInput.value = localStorage.getItem("milStd_val") || "";
+      function onMilStdSelectChange(val) {
+        const cleanVal = (val || "").trim();
+        localStorage.setItem("milStd_val", cleanVal);
+
+        if (cleanVal) {
+          const valLower = cleanVal.toLowerCase();
+          const initLen = manpowerData.qcPassed.length;
+          manpowerData.qcPassed = manpowerData.qcPassed.filter((item) => {
+            const qName = (
+              typeof item === "object" ? item.name : item || ""
+            )
+              .trim()
+              .toLowerCase();
+            return qName !== valLower;
+          });
+          if (manpowerData.qcPassed.length !== initLen) {
+            persistManpower();
+          }
         }
+
+        renderQcList();
+        renderSupportFgOptions();
+        renderMilStdOptions();
+        updateDashboardStats();
+      }
+      window.onMilStdSelectChange = onMilStdSelectChange;
+
+      function loadExtraConfigs() {
+        const savedMil = (localStorage.getItem("milStd_val") || "").trim();
+        if (
+          savedMil &&
+          manpowerData.qcPassed &&
+          manpowerData.qcPassed.length > 0
+        ) {
+          const milLower = savedMil.toLowerCase();
+          const initLen = manpowerData.qcPassed.length;
+          manpowerData.qcPassed = manpowerData.qcPassed.filter((item) => {
+            const qName = (
+              typeof item === "object" ? item.name : item || ""
+            )
+              .trim()
+              .toLowerCase();
+            return qName !== milLower;
+          });
+          if (manpowerData.qcPassed.length !== initLen) {
+            persistManpower();
+          }
+        }
+        renderMilStdOptions();
         renderSupportFgOptions();
       }
 
@@ -3026,9 +3434,9 @@
             longshiftNames: longshiftNames,
             longshift: lsCount,
             qcPassed: qcPassedFormatted,
-            milStd: (document.getElementById("milStdInput")
-              ? document.getElementById("milStdInput").value
-              : ""
+            milStd: (document.getElementById("milStdSelect")
+              ? document.getElementById("milStdSelect").value
+              : localStorage.getItem("milStd_val") || ""
             ).trim(),
             supportFg: (document.getElementById("supportFgSelect")
               ? document.getElementById("supportFgSelect").value
@@ -3076,6 +3484,7 @@
           } catch (e) {}
 
           generateTextOutput(finalConfig);
+          renderInteractiveBoard();
 
           const statusBadge = document.getElementById("statusBadge");
           if (statusBadge) {
@@ -3144,9 +3553,9 @@
           const qcPassedList = (manpowerData.qcPassed || [])
             .map((i) => (typeof i === "object" ? i.name : i))
             .filter(Boolean);
-          const milStdVal = document.getElementById("milStdInput")
-            ? document.getElementById("milStdInput").value.trim()
-            : "";
+          const milStdVal = document.getElementById("milStdSelect")
+            ? document.getElementById("milStdSelect").value.trim()
+            : (localStorage.getItem("milStd_val") || "").trim();
           const supportFgVal = document.getElementById("supportFgSelect")
             ? document.getElementById("supportFgSelect").value.trim()
             : "";
@@ -3816,6 +4225,338 @@
           });
       }
 
+      // ==========================================
+      // FITUR INTERACTIVE DRAG-AND-DROP BOARD
+      // ==========================================
+      let draggedItemData = null;
+
+      function renderInteractiveBoard() {
+        const board = document.getElementById("interactivePlanBoard");
+        if (!board) return;
+
+        if (!currentPlan || !Array.isArray(currentPlan) || currentPlan.length === 0) {
+          board.innerHTML = `
+            <div class="empty-board-notice">
+              Klik "Generate Planning" untuk menampilkan papan alokasi interaktif drag & drop.
+            </div>
+          `;
+          const metaEl = document.getElementById("boardMeta");
+          if (metaEl) metaEl.innerText = "Belum digenerate";
+          return;
+        }
+
+        const allRunning = currentPlan.flatMap((s) => s.machines || []);
+        let html = "";
+
+        currentPlan.forEach((slot, slotIdx) => {
+          const cqiName = slot.cqi.name || `CQI-${slotIdx + 1}`;
+          const lineName = BrainAI.getCqiPrimaryLine ? BrainAI.getCqiPrimaryLine(slot.cqi) : "LINE";
+          const macCount = slot.machines.length;
+          const maxCapacity = slot.maxAllowedMachines || (planningMode === 2 ? 8 : 10);
+          
+          let capClass = "slot-capacity-badge";
+          if (macCount > maxCapacity) capClass += " over";
+          else if (macCount === maxCapacity) capClass += " warn";
+
+          const slotDist = slot.totalDistance !== undefined ? `${slot.totalDistance} langkah` : "";
+
+          html += `
+            <div class="slot-card" 
+                 data-slot-idx="${slotIdx}"
+                 ondragover="handleBoardDragOver(event)"
+                 ondragleave="handleBoardDragLeave(event)"
+                 ondrop="handleBoardDrop(event, ${slotIdx})">
+              
+              <div class="slot-card-header">
+                <div class="slot-cqi-title">
+                  <span>${cqiName}</span>
+                  <span class="slot-badge-line">${lineName}</span>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  ${slotDist ? `<span style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">📍 ${slotDist}</span>` : ""}
+                  <span class="${capClass}">${macCount}/${maxCapacity} Mesin</span>
+                </div>
+              </div>
+
+              <div class="slot-manpower-box">
+                ${(slot.coreNames || []).map((c, cIdx) => `
+                  <span class="person-pill core" 
+                        draggable="true" 
+                        ondragstart="handlePersonDragStart(event, ${slotIdx}, 'coreNames', '${c}', ${cIdx})">
+                    👤 ${c} <small>(Core)</small>
+                  </span>
+                `).join("")}
+
+                ${(slot.nonCore || []).map((nc, ncIdx) => `
+                  <span class="person-pill noncore" 
+                        draggable="true" 
+                        ondragstart="handlePersonDragStart(event, ${slotIdx}, 'nonCore', '${nc}', ${ncIdx})">
+                    👥 ${nc} <small>(Non-Core)</small>
+                  </span>
+                `).join("")}
+
+                ${(slot.longshift || []).map((ls, lsIdx) => `
+                  <span class="person-pill noncore" style="background:#f1f5f9; border-color:#cbd5e1; color:#334155"
+                        draggable="true" 
+                        ondragstart="handlePersonDragStart(event, ${slotIdx}, 'longshift', '${ls}', ${lsIdx})">
+                    ⏰ ${ls} <small>(LS)</small>
+                  </span>
+                `).join("")}
+              </div>
+
+              <div class="slot-machines-container">
+                ${slot.machines.map((m) => {
+                  const ws = BrainAI.getWorkstationKey ? BrainAI.getWorkstationKey(m) : (m.workstation || "");
+                  const label = m.name || m.id;
+                  return `
+                    <span class="machine-pill" 
+                          draggable="true"
+                          data-machine-id="${m.id || label}"
+                          ondragstart="handleMachineDragStart(event, ${slotIdx}, '${m.id || label}')">
+                      ⚙️ ${label} ${ws ? `<small style="opacity:0.8">(${ws})</small>` : ""}
+                      <button class="machine-remove-btn" 
+                              onclick="removeMachineFromSlot(${slotIdx}, '${m.id || label}')" 
+                              title="Pindahkan ke Unassigned">✕</button>
+                    </span>
+                  `;
+                }).join("")}
+                ${slot.machines.length === 0 ? `<div style="font-size:11px; color:#94a3b8; padding:8px; width:100%; text-align:center;">Tarik &amp; lepas mesin di sini</div>` : ""}
+              </div>
+            </div>
+          `;
+        });
+
+        // Unassigned machines pool (jika ada)
+        const unassigned = currentPlan.unassignedMachines || currentPlan.uncoveredMachines || [];
+        if (unassigned.length > 0) {
+          html += `
+            <div class="slot-card unassigned-pool-card"
+                 data-slot-idx="-1"
+                 ondragover="handleBoardDragOver(event)"
+                 ondragleave="handleBoardDragLeave(event)"
+                 ondrop="handleBoardDrop(event, -1)">
+              
+              <div class="slot-card-header">
+                <div class="slot-cqi-title" style="color: #991b1b;">
+                  <span>⚠️ Mesin Belum Tercover / Unassigned</span>
+                </div>
+                <span class="slot-capacity-badge over">${unassigned.length} Mesin</span>
+              </div>
+
+              <div class="slot-machines-container">
+                ${unassigned.map((m) => {
+                  const ws = BrainAI.getWorkstationKey ? BrainAI.getWorkstationKey(m) : (m.workstation || "");
+                  const label = m.name || m.id;
+                  return `
+                    <span class="machine-pill unassigned-pill" 
+                          draggable="true"
+                          data-machine-id="${m.id || label}"
+                          ondragstart="handleMachineDragStart(event, -1, '${m.id || label}')">
+                      ⚙️ ${label} ${ws ? `<small style="opacity:0.8">(${ws})</small>` : ""}
+                    </span>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        board.innerHTML = html;
+
+        const totalMachinesCount = allRunning.length;
+        const metaEl = document.getElementById("boardMeta");
+        if (metaEl) {
+          metaEl.innerText = `${currentPlan.length} Slot CQI | ${totalMachinesCount} Mesin Teralokasi`;
+        }
+      }
+
+      function handleMachineDragStart(e, slotIdx, machineId) {
+        draggedItemData = { type: "machine", slotIdx, machineId };
+        try { e.dataTransfer.setData("text/plain", JSON.stringify(draggedItemData)); } catch(err){}
+        if (e.target) e.target.classList.add("dragging");
+      }
+
+      function handlePersonDragStart(e, slotIdx, personType, personName, personIdx) {
+        draggedItemData = { type: "person", slotIdx, personType, personName, personIdx };
+        try { e.dataTransfer.setData("text/plain", JSON.stringify(draggedItemData)); } catch(err){}
+        if (e.target) e.target.classList.add("dragging");
+      }
+
+      function handleBoardDragOver(e) {
+        e.preventDefault();
+        const card = e.currentTarget;
+        if (card) card.classList.add("drag-over");
+      }
+
+      function handleBoardDragLeave(e) {
+        const card = e.currentTarget;
+        if (card) card.classList.remove("drag-over");
+      }
+
+      function handleBoardDrop(e, targetSlotIdx) {
+        e.preventDefault();
+        const card = e.currentTarget;
+        if (card) card.classList.remove("drag-over");
+
+        let data = draggedItemData;
+        if (!data) {
+          try { data = JSON.parse(e.dataTransfer.getData("text/plain")); } catch (err) {}
+        }
+        if (!data || !currentPlan) return;
+
+        const sourceSlotIdx = data.slotIdx;
+        if (sourceSlotIdx === targetSlotIdx) return;
+
+        if (data.type === "machine") {
+          let machineObj = null;
+
+          if (sourceSlotIdx >= 0 && currentPlan[sourceSlotIdx]) {
+            const srcList = currentPlan[sourceSlotIdx].machines;
+            const idx = srcList.findIndex((m) => (m.id || m.name) === data.machineId);
+            if (idx !== -1) machineObj = srcList.splice(idx, 1)[0];
+          } else if (sourceSlotIdx === -1) {
+            const unassigned = currentPlan.unassignedMachines || currentPlan.uncoveredMachines || [];
+            const idx = unassigned.findIndex((m) => (m.id || m.name) === data.machineId);
+            if (idx !== -1) machineObj = unassigned.splice(idx, 1)[0];
+          }
+
+          if (!machineObj) return;
+
+          if (targetSlotIdx >= 0 && currentPlan[targetSlotIdx]) {
+            currentPlan[targetSlotIdx].machines.push(machineObj);
+          } else if (targetSlotIdx === -1) {
+            if (!currentPlan.unassignedMachines) currentPlan.unassignedMachines = [];
+            currentPlan.unassignedMachines.push(machineObj);
+            currentPlan.uncoveredMachines = currentPlan.unassignedMachines;
+          }
+        } else if (data.type === "person") {
+          if (sourceSlotIdx < 0 || targetSlotIdx < 0) return;
+          const srcSlot = currentPlan[sourceSlotIdx];
+          const tgtSlot = currentPlan[targetSlotIdx];
+          if (!srcSlot || !tgtSlot) return;
+
+          const pType = data.personType;
+          const list = srcSlot[pType];
+          if (Array.isArray(list)) {
+            const idx = list.indexOf(data.personName);
+            if (idx !== -1) {
+              const movedName = list.splice(idx, 1)[0];
+              if (!tgtSlot[pType]) tgtSlot[pType] = [];
+              tgtSlot[pType].push(movedName);
+            }
+          }
+        }
+
+        draggedItemData = null;
+        recalculatePlanDistance();
+        syncUpdatedPlanState();
+      }
+
+      function removeMachineFromSlot(slotIdx, machineId) {
+        if (!currentPlan || !currentPlan[slotIdx]) return;
+        const list = currentPlan[slotIdx].machines;
+        const idx = list.findIndex((m) => (m.id || m.name) === machineId);
+        if (idx !== -1) {
+          const [removed] = list.splice(idx, 1);
+          if (!currentPlan.unassignedMachines) currentPlan.unassignedMachines = [];
+          currentPlan.unassignedMachines.push(removed);
+          currentPlan.uncoveredMachines = currentPlan.unassignedMachines;
+
+          recalculatePlanDistance();
+          syncUpdatedPlanState();
+        }
+      }
+
+      function recalculatePlanDistance() {
+        if (!currentPlan || !Array.isArray(currentPlan)) return;
+        const mapData = state ? state.mapData || {} : {};
+        let grandTotal = 0;
+
+        currentPlan.forEach((slot) => {
+          let slotDist = 0;
+          (slot.machines || []).forEach((m) => {
+            const d = BrainAI.calculateDistance ? BrainAI.calculateDistance(m, slot.cqi, mapData.labels || []) : 0;
+            slotDist += d;
+          });
+          slot.totalDistance = slotDist;
+          grandTotal += slotDist;
+        });
+
+        currentPlan.totalDistance = grandTotal;
+        currentPlan.avgDistance = currentPlan.length > 0 ? (grandTotal / currentPlan.length).toFixed(1) : 0;
+      }
+
+      function syncUpdatedPlanState() {
+        if (lastFinalConfig) {
+          generateTextOutput(lastFinalConfig);
+        }
+        const report = BrainAI.validate(currentPlan, window.machinesToUse || [], planningMode || 1);
+        renderAlerts(report.info, report.violations);
+
+        const uncovered = currentPlan.unassignedMachines || currentPlan.uncoveredMachines || [];
+        const planPayload = {
+          version: 1,
+          updatedAt: new Date().toISOString(),
+          mode: planningMode || 1,
+          slots: JSON.parse(JSON.stringify(currentPlan)),
+          uncoveredMachines: uncovered,
+        };
+
+        try {
+          sessionStorage.setItem("active_planning", JSON.stringify(planPayload));
+          localStorage.setItem("last_active_planning", JSON.stringify(planPayload));
+        } catch (e) {}
+
+        renderInteractiveBoard();
+      }
+
+      function resetBoardToAutoGenerated() {
+        executePlan();
+      }
+
+      // ==========================================
+      // PWA SERVICE WORKER & OFFLINE MANAGER
+      // ==========================================
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[PWA] Service Worker Registered:', reg.scope))
+            .catch(err => console.log('[PWA] Service Worker registration failed:', err));
+        });
+      }
+
+      let deferredPWAInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPWAInstallPrompt = e;
+        const btn = document.getElementById('pwaInstallBtn');
+        if (btn) btn.style.display = 'inline-flex';
+      });
+
+      function installPWA() {
+        if (deferredPWAInstallPrompt) {
+          deferredPWAInstallPrompt.prompt();
+          deferredPWAInstallPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              const btn = document.getElementById('pwaInstallBtn');
+              if (btn) btn.style.display = 'none';
+            }
+            deferredPWAInstallPrompt = null;
+          });
+        }
+      }
+
+      function updateOnlineStatus() {
+        const badge = document.getElementById('offlineIndicator');
+        if (badge) {
+          badge.style.display = navigator.onLine ? 'none' : 'inline-block';
+        }
+      }
+
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      document.addEventListener('DOMContentLoaded', updateOnlineStatus);
+
       // Explicit global exports for inline event handlers
       window.executePlan = executePlan;
       window.setPlanningMode = setPlanningMode;
@@ -3845,6 +4586,15 @@
       window.runHistoryGenerator = runHistoryGenerator;
       window.downloadHistoryBatch = downloadHistoryBatch;
       window.copyGitCommands = copyGitCommands;
+      window.renderInteractiveBoard = renderInteractiveBoard;
+      window.handleMachineDragStart = handleMachineDragStart;
+      window.handlePersonDragStart = handlePersonDragStart;
+      window.handleBoardDragOver = handleBoardDragOver;
+      window.handleBoardDragLeave = handleBoardDragLeave;
+      window.handleBoardDrop = handleBoardDrop;
+      window.removeMachineFromSlot = removeMachineFromSlot;
+      window.resetBoardToAutoGenerated = resetBoardToAutoGenerated;
+      window.installPWA = installPWA;
     </script>
   </body>
 </html>
