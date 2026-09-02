@@ -99,6 +99,29 @@ export default {
       return pairs;
     }
 
+    // Kasus 5: Objek dictionary sederhana { "CQI 1": ["1A1", "1A2"], "CQI 2": ["3A1"] }
+    if (typeof rawData === "object" && rawData !== null && !Array.isArray(rawData)) {
+      Object.keys(rawData).forEach((key) => {
+        if (["meta", "planning", "planning_history", "pairs"].includes(key)) return;
+        const val = rawData[key];
+        if (Array.isArray(val)) {
+          const cqiName = String(key).toUpperCase().includes("CQI") ? String(key) : `CQI ${key}`;
+          const cqiNum = String(this.getCqiNumber(cqiName) || "").trim();
+          val.forEach((m) => {
+            const mName = typeof m === "object" ? m.name || m.id : String(m);
+            pairs.push({
+              machineId: mName,
+              machineName: mName,
+              cqiId: cqiName,
+              cqiName: cqiName,
+              cqiNum: cqiNum,
+              timestamp: new Date().toISOString(),
+            });
+          });
+        }
+      });
+    }
+
     return pairs;
   },
 

@@ -19,33 +19,95 @@ export default {
   /**
    * Peta Prioritas CQI ke Workstation (CQI Priority Map)
    * Menyediakan rekomendasi workstation prioritas untuk meminimalkan cross-line walking
+   * - Line A: Hanya 2 workstation terdekat per CQI
+   * - Line B: Disesuaikan 2 atau 3 workstation terdekat per CQI
    */
   CQI_PRIORITY_MAP: {
-    "cqi 1": ["0A", "1A", "2A", "1B"],
-    "cqi 2": ["2A", "1A", "3A", "0A"],
-    "cqi 3": ["3A", "4A", "2A", "5A"],
-    "cqi 4": ["4A", "3A", "5A"],
-    "cqi 5": ["5A", "6A", "4A"],
-    "cqi 6": ["6A", "5A", "7A"],
-    "cqi 7": ["7A", "8A", "6A"],
-    "cqi 8": ["8A", "7A", "9A"],
-    "cqi 9": ["9A", "10A", "8A"],
-    "cqi 10": ["10A", "9A", "9B", "1C", "2C"],
-    "cqi 11": ["1B", "2B", "3B", "1A"],
-    "cqi 12": [],
-    "cqi 13": ["3B", "2B", "1B", "3A", "2A"],
-    "cqi 14": ["5B", "7B", "4B", "0B", "10B", "9B"],
-    "cqi 15": ["5B", "7B", "9B", "6B", "10B", "11B"],
-    "cqi 16": [],
-    "cqi 17": ["3C","9B", "10B", "11B", "1C", "2C"],
-    "cqi 18": ["6C", "5C", "4C", "3C", "2C", "1C", "7C"],
+    // Line A (Tepat 2 workstation terdekat)
+    "cqi 1": ["1A", "0A"],
+    "cqi 2": ["2A", "1A"],
+    "cqi 3": ["3A", "2A"],
+    "cqi 4": ["4A", "3A"],
+    "cqi 5": ["5A", "4A"],
+    "cqi 6": ["6A", "5A"],
+    "cqi 7": ["7A", "6A"],
+    "cqi 8": ["8A", "7A"],
+    "cqi 9": ["9A", "8A"],
+    "cqi 10": ["10A", "9A"],
+
+    // Line B (2 atau 3 workstation terdekat)
+    "cqi 11": ["1B", "2B", "0B"],
+    "cqi 13": ["2B", "3B", "1B"],
+    "cqi 14": ["5B", "6B", "4B"],
+    "cqi 15": ["7B", "8B", "6B"],
+    "cqi 16": ["8B", "9B", "7B"],
+    "cqi 17": ["10B", "11B", "9B"],
     "cqi 19": ["OT"],
+    "cqi 21": ["2B", "3B", "1B"],
+    "cqi 22": ["6B", "5B", "4B"],
+    "cqi 23": ["6B", "7B", "5B"],
+    "cqi 24": ["WW", "1C", "2C"],
+    "cqi 25": ["7B", "8B", "9B"],
+
+     // Line C (2 atau 3 workstation terdekat)
+    "cqi 12": ["10B", "11B", "9B"],
+    "cqi 18": ["3C", "2C", "1C", "4C"],
     "cqi 20": ["10C", "9C", "8C", "7C", "6C", "5C"],
-    "cqi 21": [],
-    "cqi 22": [],
-    "cqi 23": [],
-    "cqi 24": ["WW", "1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C"],
-    "cqi 25": ["7B", "8B", "9B", "6B", "10B", "8A"],
+  },
+
+  /**
+   * Cek apakah relasi workstation dan CQI terlalu jauh secara fisik di denah pabrik
+   * @param {string} wsKey - Kode workstation (misal: '10B', '9B')
+   * @param {string} cqiNum - Nomor CQI (misal: '13', '11')
+   * @returns {boolean}
+   */
+  isFarWorkstationForCqi(wsKey, cqiNum) {
+    const ws = String(wsKey || "").trim().toUpperCase();
+    const num = String(cqiNum || "").trim();
+
+    // 8B, 9B, 10B, 11B ke CQI 11, 13, 21 terlalu jauh (ujung timur ke ujung barat Line B)
+    if (
+      (ws === "8B" || ws === "9B" || ws === "10B" || ws === "11B") &&
+      (num === "11" || num === "13" || num === "21")
+    ) {
+      return true;
+    }
+
+    // 0B, 1B, 2B, 3B ke CQI 15, 16, 17, 25, 12 terlalu jauh (ujung barat ke ujung timur Line B)
+    if (
+      (ws === "0B" || ws === "1B" || ws === "2B" || ws === "3B") &&
+      (num === "15" || num === "16" || num === "17" || num === "25" || num === "12")
+    ) {
+      return true;
+    }
+
+    // 7A, 8A, 9A, 10A ke CQI 1, 2, 3 terlalu jauh (ujung timur ke ujung barat Line A)
+    if (
+      (ws === "7A" || ws === "8A" || ws === "9A" || ws === "10A") &&
+      (num === "1" || num === "2" || num === "3")
+    ) {
+      return true;
+    }
+
+    // 0A, 1A, 2A, 3A ke CQI 8, 9, 10 terlalu jauh (ujung barat ke ujung timur Line A)
+    if (
+      (ws === "0A" || ws === "1A" || ws === "2A" || ws === "3A") &&
+      (num === "8" || num === "9" || num === "10")
+    ) {
+      return true;
+    }
+
+    // 0A, 1A ke CQI 6, 7 juga terlalu jauh
+    if ((ws === "0A" || ws === "1A") && (num === "6" || num === "7")) {
+      return true;
+    }
+
+    // 9A, 10A ke CQI 4, 5 juga terlalu jauh
+    if ((ws === "9A" || ws === "10A") && (num === "4" || num === "5")) {
+      return true;
+    }
+
+    return false;
   },
 
   /**
@@ -77,6 +139,29 @@ export default {
     )
       return "LINE B";
     if (num === 17 || num === 18 || num === 20) return "LINE C";
+    return "OTHER";
+  },
+
+  /**
+   * Mengambil nama line utama (LINE A, LINE B, LINE C, OT, WW) dari sebuah mesin
+   * @param {Object} m - Objek Mesin
+   * @param {Array} labels - Label map
+   * @returns {string} 'LINE A', 'LINE B', 'LINE C', 'OT', 'WW', atau 'OTHER'
+   */
+  getMachineLine(m, labels = []) {
+    if (!m) return "OTHER";
+    if (this.isOtMachine(m)) return "OT";
+    if (this.isWwMachine(m)) return "WW";
+    const ws = this.getWorkstationKey(m, labels).toUpperCase();
+    if (ws.endsWith("A") || ws.includes("A")) return "LINE A";
+    if (ws.endsWith("B") || ws.includes("B")) return "LINE B";
+    if (ws.endsWith("C") || ws.includes("C")) return "LINE C";
+    const line = String(m.line || "").toUpperCase();
+    if (line.includes("LINE A") || line === "A") return "LINE A";
+    if (line.includes("LINE B") || line === "B") return "LINE B";
+    if (line.includes("LINE C") || line === "C") return "LINE C";
+    if (line.includes("WW")) return "WW";
+    if (line.includes("OT")) return "OT";
     return "OTHER";
   },
 
@@ -341,6 +426,211 @@ export default {
       return false;
     }
 
+    return true;
+  },
+
+  /**
+   * Cek apakah sebuah mesin berada di baris depan workstation (menghadap lorong tengah Line A & Line B)
+   * Di setiap workstation ada 2 mesin terdepan yang paling dekat dengan lorong tengah.
+   * @param {Object} m - Objek Mesin
+   * @param {Array} allMachines - Semua mesin pabrik
+   * @param {Array} labels - Label map
+   * @returns {boolean}
+   */
+  isFrontRowMachine(m, allMachines = [], labels = []) {
+    if (!m) return false;
+    const mLine = this.getMachineLine(m, labels);
+    if (mLine !== "LINE A" && mLine !== "LINE B") return false;
+
+    const wsKey = this.getWorkstationKey(m, labels).toUpperCase();
+
+    // Jika ada data workstation machines, urutkan berdasarkan kedekatan ke lorong tengah (baris 9-11)
+    if (Array.isArray(allMachines) && allMachines.length > 0) {
+      const wsMachines = allMachines.filter(
+        (om) => this.getWorkstationKey(om, labels).toUpperCase() === wsKey,
+      );
+      if (wsMachines.length <= 2) return true; // Workstation dengan <=2 mesin otomatis semua di baris depan
+
+      if (mLine === "LINE A") {
+        // Line A: lorong tengah di baris 9 -> sort descending berdasarkan row (makin besar row, makin dekat lorong)
+        const sorted = [...wsMachines].sort(
+          (a, b) => (b.position?.row || 0) - (a.position?.row || 0),
+        );
+        const frontTwo = sorted.slice(0, 2);
+        return frontTwo.some(
+          (fm) =>
+            fm.id === m.id ||
+            this.normalizeName(fm.name) === this.normalizeName(m.name),
+        );
+      } else if (mLine === "LINE B") {
+        // Line B: lorong tengah di baris 11 -> sort ascending berdasarkan row (makin kecil row, makin dekat lorong)
+        const sorted = [...wsMachines].sort(
+          (a, b) => (a.position?.row || 99) - (b.position?.row || 99),
+        );
+        const frontTwo = sorted.slice(0, 2);
+        return frontTwo.some(
+          (fm) =>
+            fm.id === m.id ||
+            this.normalizeName(fm.name) === this.normalizeName(m.name),
+        );
+      }
+    }
+
+    // Fallback berbasis row statis
+    const row =
+      m.position && typeof m.position.row === "number" ? m.position.row : null;
+    if (row === null) return false;
+    if (mLine === "LINE A") {
+      return (
+        row >= 7 ||
+        (wsKey === "1A" && row >= 6) ||
+        (wsKey === "3A" && row >= 6) ||
+        wsKey === "0A"
+      );
+    }
+    if (mLine === "LINE B") {
+      return row <= 13;
+    }
+    return false;
+  },
+
+  /**
+   * Logika Penyeberangan Dinamis (Dynamic Cross-Line):
+   * 1. 2 Mesin Depan di setiap Workstation Line A / Line B diperbolehkan menyeberang (cross-line) jika CQI seberang membutuhkannya.
+   * 2. Jika 2 Mesin Depan TIDAK RUNNING (OFF), maka 2 Mesin Belakang otomatis menjadi baris aktif terdepan dan juga diperbolehkan menyeberang.
+   * 3. Line C tidak memiliki aturan lorong tengah ini (Line C tetap terisolasi di Line C).
+   *
+   * @param {Object} m - Objek Mesin
+   * @param {Object|string} targetCqi - Objek CQI atau string ID
+   * @param {Array} runningMachines - Daftar mesin yang sedang running saat ini
+   * @param {Array} allMachines - Seluruh data mesin pabrik dari peta
+   * @param {Array} labels - Label peta
+   * @returns {boolean}
+   */
+  isCrossLineAllowed(
+    m,
+    targetCqi,
+    runningMachines = [],
+    allMachines = [],
+    labels = [],
+  ) {
+    if (!m || !targetCqi) return false;
+    const mLine = this.getMachineLine(m, labels);
+    const cqiLine = this.getCqiPrimaryLine(targetCqi);
+    const cqiNum = String(this.getCqiNumber(targetCqi));
+
+    // 1. Same line selalu diperbolehkan
+    if (mLine === cqiLine) return true;
+
+    // 2. Mesin OT strictly hanya CQI 19
+    if (this.isOtMachine(m) || cqiNum === "19") {
+      return this.isOtMachine(m) && cqiNum === "19";
+    }
+
+    // 3. CQI 24 (WW): Hanya WW & APK Line C
+    if (cqiNum === "24") {
+      if (this.isWwMachine(m)) return true;
+      return (
+        mLine === "LINE C" &&
+        (this.isPouchMachine(m) ||
+          String(m.name || m.id || "").toUpperCase().startsWith("APK"))
+      );
+    }
+
+    // 4. CQI 15 (Line B): Boleh mengambil 1C dan 2C (Line C)
+    if (cqiNum === "15" && mLine === "LINE C") {
+      const ws = this.getWorkstationKey(m, labels).toUpperCase();
+      return ws === "1C" || ws === "2C";
+    }
+
+    // 5. CQI 10 (Line A): Boleh mengambil 9B/10B/1C/2C jika diizinkan
+    if (cqiNum === "10") {
+      const ws = this.getWorkstationKey(m, labels).toUpperCase();
+      if (ws === "9B" || ws === "10B" || ws === "1C" || ws === "2C") {
+        return true;
+      }
+    }
+
+    // 6. Dynamic Cross-Line Antara Line A dan Line B
+    const isAtoB = mLine === "LINE A" && cqiLine === "LINE B";
+    const isBtoA = mLine === "LINE B" && cqiLine === "LINE A";
+
+    if (isAtoB || isBtoA) {
+      const wsKey = this.getWorkstationKey(m, labels).toUpperCase();
+      const pool =
+        Array.isArray(allMachines) && allMachines.length > 0
+          ? allMachines
+          : runningMachines;
+
+      // Cek apakah mesin ini adalah baris depan
+      if (this.isFrontRowMachine(m, pool, labels)) {
+        return true; // 2 Mesin Depan selalu boleh menyeberang
+      }
+
+      // Jika mesin ini adalah baris belakang, periksa apakah ada mesin depan di workstation yang sama yang sedang RUNNING
+      const wsMachines = pool.filter(
+        (otherM) =>
+          this.getWorkstationKey(otherM, labels).toUpperCase() === wsKey,
+      );
+
+      const frontMachines = wsMachines.filter((otherM) =>
+        this.isFrontRowMachine(otherM, pool, labels),
+      );
+
+      // Cek apakah ada mesin depan yang sedang RUNNING di batch runningMachines
+      const isAnyFrontRunning = frontMachines.some((fm) =>
+        runningMachines.some(
+          (rm) =>
+            rm.id === fm.id ||
+            this.normalizeName(rm.name) === this.normalizeName(fm.name),
+        ),
+      );
+
+      // Jika 2 mesin depan TIDAK running (OFF), maka mesin belakang menjadi baris terdepan aktif dan boleh menyeberang
+      if (!isAnyFrontRunning) {
+        return true;
+      }
+
+      // Jika mesin depan sedang running, maka mesin belakang dilarang menyeberang
+      return false;
+    }
+
+    // Line C tidak diizinkan menyeberang ke Line A atau Line B (selain aturan khusus CQI 15 / CQI 24)
+    return false;
+  },
+
+  /**
+   * Cek kelayakan menyeluruh penempatan mesin ke slot CQI (Cluster + Kapasitas + Cross-Line)
+   * @param {Object} m - Objek Mesin
+   * @param {Object} slot - Slot CQI
+   * @param {Array} runningMachines - Mesin running
+   * @param {Array} allMachines - Semua mesin
+   * @param {Array} labels - Label map
+   * @returns {boolean}
+   */
+  canAddMachineToSlot(
+    m,
+    slot,
+    runningMachines = [],
+    allMachines = [],
+    labels = [],
+  ) {
+    const wsKey = this.getWorkstationKey(m, labels).toUpperCase();
+    const cqiNum = String(slot.cqiNum || this.getCqiNumber(slot.cqi) || "");
+    if (this.isFarWorkstationForCqi(wsKey, cqiNum)) return false;
+
+    if (!this.canAddMachineToSlotCluster(m, slot)) return false;
+    if (
+      !this.isCrossLineAllowed(
+        m,
+        slot.cqi,
+        runningMachines,
+        allMachines,
+        labels,
+      )
+    ) {
+      return false;
+    }
     return true;
   },
 

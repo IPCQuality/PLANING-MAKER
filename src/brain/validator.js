@@ -181,7 +181,27 @@ export default {
       }
     }
 
-    // 6. Verifikasi ketersediaan Manpower Core
+    // 6. Verifikasi aturan penyeberangan jalur (Dynamic Cross-Line Rule)
+    slots.forEach((s) => {
+      const cqiNum = this.getCqiNumber(s.cqi);
+      s.machines.forEach((m) => {
+        const allowed = this.isCrossLineAllowed(
+          m,
+          s.cqi,
+          machines,
+          [],
+          [],
+        );
+        if (!allowed) {
+          const ws = m.workstation || m.ws || "";
+          violations.push(
+            `Mesin ${m.name || m.id} (WS: ${ws}) di CQI ${cqiNum} melanggar aturan Cross-Line: Mesin baris belakang dilarang menyeberang jika mesin baris depan aktif / Line C dilarang keluar.`,
+          );
+        }
+      });
+    });
+
+    // 7. Verifikasi ketersediaan Manpower Core
     const emptyCoreSlots = slots.filter(
       (s) => s.machines.length > 0 && s.core === 0,
     );

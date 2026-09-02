@@ -87,6 +87,19 @@ export default {
       });
     }
 
+    // D. FITUR JARAK DI AKHIR OUTPUT
+    let totalPlanDist = slots.totalDistance;
+    if (totalPlanDist === undefined) {
+      totalPlanDist = 0;
+      slots.forEach((s) => {
+        (s.machines || []).forEach((m) => {
+          totalPlanDist += typeof this.calculateDistance === "function" ? this.calculateDistance(m, s.cqi) : 0;
+        });
+      });
+    }
+    const avgPlanDist = slots.avgDistance || (slots.length > 0 ? (totalPlanDist / slots.length).toFixed(1) : 0);
+    out += `\n📍 *ESTIMASI JARAK TEMPUH LORONG:* ${totalPlanDist} langkah (~${Math.round(totalPlanDist * 0.8)} meter) | Rata-rata: ${avgPlanDist} langkah/CQI\n`;
+
     return out;
   },
 
